@@ -7,7 +7,6 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":im-domain"))
     testImplementation(kotlin("test"))
 }
 
