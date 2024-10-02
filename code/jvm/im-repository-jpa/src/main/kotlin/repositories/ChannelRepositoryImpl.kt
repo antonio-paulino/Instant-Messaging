@@ -1,13 +1,17 @@
 package repositories
 
 import channel.Channel
-import channel.ChannelMember
 import channel.ChannelRepository
-import invitations.ChannelRole
+import channel.ChannelRole
+import invitations.ChannelInvitation
+import invitations.ChannelInvitationStatus
 import jakarta.persistence.EntityManager
+import messages.Message
 import model.channel.ChannelDTO
 import model.channel.ChannelMemberDTO
-import model.channel.ChannelMemberID
+import model.channel.ChannelMemberId
+import model.invitation.ChannelInvitationDTO
+import model.message.MessageDTO
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
@@ -20,7 +24,7 @@ import java.util.*
 interface ChannelRepositoryJpa : JpaRepository<ChannelDTO, Long>
 
 @Repository
-interface ChannelMemberRepositoryJpa : JpaRepository<ChannelMemberDTO, ChannelMemberID>
+interface ChannelMemberRepositoryJpa : JpaRepository<ChannelMemberDTO, ChannelMemberId>
 
 @Component
 class ChannelRepositoryImpl : ChannelRepository {
@@ -45,37 +49,43 @@ class ChannelRepositoryImpl : ChannelRepository {
 
     override fun findByPartialName(name: String): Iterable<Channel> {
         val query = entityManager.createQuery(
-            "SELECT c FROM ChannelDTO c WHERE c.name LIKE :name",
+            "SELECT c FROM ChannelDTO c WHERE lower(c.name ) LIKE lower(:name)",
             ChannelDTO::class.java
         )
         query.setParameter("name", "%$name%")
         return query.resultList.map { it.toDomain() }
     }
 
-    override fun getUserRoles(channel: Channel): Map<User, ChannelRole> {
+    override fun getInvitations(channel: Channel, status: ChannelInvitationStatus): Iterable<ChannelInvitation> {
         val query = entityManager.createQuery(
-            "SELECT m FROM ChannelMemberDTO m WHERE m.channel = :channel",
+            "SELECT i FROM ChannelInvitationDTO i WHERE i.channel.id = :channelId AND i.status = :status",
+            ChannelInvitationDTO::class.java
+        )
+        query.setParameter("channelId", channel.id)
+        query.setParameter("status", status)
+        return query.resultList.map { it.toDomain() }
+    }
+
+    override fun getMessages(channel: Channel): Iterable<Message> {
+        val query = entityManager.createQuery(
+            "SELECT m FROM MessageDTO m WHERE m.channel.id = :channelId",
+            MessageDTO::class.java
+        )
+        query.setParameter("channelId", channel.id)
+        return query.resultList.map { it.toDomain() }
+    }
+
+    override fun getMember(channel: Channel, user: User): Pair<User, ChannelRole>? {
+        val query = entityManager.createQuery(
+            "SELECT m FROM ChannelMemberDTO m WHERE m.id.channelID = :channelId AND m.id.userID = :userId",
             ChannelMemberDTO::class.java
         )
-        query.setParameter("channel", ChannelDTO.fromDomain(channel))
-        return query.resultList.associate { it.user!!.toDomain() to it.role!!.toDomain() }
-    }
-
-    override fun addMember(channel: Channel, user: User, role: ChannelRole): Channel {
-        val newMember = ChannelMemberDTO.fromDomain(ChannelMember(channel, user, role))
-        val newChannel = channel.copy(members = channel.members + user)
-        channelMemberRepositoryJpa.save(newMember)
-        return save(newChannel).also {
-            channelRepositoryJpa.flush()
-            channelMemberRepositoryJpa.flush()
-        }
-    }
-
-    override fun removeMember(channel: Channel, user: User): Channel {
-        val channelMember = channelMemberRepositoryJpa.findById(ChannelMemberID(channel.id, user.id)).get()
-        val newChannel = channel.copy(members = channel.members - user)
-        channelMemberRepositoryJpa.delete(channelMember)
-        return save(newChannel)
+        query.setParameter("channelId", channel.id)
+        query.setParameter("userId", user.id)
+        val result = query.resultList.firstOrNull()
+        return if (result != null) {
+            Pair(result.user.toDomain(), result.role.toDomain())
+        } else null
     }
 
     override fun save(entity: Channel): Channel {
@@ -90,7 +100,7 @@ class ChannelRepositoryImpl : ChannelRepository {
         return channelRepositoryJpa.findById(id).map { it.toDomain() }
     }
 
-    override fun findAll(): Iterable<Channel> {
+    override fun findAll(): List<Channel> {
         return channelRepositoryJpa.findAll().map { it.toDomain() }
     }
 
@@ -139,5 +149,11 @@ class ChannelRepositoryImpl : ChannelRepository {
 
     override fun deleteAllById(ids: Iterable<Long>) {
         channelRepositoryJpa.deleteAllById(ids)
+    }
+
+    override fun flush() {
+        entityManager.flush()
+        channelRepositoryJpa.flush()
+        channelMemberRepositoryJpa.flush()
     }
 }

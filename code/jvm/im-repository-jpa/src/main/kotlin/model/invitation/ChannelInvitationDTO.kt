@@ -1,16 +1,17 @@
 package model.invitation
 import invitations.ChannelInvitation
 import invitations.ChannelInvitationStatus
-import invitations.ChannelRole
+import channel.ChannelRole
 import jakarta.persistence.*
 import model.channel.ChannelDTO
+import model.channel.ChannelRoleConverter
 import model.user.UserDTO
 import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction
 import java.time.LocalDateTime
 
 @Entity
-@Table(name = "ChannelInvitation")
+@Table(name = "channel_invitation")
 data class ChannelInvitationDTO(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

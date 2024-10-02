@@ -1,7 +1,5 @@
 package sessions
 
-import tokens.AccessToken
-import tokens.RefreshToken
 import user.User
 import java.time.LocalDateTime
 
@@ -11,8 +9,6 @@ data class Session(
     val id: Long = 0,
     val user: User,
     val expiresAt: LocalDateTime,
-    val accessTokens: List<AccessToken>,
-    val refreshTokens: List<RefreshToken>
 ) {
     fun refresh(): Session = copy(expiresAt = LocalDateTime.now().plusDays(SESSION_DURATION_DAYS))
 }

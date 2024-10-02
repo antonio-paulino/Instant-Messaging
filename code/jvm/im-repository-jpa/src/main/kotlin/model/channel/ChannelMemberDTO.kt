@@ -1,47 +1,33 @@
 package model.channel
 
-import channel.ChannelMember
+import jakarta.persistence.Column
+import jakarta.persistence.Convert
+import jakarta.persistence.EmbeddedId
 import jakarta.persistence.Entity
+import jakarta.persistence.FetchType
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToOne
+import jakarta.persistence.MapsId
+import jakarta.persistence.Table
 import model.user.UserDTO
 
-import jakarta.persistence.*
-import org.hibernate.annotations.OnDelete
-import org.hibernate.annotations.OnDeleteAction
-
 @Entity
-@Table(name = "channelMember")
+@Table(name = "channel_member")
 data class ChannelMemberDTO(
     @EmbeddedId
-    val id: ChannelMemberID = ChannelMemberID(),
+    val id: ChannelMemberId? = null,
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
-    @MapsId("channelId")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("channelID")
     @JoinColumn(name = "channel_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    val channel: ChannelDTO? = ChannelDTO(),
+    val channel: ChannelDTO = ChannelDTO(),
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
-    @MapsId("userId")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("userID")
     @JoinColumn(name = "user_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    val user: UserDTO? = UserDTO(),
+    val user: UserDTO = UserDTO(),
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "role", nullable = false)
-    val role: ChannelRoleDTO? = ChannelRoleDTO.MEMBER
-) {
-    companion object {
-        fun fromDomain(channelMember: ChannelMember): ChannelMemberDTO = ChannelMemberDTO(
-            id = ChannelMemberID(channelMember.channel.id, channelMember.user.id),
-            channel = ChannelDTO.fromDomain(channelMember.channel),
-            user = UserDTO.fromDomain(channelMember.user),
-            role = ChannelRoleDTO.valueOf(channelMember.role.name)
-        )
-    }
-
-    fun toDomain(): ChannelMember = ChannelMember(
-        channel = channel!!.toDomain(),
-        user = user!!.toDomain(),
-        role = role!!.toDomain()
-    )
-}
+    @Column(name = "role")
+    @Convert(converter = ChannelRoleConverter::class)
+    val role: ChannelRoleDTO = ChannelRoleDTO.MEMBER
+)

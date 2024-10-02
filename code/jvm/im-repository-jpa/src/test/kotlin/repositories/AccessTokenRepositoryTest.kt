@@ -46,8 +46,6 @@ open class AccessTokenRepositoryTest {
             Session(
                 user = testUser,
                 expiresAt = LocalDateTime.now().plusDays(90),
-                accessTokens = emptyList(),
-                refreshTokens = emptyList()
             )
         )
 

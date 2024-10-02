@@ -1,5 +1,9 @@
 package repositories
 
+import channel.Channel
+import channel.ChannelRole
+import invitations.ChannelInvitation
+import invitations.ChannelInvitationStatus
 import jakarta.transaction.Transactional
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
@@ -9,7 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.test.context.ContextConfiguration
+import sessions.SESSION_DURATION_DAYS
+import sessions.Session
 import user.User
+import java.time.LocalDateTime
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
@@ -21,12 +28,53 @@ open class UserRepositoryTest {
     @Autowired
     private lateinit var userRepository: UserRepositoryImpl
 
-    private var testUser = User(1, "user", "password")
-    private var testUser2 = User(2, "user2", "password2")
+    @Autowired
+    private lateinit var sessionRepository: SessionRepositoryImpl
+
+    @Autowired
+    private lateinit var channelRepository: ChannelRepositoryImpl
+
+    @Autowired
+    private lateinit var channelInvitationRepository: ChannelInvitationRepositoryImpl
+
+    private lateinit var testUser: User
+    private lateinit var testUser2: User
+
+    private lateinit var testOwnedChannel: Channel
+    private lateinit var testInvitedChannel: Channel
+
+    private lateinit var testInvitation: ChannelInvitation
+
+    private lateinit var testSession: Session
 
     @BeforeEach
     open fun setUp() {
         userRepository.deleteAll()
+        sessionRepository.deleteAll()
+        channelRepository.deleteAll()
+        channelInvitationRepository.deleteAll()
+
+        testUser = User(1, "user1", "password")
+        testUser2 = User(2, "user2", "password")
+
+        testSession = Session(
+            user = testUser,
+            expiresAt = LocalDateTime.now().plusDays(SESSION_DURATION_DAYS),
+        )
+
+        testOwnedChannel = Channel(1, "General", testUser, true, members = mapOf())
+        testInvitedChannel = Channel(2, "General", testUser2, true, members = mapOf())
+
+        testInvitation = ChannelInvitation(
+            1L,
+            testOwnedChannel,
+            testUser2,
+            testUser,
+            ChannelInvitationStatus.PENDING,
+            ChannelRole.MEMBER,
+            LocalDateTime.now().plusDays(1)
+        )
+
     }
 
     @Test
@@ -141,6 +189,136 @@ open class UserRepositoryTest {
 
     @Test
     @Transactional
+    open fun `get sessions should return empty list`() {
+        userRepository.save(testUser)
+        val sessions = userRepository.getSessions(testUser)
+        assertTrue(sessions.none())
+    }
+
+    @Test
+    @Transactional
+    open fun `get sessions should return 1 session`() {
+        testUser = userRepository.save(testUser)
+        testSession = testSession.copy(user = testUser)
+        sessionRepository.save(testSession)
+        val sessions = userRepository.getSessions(testUser)
+        assertEquals(1, sessions.size)
+    }
+
+    @Test
+    @Transactional
+    open fun `get joined channels should return empty list`() {
+        testUser = userRepository.save(testUser)
+
+        testOwnedChannel = testOwnedChannel.copy(owner = testUser)
+        testInvitedChannel = testInvitedChannel.copy(owner = testUser)
+
+        channelRepository.save(testOwnedChannel)
+        channelRepository.save(testInvitedChannel)
+
+        val channels = userRepository.getJoinedChannels(testUser)
+        assertTrue(channels.none())
+    }
+
+    @Test
+    @Transactional
+    open fun `get joined channels should return 1 channel`() {
+        testUser = userRepository.save(testUser)
+        testUser2 = userRepository.save(testUser2)
+
+        testOwnedChannel = testOwnedChannel.copy(owner = testUser)
+        testInvitedChannel = testInvitedChannel.copy(owner = testUser2, members = mapOf(testUser to ChannelRole.MEMBER))
+
+        channelRepository.save(testOwnedChannel)
+        testInvitedChannel = channelRepository.save(testInvitedChannel)
+
+        val channels = userRepository.getJoinedChannels(testUser)
+        assertEquals(1, channels.size)
+        assertEquals(ChannelRole.MEMBER, channels[testInvitedChannel])
+    }
+
+    @Test
+    @Transactional
+    open fun `get owned channels should be empty`() {
+        testUser = userRepository.save(testUser)
+        testUser2 = userRepository.save(testUser2)
+
+        testOwnedChannel = testOwnedChannel.copy(owner = testUser)
+        testInvitedChannel = testInvitedChannel.copy(owner = testUser)
+
+        channelRepository.save(testOwnedChannel)
+        channelRepository.save(testInvitedChannel)
+
+        val channels = userRepository.getOwnedChannels(testUser2)
+        assertTrue(channels.none())
+    }
+
+    @Test
+    @Transactional
+    open fun `get owned channels should return 1 channel`() {
+        testUser = userRepository.save(testUser)
+        testUser2 = userRepository.save(testUser2)
+
+        testOwnedChannel = testOwnedChannel.copy(owner = testUser)
+        testInvitedChannel = testInvitedChannel.copy(owner = testUser2)
+
+        testOwnedChannel = channelRepository.save(testOwnedChannel)
+        testInvitedChannel = channelRepository.save(testInvitedChannel)
+
+        val channels = userRepository.getOwnedChannels(testUser)
+        assertEquals(1, channels.size)
+        assertEquals(testOwnedChannel, channels[0])
+    }
+
+    @Test
+    @Transactional
+    open fun `get invitations should return empty list`() {
+        testUser = userRepository.save(testUser)
+
+        testOwnedChannel = testOwnedChannel.copy(owner = testUser)
+        testInvitedChannel = testInvitedChannel.copy(owner = testUser)
+
+        channelRepository.save(testOwnedChannel)
+        channelRepository.save(testInvitedChannel)
+
+        val channels = userRepository.getInvitations(testUser)
+        assertTrue(channels.none())
+    }
+
+    @Test
+    @Transactional
+    open fun `get invitations should return 1 invitation`() {
+        testUser = userRepository.save(testUser)
+        testUser2 = userRepository.save(testUser2)
+
+        testOwnedChannel = testOwnedChannel.copy(owner = testUser)
+        testInvitedChannel = testInvitedChannel.copy(owner = testUser2)
+
+        channelRepository.save(testOwnedChannel)
+        testInvitedChannel = channelRepository.save(testInvitedChannel)
+
+        testInvitation = testInvitation.copy(
+            inviter = testUser,
+            invitee = testUser2,
+            channel = testInvitedChannel
+        )
+
+        channelInvitationRepository.save(testInvitation)
+
+        val channels = userRepository.getInvitations(testUser2)
+        assertEquals(1, channels.size)
+    }
+
+    @Test
+    @Transactional
+    open fun `get owned channels should return empty list`() {
+        userRepository.save(testUser)
+        val channels = userRepository.getOwnedChannels(testUser)
+        assertTrue(channels.none())
+    }
+
+    @Test
+    @Transactional
     open fun `should not save user with duplicate name`() {
         userRepository.save(testUser)
 
@@ -157,12 +335,10 @@ open class UserRepositoryTest {
         val user1 = User(
             name = "john.doe",
             password = "password1",
-            joinedChannels = emptyList()
         )
         val user2 = User(
             name = "jane.doe",
             password = "password2",
-            joinedChannels = emptyList()
         )
         userRepository.save(user1)
         userRepository.save(user2)
@@ -176,12 +352,10 @@ open class UserRepositoryTest {
         val user1 = User(
             name = "john.doe",
             password = "password1",
-            joinedChannels = emptyList()
         )
         val user2 = User(
             name = "jane.doe",
             password = "password2",
-            joinedChannels = emptyList()
         )
         userRepository.save(user1)
         userRepository.save(user2)

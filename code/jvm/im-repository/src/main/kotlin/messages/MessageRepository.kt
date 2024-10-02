@@ -1,8 +1,28 @@
 package messages
 
 import Repository
+import channel.Channel
 
+/**
+ * [Repository] for [Message] entities.
+ */
 interface MessageRepository : Repository<Message, Long> {
-    fun findByChannelId(channelId: Long): Iterable<Message>
-    fun findLatest(channelId: Long, pages: Int, pageSize: Int): Iterable<Message>
+
+    /**
+     * Finds all messages in a channel.
+     *
+     * @param channel the channel
+     * @return the messages in the channel
+     */
+    fun findByChannel(channel: Channel): Iterable<Message>
+
+    /**
+     * Finds the latest messages in a channel.
+     *
+     * @param channel the channel
+     * @param pages the number of pages to skip
+     * @param pageSize the number of messages to return
+     * @return the latest messages in the channel
+     */
+    fun findLatest(channel: Channel, pages: Int, pageSize: Int): Iterable<Message>
 }

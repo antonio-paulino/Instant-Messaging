@@ -2,6 +2,8 @@ package repositories
 
 import jakarta.persistence.EntityManager
 import model.session.SessionDTO
+import model.token.AccessTokenDTO
+import model.token.RefreshTokenDTO
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
@@ -9,6 +11,8 @@ import org.springframework.stereotype.Component
 import org.springframework.stereotype.Repository
 import sessions.Session
 import sessions.SessionRepository
+import tokens.AccessToken
+import tokens.RefreshToken
 import java.util.*
 
 @Repository
@@ -23,6 +27,24 @@ class SessionRepositoryImpl : SessionRepository {
     @Autowired
     private lateinit var entityManager: EntityManager
 
+    override fun getAccessTokens(session: Session): List<AccessToken> {
+        val query = entityManager.createQuery(
+            "SELECT a FROM AccessTokenDTO a WHERE a.session.id = :sessionId",
+            AccessTokenDTO::class.java
+        )
+        query.setParameter("sessionId", session.id)
+        return query.resultList.map { it.toDomain() }
+    }
+
+    override fun getRefreshTokens(session: Session): List<RefreshToken> {
+        val query = entityManager.createQuery(
+            "SELECT r FROM RefreshTokenDTO r WHERE r.session.id = :sessionId",
+            RefreshTokenDTO::class.java
+        )
+        query.setParameter("sessionId", session.id)
+        return query.resultList.map { it.toDomain() }
+    }
+
     override fun save(entity: Session): Session {
         return sessionRepositoryJpa.save(SessionDTO.fromDomain(entity)).toDomain()
     }
@@ -35,7 +57,7 @@ class SessionRepositoryImpl : SessionRepository {
         return sessionRepositoryJpa.findById(id).map { it.toDomain() }
     }
 
-    override fun findAll(): Iterable<Session> {
+    override fun findAll(): List<Session> {
         return sessionRepositoryJpa.findAll().map { it.toDomain() }
     }
 
@@ -84,5 +106,10 @@ class SessionRepositoryImpl : SessionRepository {
 
     override fun deleteAllById(ids: Iterable<Long>) {
         sessionRepositoryJpa.deleteAllById(ids)
+    }
+
+    override fun flush() {
+        entityManager.flush()
+        sessionRepositoryJpa.flush()
     }
 }

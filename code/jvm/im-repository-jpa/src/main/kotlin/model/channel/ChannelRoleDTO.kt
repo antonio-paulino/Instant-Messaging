@@ -1,6 +1,8 @@
 package model.channel
 
-import invitations.ChannelRole
+import channel.ChannelRole
+import jakarta.persistence.AttributeConverter
+import jakarta.persistence.Converter
 
 enum class ChannelRoleDTO {
     OWNER,
@@ -23,5 +25,16 @@ enum class ChannelRoleDTO {
             MEMBER -> ChannelRole.MEMBER
             GUEST -> ChannelRole.GUEST
         }
+    }
+}
+
+@Converter(autoApply = true)
+class ChannelRoleConverter : AttributeConverter<ChannelRoleDTO, String> {
+    override fun convertToDatabaseColumn(attribute: ChannelRoleDTO?): String {
+        return attribute?.name ?: ""
+    }
+
+    override fun convertToEntityAttribute(dbData: String?): ChannelRoleDTO {
+        return dbData?.let { ChannelRoleDTO.valueOf(it) } ?: ChannelRoleDTO.MEMBER
     }
 }

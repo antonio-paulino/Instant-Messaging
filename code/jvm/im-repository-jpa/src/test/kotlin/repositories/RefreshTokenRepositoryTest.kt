@@ -46,16 +46,12 @@ open class RefreshTokenRepositoryTest {
             Session(
                 user = testUser,
                 expiresAt = LocalDateTime.now().plusDays(90),
-                accessTokens = emptyList(),
-                refreshTokens = emptyList()
             )
         )
         testSession2 = sessionRepository.save(
             Session(
                 user = testUser,
                 expiresAt = LocalDateTime.now().plusDays(91), // later expiration to test sorting
-                accessTokens = emptyList(),
-                refreshTokens = emptyList()
             )
         )
 
@@ -77,6 +73,10 @@ open class RefreshTokenRepositoryTest {
         refreshTokenRepository.save(testRefreshToken)
         assertEquals(1, refreshTokenRepository.count())
         sessionRepository.delete(testSession)
+
+        refreshTokenRepository.flush()
+        sessionRepository.flush()
+
         assertEquals(0, refreshTokenRepository.count())
     }
 

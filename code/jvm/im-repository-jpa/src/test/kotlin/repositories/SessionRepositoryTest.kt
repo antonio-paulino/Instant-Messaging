@@ -9,8 +9,11 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ContextConfiguration
 import sessions.SESSION_DURATION_DAYS
 import sessions.Session
+import tokens.AccessToken
+import tokens.RefreshToken
 import user.User
 import java.time.LocalDateTime
+import java.util.*
 import kotlin.test.assertEquals
 
 @SpringBootTest
@@ -23,29 +26,38 @@ open class SessionRepositoryTest {
     @Autowired
     private lateinit var userRepository: UserRepositoryImpl
 
+    @Autowired
+    private lateinit var accessTokenRepository: AccessTokenRepositoryImpl
+
+    @Autowired
+    private lateinit var refreshTokenRepository: RefreshTokenRepositoryImpl
+
     private var testUser = User(1, "user", "password")
 
     private var testSession: Session = Session(
         user = testUser,
         expiresAt = LocalDateTime.now().plusDays(SESSION_DURATION_DAYS),
-        accessTokens = emptyList(),
-        refreshTokens = emptyList(),
     )
 
     private var testSession2 = Session(
         user = testUser,
         expiresAt = LocalDateTime.now().plusDays(SESSION_DURATION_DAYS + 1),
-        accessTokens = emptyList(),
-        refreshTokens = emptyList(),
     )
+
+    private val testAccessToken = AccessToken(UUID.randomUUID(), testSession, LocalDateTime.now().plusDays(1))
+
+    private val testRefreshToken = RefreshToken(UUID.randomUUID(), testSession)
 
     @BeforeEach
     fun setUp() {
         userRepository.deleteAll()
         sessionRepository.deleteAll()
+        accessTokenRepository.deleteAll()
+        refreshTokenRepository.deleteAll()
         testUser = userRepository.save(testUser)
         testSession = testSession.copy(user = testUser)
         testSession2 = testSession2.copy(user = testUser)
+
     }
 
     @Test
@@ -64,8 +76,6 @@ open class SessionRepositoryTest {
             Session(
                 user = testUser,
                 expiresAt = LocalDateTime.now().plusDays(SESSION_DURATION_DAYS),
-                accessTokens = emptyList(),
-                refreshTokens = emptyList(),
             )
         )
         val foundSession = sessionRepository.findById(session.id).get()
@@ -128,6 +138,40 @@ open class SessionRepositoryTest {
         val session2 = sessionRepository.save(testSession2)
         val sessions = sessionRepository.findAllById(listOf(session.id, session2.id))
         assertEquals(2, sessions.count())
+    }
+
+    @Test
+    @Transactional
+    open fun `find access tokens should return empty`() {
+        val session = sessionRepository.save(testSession)
+        val foundTokens = sessionRepository.getAccessTokens(session)
+        assertEquals(0, foundTokens.count())
+    }
+
+    @Test
+    @Transactional
+    open fun `find access tokens should return 1 token`() {
+        val session = sessionRepository.save(testSession)
+        accessTokenRepository.save(testAccessToken.copy(session = session))
+        val foundTokens = sessionRepository.getAccessTokens(session)
+        assertEquals(1, foundTokens.count())
+    }
+
+    @Test
+    @Transactional
+    open fun `find refresh tokens should return empty`() {
+        val session = sessionRepository.save(testSession)
+        val foundTokens = sessionRepository.getRefreshTokens(session)
+        assertEquals(0, foundTokens.count())
+    }
+
+    @Test
+    @Transactional
+    open fun `find refresh tokens should return 1 token`() {
+        val session = sessionRepository.save(testSession)
+        refreshTokenRepository.save(testRefreshToken.copy(session = session))
+        val foundTokens = sessionRepository.getRefreshTokens(session)
+        assertEquals(1, foundTokens.count())
     }
 
     @Test

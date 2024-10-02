@@ -1,4 +1,4 @@
-package invitations
+package channel
 
 enum class ChannelRole {
     OWNER,

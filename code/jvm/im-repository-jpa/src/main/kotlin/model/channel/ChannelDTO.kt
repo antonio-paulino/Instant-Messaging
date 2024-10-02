@@ -3,8 +3,6 @@ package model.channel
 import channel.Channel
 import jakarta.persistence.Entity
 import jakarta.persistence.*
-import model.invitation.ChannelInvitationDTO
-import model.message.MessageDTO
 import model.user.UserDTO
 import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction
@@ -31,14 +29,15 @@ data class ChannelDTO(
     @Column(name = "created_at", nullable = false)
     val createdAt: LocalDateTime = LocalDateTime.now(),
 
-    @OneToMany(mappedBy = "id", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    val messages: List<MessageDTO> = mutableListOf(),
-
-    @OneToMany(mappedBy = "id", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    val members: List<UserDTO> = mutableListOf(),
-
-    @OneToMany(mappedBy = "id", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    val invitations: List<ChannelInvitationDTO> = mutableListOf()
+    @ElementCollection
+    @CollectionTable(
+        name = "channel_member",
+        joinColumns = [JoinColumn(name = "channel_id")],
+    )
+    @MapKeyJoinColumn(name = "user_id")
+    @Column(name = "role")
+    @Convert(converter = ChannelRoleConverter::class)
+    val members: Map<UserDTO, ChannelRoleDTO> = hashMapOf(),
 ) {
     companion object {
         fun fromDomain(channel: Channel): ChannelDTO = ChannelDTO(
@@ -47,9 +46,8 @@ data class ChannelDTO(
             owner = UserDTO.fromDomain(channel.owner),
             isPublic = channel.isPublic,
             createdAt = channel.createdAt,
-            members = channel.members.map { UserDTO.fromDomain(it) },
-            messages = channel.messages.map { MessageDTO.fromDomain(it) },
-            invitations = channel.invitations.map { ChannelInvitationDTO.fromDomain(it) }
+            members = channel.members.mapKeys { UserDTO.fromDomain(it.key) }
+                .mapValues { ChannelRoleDTO.valueOf(it.value.name) },
         )
     }
 
@@ -59,8 +57,7 @@ data class ChannelDTO(
         owner = owner!!.toDomain(),
         isPublic = isPublic,
         createdAt = createdAt,
-        members = members.map { it.toDomain() },
-        messages = messages.map { it.toDomain() },
-        invitations = invitations.map { it.toDomain() }
+        members = members.mapKeys { it.key.toDomain() }
+            .mapValues { it.value.toDomain() },
     )
 }

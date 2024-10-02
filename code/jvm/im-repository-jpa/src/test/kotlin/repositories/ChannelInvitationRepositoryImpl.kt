@@ -3,7 +3,7 @@ package repositories
 import channel.Channel
 import invitations.ChannelInvitation
 import invitations.ChannelInvitationStatus
-import invitations.ChannelRole
+import channel.ChannelRole
 import jakarta.transaction.Transactional
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -51,7 +51,7 @@ open class ChannelInvitationRepositoryTest {
             testInviter,
             testInvitee,
             ChannelInvitationStatus.PENDING,
-            ChannelRole.OWNER,
+            ChannelRole.MEMBER,
             LocalDateTime.now().plusDays(1)
         )
         testInvitation2 = ChannelInvitation(
@@ -100,6 +100,10 @@ open class ChannelInvitationRepositoryTest {
         channelInvitationRepository.save(testInvitation1)
         assertEquals(1, channelInvitationRepository.count())
         channelRepository.delete(testChannel)
+
+        channelRepository.flush()
+        channelInvitationRepository.flush()
+
         assertEquals(0, channelInvitationRepository.count())
     }
 
@@ -109,6 +113,10 @@ open class ChannelInvitationRepositoryTest {
         channelInvitationRepository.save(testInvitation1)
         assertEquals(1, channelInvitationRepository.count())
         userRepository.delete(testInviter)
+
+        userRepository.flush()
+        channelInvitationRepository.flush()
+
         assertEquals(0, channelInvitationRepository.count())
     }
 
@@ -118,6 +126,10 @@ open class ChannelInvitationRepositoryTest {
         channelInvitationRepository.save(testInvitation1)
         assertEquals(1, channelInvitationRepository.count())
         userRepository.delete(testInvitee)
+
+        userRepository.flush()
+        channelInvitationRepository.flush()
+
         assertEquals(0, channelInvitationRepository.count())
     }
 

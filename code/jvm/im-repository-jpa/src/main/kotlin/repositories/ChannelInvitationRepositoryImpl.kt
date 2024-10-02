@@ -35,7 +35,7 @@ class ChannelInvitationRepositoryImpl : ChannelInvitationRepository {
         return channelInvitationRepositoryJpa.findById(id).map { it.toDomain() }
     }
 
-    override fun findAll(): Iterable<ChannelInvitation> {
+    override fun findAll(): List<ChannelInvitation> {
         return channelInvitationRepositoryJpa.findAll().map { it.toDomain() }
     }
 
@@ -84,5 +84,10 @@ class ChannelInvitationRepositoryImpl : ChannelInvitationRepository {
 
     override fun deleteAllById(ids: Iterable<Long>) {
         channelInvitationRepositoryJpa.deleteAllById(ids)
+    }
+
+    override fun flush() {
+        channelInvitationRepositoryJpa.flush()
+        entityManager.flush()
     }
 }

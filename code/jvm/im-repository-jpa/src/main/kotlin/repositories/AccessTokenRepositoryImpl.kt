@@ -35,7 +35,7 @@ class AccessTokenRepositoryImpl : AccessTokenRepository {
         return accessTokenRepositoryJpa.findById(id).map { it.toDomain() }
     }
 
-    override fun findAll(): Iterable<AccessToken> {
+    override fun findAll(): List<AccessToken> {
         return accessTokenRepositoryJpa.findAll().map { it.toDomain() }
     }
 
@@ -85,4 +85,10 @@ class AccessTokenRepositoryImpl : AccessTokenRepository {
     override fun deleteAllById(ids: Iterable<UUID>) {
         accessTokenRepositoryJpa.deleteAllById(ids)
     }
+
+    override fun flush() {
+        entityManager.flush()
+        accessTokenRepositoryJpa.flush()
+    }
+
 }

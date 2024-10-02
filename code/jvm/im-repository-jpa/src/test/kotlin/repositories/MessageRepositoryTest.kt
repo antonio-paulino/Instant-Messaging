@@ -90,18 +90,18 @@ open class MessageRepositoryTest {
 
     @Test
     @Transactional
-    open fun `should return messages by channel id`() {
+    open fun `should return messages by channel`() {
         messageRepository.save(testMessage1)
         messageRepository.save(testMessage2)
 
-        val messages = messageRepository.findByChannelId(testChannel.id!!)
+        val messages = messageRepository.findByChannel(testChannel)
         assertEquals(2, messages.count())
     }
 
     @Test
     @Transactional
     open fun `should return empty list when no messages exist in channel`() {
-        val messages = messageRepository.findByChannelId(999L)
+        val messages = messageRepository.findByChannel(testChannel)
         assertEquals(0, messages.count())
     }
 
@@ -112,7 +112,7 @@ open class MessageRepositoryTest {
         messageRepository.save(testMessage2)
         messageRepository.save(testMessage3)
 
-        val latestMessages = messageRepository.findLatest(testChannel.id, 0, 3)
+        val latestMessages = messageRepository.findLatest(testChannel, 0, 3)
         assertEquals(2, latestMessages.count())
         assertEquals(testMessage2.content, latestMessages.first().content)
         assertEquals(testMessage1.content, latestMessages.last().content)
@@ -124,6 +124,10 @@ open class MessageRepositoryTest {
         messageRepository.save(testMessage1)
         assertEquals(1, messageRepository.count())
         channelRepository.delete(testChannel)
+
+        channelRepository.flush()
+        messageRepository.flush()
+
         assertEquals(0, messageRepository.count())
     }
 
@@ -133,6 +137,10 @@ open class MessageRepositoryTest {
         messageRepository.save(testMessage1)
         assertEquals(1, messageRepository.count())
         userRepository.delete(testUser)
+
+        userRepository.flush()
+        messageRepository.flush()
+
         assertEquals(0, messageRepository.count())
     }
 
@@ -194,7 +202,7 @@ open class MessageRepositoryTest {
     open fun `should find all messages by ids`() {
         val savedMessage1 = messageRepository.save(testMessage1)
         val savedMessage2 = messageRepository.save(testMessage2)
-        val messages = messageRepository.findAllById(listOf(savedMessage1.id!!, savedMessage2.id!!))
+        val messages = messageRepository.findAllById(listOf(savedMessage1.id, savedMessage2.id))
         assertEquals(2, messages.count())
     }
 
@@ -202,7 +210,7 @@ open class MessageRepositoryTest {
     @Transactional
     open fun `should delete message by id`() {
         val savedMessage = messageRepository.save(testMessage1)
-        messageRepository.deleteById(savedMessage.id!!)
+        messageRepository.deleteById(savedMessage.id)
         assertEquals(0, messageRepository.count())
     }
 

@@ -43,7 +43,7 @@ class ImInvitationRepositoryImpl : ImInvitationRepository {
         return imInvitationRepositoryJpa.findById(id).map { it.toDomain() }
     }
 
-    override fun findAll(): Iterable<ImInvitation> {
+    override fun findAll(): List<ImInvitation> {
         return imInvitationRepositoryJpa.findAll().map { it.toDomain() }
     }
 
@@ -93,6 +93,11 @@ class ImInvitationRepositoryImpl : ImInvitationRepository {
 
     override fun deleteAllById(ids: Iterable<UUID>) {
         imInvitationRepositoryJpa.deleteAllById(ids)
+    }
+
+    override fun flush() {
+        entityManager.flush()
+        imInvitationRepositoryJpa.flush()
     }
 
 }

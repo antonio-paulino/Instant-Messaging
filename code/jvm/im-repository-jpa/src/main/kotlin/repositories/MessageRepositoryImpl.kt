@@ -1,10 +1,12 @@
 package repositories
 
+import channel.Channel
 import jakarta.persistence.EntityManager
 import messages.Message
 import messages.MessageRepository
 import model.message.MessageDTO
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.PageRequest
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Repository
@@ -21,21 +23,21 @@ class MessageRepositoryImpl : MessageRepository {
     @Autowired
     private lateinit var entityManager: EntityManager
 
-    override fun findByChannelId(channelId: Long): Iterable<Message> {
+    override fun findByChannel(channel: Channel): Iterable<Message> {
         val query = entityManager.createQuery(
             "SELECT m FROM MessageDTO m WHERE m.channel.id = :channelId",
             MessageDTO::class.java
         )
-        query.setParameter("channelId", channelId)
+        query.setParameter("channelId", channel.id)
         return query.resultList.map { it.toDomain() }
     }
 
-    override fun findLatest(channelId: Long, pages: Int, pageSize: Int): Iterable<Message> {
+    override fun findLatest(channel: Channel, pages: Int, pageSize: Int): Iterable<Message> {
         val query = entityManager.createQuery(
             "SELECT m FROM MessageDTO m WHERE m.channel.id = :channelId ORDER BY m.createdAt DESC",
             MessageDTO::class.java
         )
-        query.setParameter("channelId", channelId)
+        query.setParameter("channelId", channel.id)
         query.firstResult = pages * pageSize
         query.maxResults = pageSize
         return query.resultList.map { it.toDomain() }
@@ -53,12 +55,12 @@ class MessageRepositoryImpl : MessageRepository {
         return messageRepositoryJpa.findById(id).map { it.toDomain() }
     }
 
-    override fun findAll(): Iterable<Message> {
+    override fun findAll(): List<Message> {
         return messageRepositoryJpa.findAll().map { it.toDomain() }
     }
 
     override fun findFirst(page: Int, pageSize: Int): List<Message> {
-        val res = messageRepositoryJpa.findAll(org.springframework.data.domain.PageRequest.of(page, pageSize))
+        val res = messageRepositoryJpa.findAll(PageRequest.of(page, pageSize))
         return res.content.map { it.toDomain() }
     }
 
@@ -99,5 +101,10 @@ class MessageRepositoryImpl : MessageRepository {
 
     override fun deleteAllById(ids: Iterable<Long>) {
         messageRepositoryJpa.deleteAllById(ids)
+    }
+
+    override fun flush() {
+        entityManager.flush()
+        messageRepositoryJpa.flush()
     }
 }

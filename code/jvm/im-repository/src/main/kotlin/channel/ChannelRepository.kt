@@ -1,13 +1,52 @@
 package channel
 
 import Repository
-import invitations.ChannelRole
+import invitations.ChannelInvitation
+import invitations.ChannelInvitationStatus
+import messages.Message
 import user.User
 
-interface ChannelRepository: Repository<Channel, Long> {
+/**
+ * [Repository] for [Channel] entities.
+ */
+interface ChannelRepository : Repository<Channel, Long> {
+    /**
+     * Finds a channel by its name.
+     *
+     * @param name the name of the channel
+     * @return the channel with the given name, or `null` if no such channel exists
+     */
     fun findByName(name: String): Channel?
+    /**
+     * Finds channels whose name starts with the given string, case-insensitive.
+     *
+     * @param name the partial name of the channels
+     * @return the channels whose name contains the given string
+     */
     fun findByPartialName(name: String): Iterable<Channel>
-    fun getUserRoles(channel: Channel): Map<User, ChannelRole>
-    fun addMember(channel: Channel, user: User, role: ChannelRole): Channel
-    fun removeMember(channel: Channel, user: User): Channel
+
+    /**
+     * Finds all channels where the user is a member.
+     *
+     * @param userId the ID of the user
+     * @return the channels where the user is a member
+     */
+    fun getInvitations(channel: Channel, status: ChannelInvitationStatus): Iterable<ChannelInvitation>
+
+    /**
+     * Finds all messages in a channel.
+     *
+     * @param channelId the ID of the channel
+     * @return the messages in the channel
+     */
+    fun getMessages(channel: Channel): Iterable<Message>
+
+    /**
+     * Finds the role of a user in a channel.
+     *
+     * @param channelId the ID of the channel
+     * @param userId the ID of the user
+     * @return the role of the user in the channel, or `null` if the user is not a member
+     */
+    fun getMember(channel: Channel, user: User): Pair<User, ChannelRole>?
 }

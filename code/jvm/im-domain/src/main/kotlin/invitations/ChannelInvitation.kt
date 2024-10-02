@@ -1,11 +1,12 @@
 package invitations
 
 import channel.Channel
+import channel.ChannelRole
 import user.User
 import java.time.LocalDateTime
 
 data class ChannelInvitation(
-    val id: Long,
+    val id: Long = 0,
     val channel: Channel,
     val inviter: User,
     val invitee: User,

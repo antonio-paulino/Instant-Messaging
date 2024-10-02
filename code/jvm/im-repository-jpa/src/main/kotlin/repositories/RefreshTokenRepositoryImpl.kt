@@ -35,7 +35,7 @@ class RefreshTokenRepositoryImpl : RefreshTokenRepository {
         return refreshTokenRepositoryJpa.findById(id).map { it.toDomain() }
     }
 
-    override fun findAll(): Iterable<RefreshToken> {
+    override fun findAll(): List<RefreshToken> {
         return refreshTokenRepositoryJpa.findAll().map { it.toDomain() }
     }
 
@@ -84,5 +84,10 @@ class RefreshTokenRepositoryImpl : RefreshTokenRepository {
 
     override fun deleteAllById(ids: Iterable<UUID>) {
         refreshTokenRepositoryJpa.deleteAllById(ids)
+    }
+
+    override fun flush() {
+        entityManager.flush()
+        refreshTokenRepositoryJpa.flush()
     }
 }

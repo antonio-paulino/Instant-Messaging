@@ -1,8 +1,11 @@
 package repositories
 
 import channel.Channel
-import invitations.ChannelRole
+import channel.ChannelRole
+import invitations.ChannelInvitation
+import invitations.ChannelInvitationStatus
 import jakarta.transaction.Transactional
+import messages.Message
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -26,23 +29,35 @@ open class ChannelRepositoryTest {
     @Autowired
     private lateinit var userRepository: UserRepositoryImpl
 
+    @Autowired
+    private lateinit var channelInvitationRepository: ChannelInvitationRepositoryImpl
+
+    @Autowired
+    private lateinit var messageRepository: MessageRepositoryImpl
+
     private lateinit var testChannel1: Channel
     private lateinit var testChannel2: Channel
     private lateinit var testOwner: User
+    private lateinit var testInvitation: ChannelInvitation
+    private lateinit var testMessage: Message
+    private lateinit var testMember: User
 
     @BeforeEach
     fun setUp() {
         channelRepository.deleteAll()
         userRepository.deleteAll()
+        channelInvitationRepository.deleteAll()
+        messageRepository.deleteAll()
 
         testOwner = userRepository.save(User(1, "Owner", "password"))
+        testMember = userRepository.save(User(2, "Member", "password"))
 
         testChannel1 = Channel(
             id = 1L,
             name = "General",
             owner = testOwner,
             isPublic = true,
-            createdAt = LocalDateTime.now()
+            createdAt = LocalDateTime.now(),
         )
 
         testChannel2 = Channel(
@@ -51,6 +66,25 @@ open class ChannelRepositoryTest {
             owner = testOwner,
             isPublic = false,
             createdAt = LocalDateTime.now().minusDays(1)
+        )
+
+        testInvitation = ChannelInvitation(
+            id = 1L,
+            channel = testChannel1,
+            inviter = testOwner,
+            invitee = testOwner,
+            status = ChannelInvitationStatus.PENDING,
+            role = ChannelRole.MEMBER,
+            expiresAt = LocalDateTime.now().plusDays(1)
+        )
+
+        testMessage = Message(
+            id = 1L,
+            channel = testChannel1,
+            content = "Hello",
+            createdAt = LocalDateTime.now(),
+            user = testOwner,
+            editedAt = null
         )
     }
 
@@ -96,6 +130,10 @@ open class ChannelRepositoryTest {
         channelRepository.save(testChannel1)
         assertEquals(1, channelRepository.count())
         userRepository.delete(testOwner)
+
+        userRepository.flush()
+        channelRepository.flush()
+
         assertEquals(0, channelRepository.count())
     }
 
@@ -159,24 +197,88 @@ open class ChannelRepositoryTest {
 
     @Test
     @Transactional
-    open fun `should add member to channel with role Member`() {
-        val user = userRepository.save(User(1, "Member1", "password"))
+    open fun `get invitations should be empty`() {
         val savedChannel = channelRepository.save(testChannel1)
-        val newChannel = channelRepository.addMember(savedChannel, user, ChannelRole.MEMBER)
-        assertEquals(1, newChannel.members.size)
-        val userRoles = channelRepository.getUserRoles(newChannel)
-        assertEquals(ChannelRole.MEMBER, userRoles[user])
+        val invitations = channelRepository
+            .getInvitations(savedChannel, ChannelInvitationStatus.PENDING)
+            .toList()
+        assertTrue(invitations.isEmpty())
     }
 
     @Test
     @Transactional
-    open fun `should add member to channel with role Owner`() {
+    open fun `get invitations should return one invitation`() {
+        val savedChannel = channelRepository.save(testChannel1)
+        testInvitation = testInvitation.copy(channel = savedChannel)
+        channelInvitationRepository.save(testInvitation)
+        val invitations = channelRepository
+            .getInvitations(savedChannel, ChannelInvitationStatus.PENDING)
+            .toList()
+        assertEquals(1, invitations.size)
+    }
+
+    @Test
+    @Transactional
+    open fun `get messages should be empty`() {
+        val savedChannel = channelRepository.save(testChannel1)
+        val messages = channelRepository
+            .getMessages(savedChannel)
+            .toList()
+        assertTrue(messages.isEmpty())
+    }
+
+    @Test
+    @Transactional
+    open fun `get messages should return one message`() {
+        val savedChannel = channelRepository.save(testChannel1)
+        testMessage = testMessage.copy(channel = savedChannel)
+        messageRepository.save(testMessage)
+        val messages = channelRepository
+            .getMessages(savedChannel)
+            .toList()
+        assertEquals(1, messages.size)
+    }
+
+    @Test
+    @Transactional
+    open fun `get member should return empty`() {
+        val savedChannel = channelRepository.save(testChannel1)
+        val member = channelRepository.getMember(savedChannel, testMember)
+        assertNull(member)
+    }
+
+    @Test
+    @Transactional
+    open fun `get member should return member`() {
+        val savedChannel = channelRepository.save(testChannel1)
+        val newChannel = savedChannel.copy(members = savedChannel.members + (testMember to ChannelRole.MEMBER))
+        val updatedChannel = channelRepository.save(newChannel)
+        val member = channelRepository.getMember(updatedChannel, testMember)
+        assertNotNull(member)
+        assertEquals(ChannelRole.MEMBER, member!!.second)
+        assertEquals(testMember, member.first)
+    }
+
+    @Test
+    @Transactional
+    open fun `should add member to channel with role Member`() {
+        val user = userRepository.save(User(1, "Member1", "password"))
+        val savedChannel = channelRepository.save(testChannel1)
+        val newChannel = savedChannel.copy(members = savedChannel.members + (user to ChannelRole.MEMBER))
+        val updatedChannel = channelRepository.save(newChannel)
+        assertEquals(2, updatedChannel.members.size) // Owner + Member
+        assertEquals(ChannelRole.MEMBER, updatedChannel.members[user])
+    }
+
+    @Test
+    @Transactional
+    open fun `should add member to channel with role Guest`() {
         val user = userRepository.save(User(1, "Admin1", "password"))
         val savedChannel = channelRepository.save(testChannel1)
-        val newChannel = channelRepository.addMember(savedChannel, user, ChannelRole.OWNER)
-        assertEquals(1, newChannel.members.size)
-        val userRoles = channelRepository.getUserRoles(newChannel)
-        assertEquals(ChannelRole.OWNER, userRoles[user])
+        val newChannel = savedChannel.copy(members = savedChannel.members + (user to ChannelRole.GUEST))
+        val updatedChannel = channelRepository.save(newChannel)
+        assertEquals(2, updatedChannel.members.size) // Owner + Guest
+        assertEquals(ChannelRole.GUEST, updatedChannel.members[user])
     }
 
     @Test
@@ -184,10 +286,16 @@ open class ChannelRepositoryTest {
     open fun `should remove member from channel`() {
         val user = userRepository.save(User(1, "Member 1", "password"))
         val savedChannel = channelRepository.save(testChannel1)
-        val newChannel = channelRepository.addMember(savedChannel, user, ChannelRole.MEMBER)
-        val updatedChannel = channelRepository.removeMember(newChannel, user)
-        assertEquals(0, updatedChannel.members.size)
-        assertEquals(0, updatedChannel.members.size)
+
+        val newChannel = savedChannel.copy(members = savedChannel.members + (user to ChannelRole.MEMBER))
+        val updatedChannel = channelRepository.save(newChannel)
+        assertEquals(2, updatedChannel.members.size)
+        assertEquals(ChannelRole.MEMBER, updatedChannel.members[user])
+        // Remove Member
+        val newChannel2 = updatedChannel.copy(members = updatedChannel.members - user)
+        val updatedChannel2 = channelRepository.save(newChannel2)
+
+        assertEquals(1, updatedChannel2.members.size) // Owner
     }
 
     @Test
