@@ -1,6 +1,7 @@
 package user
 
 import channel.Channel
+import channel.ChannelMember
 import invitations.ChannelInvitation
 import sessions.Session
 
@@ -9,8 +10,8 @@ data class User(
     val name: String,
     val password: String,
     val sessions: List<Session> = emptyList(),
+    val joinedChannels: List<ChannelMember> = emptyList(),
     val ownedChannels: List<Channel> = emptyList(),
-    val joinedChannels: List<Channel> = emptyList(),
     val sentInvitations: List<ChannelInvitation> = emptyList(),
     val receivedInvitations: List<ChannelInvitation> = emptyList()
 )

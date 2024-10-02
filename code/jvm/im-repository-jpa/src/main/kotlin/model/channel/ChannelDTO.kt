@@ -2,7 +2,6 @@ package model.channel
 
 import channel.Channel
 import jakarta.persistence.Entity
-
 import jakarta.persistence.*
 import model.invitation.ChannelInvitationDTO
 import model.message.MessageDTO
@@ -32,22 +31,17 @@ data class ChannelDTO(
     @Column(name = "created_at", nullable = false)
     val createdAt: LocalDateTime = LocalDateTime.now(),
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "ChannelMember",
-        joinColumns = [JoinColumn(name = "channel_id")],
-        inverseJoinColumns = [JoinColumn(name = "user_id")]
-    )
-    val members: List<UserDTO> = emptyList(),
+    @OneToMany(mappedBy = "id", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+    val messages: List<MessageDTO> = mutableListOf(),
 
     @OneToMany(mappedBy = "id", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    val messages: List<MessageDTO> = emptyList(),
+    val members: List<UserDTO> = mutableListOf(),
 
     @OneToMany(mappedBy = "id", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    val invitations: List<ChannelInvitationDTO> = emptyList()
+    val invitations: List<ChannelInvitationDTO> = mutableListOf()
 ) {
     companion object {
-        fun fromDomain(channel: Channel) = ChannelDTO(
+        fun fromDomain(channel: Channel): ChannelDTO = ChannelDTO(
             id = channel.id,
             name = channel.name,
             owner = UserDTO.fromDomain(channel.owner),
@@ -59,7 +53,7 @@ data class ChannelDTO(
         )
     }
 
-    fun toDomain() = Channel(
+    fun toDomain(): Channel = Channel(
         id = id,
         name = name,
         owner = owner!!.toDomain(),

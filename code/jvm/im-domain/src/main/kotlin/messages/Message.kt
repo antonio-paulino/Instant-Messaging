@@ -5,7 +5,7 @@ import user.User
 import java.time.LocalDateTime
 
 data class Message(
-    val id: Long,
+    val id: Long = 0,
     val channel: Channel,
     val user: User,
     val content: String,

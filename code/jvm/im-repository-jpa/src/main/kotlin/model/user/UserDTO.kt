@@ -7,17 +7,17 @@ import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
-import jakarta.persistence.ManyToMany
 import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
 import jakarta.persistence.*
 import model.channel.ChannelDTO
+import model.channel.ChannelMemberDTO
 import model.invitation.ChannelInvitationDTO
 import model.session.SessionDTO
 import user.User
 
 @Entity
-@Table(name = "\"user\"")
+@Table(name = "users")
 data class UserDTO(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,19 +30,19 @@ data class UserDTO(
     val password: String = "",
 
     @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    val sessions: List<SessionDTO> = emptyList(),
+    val sessions: List<SessionDTO> = mutableListOf(),
+
+    @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+    val joinedChannels: List<ChannelMemberDTO> = mutableListOf(),
 
     @OneToMany(mappedBy = "owner", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    val ownedChannels: List<ChannelDTO> = emptyList(),
-
-    @ManyToMany(mappedBy = "members", fetch = FetchType.LAZY)
-    val joinedChannels: List<ChannelDTO> = emptyList(),
+    val ownedChannels: List<ChannelDTO> = mutableListOf(),
 
     @OneToMany(mappedBy = "inviter", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    val sentInvitations: List<ChannelInvitationDTO> = emptyList(),
+    val sentInvitations: List<ChannelInvitationDTO> = mutableListOf(),
 
     @OneToMany(mappedBy = "invitee", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    val receivedInvitations: List<ChannelInvitationDTO> = emptyList()
+    val receivedInvitations: List<ChannelInvitationDTO> = mutableListOf()
 ) {
     companion object {
         fun fromDomain(user: User): UserDTO = UserDTO(
@@ -51,7 +51,7 @@ data class UserDTO(
             password = user.password,
             sessions = user.sessions.map { SessionDTO.fromDomain(it) },
             ownedChannels = user.ownedChannels.map { ChannelDTO.fromDomain(it) },
-            joinedChannels = user.joinedChannels.map { ChannelDTO.fromDomain(it) },
+            joinedChannels = user.joinedChannels.map { ChannelMemberDTO.fromDomain(it) },
             sentInvitations = user.sentInvitations.map { ChannelInvitationDTO.fromDomain(it) },
             receivedInvitations = user.receivedInvitations.map { ChannelInvitationDTO.fromDomain(it) }
         )

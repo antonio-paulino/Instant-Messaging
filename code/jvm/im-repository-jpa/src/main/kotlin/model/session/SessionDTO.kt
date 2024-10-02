@@ -21,7 +21,7 @@ import java.time.LocalDateTime
 
 @Entity
 @Table(name = "Session")
-data class SessionDTO (
+data class SessionDTO(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
@@ -35,10 +35,10 @@ data class SessionDTO (
     val expiresAt: LocalDateTime = LocalDateTime.now().plusDays(90),
 
     @OneToMany(mappedBy = "session", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    val accessTokens: List<AccessTokenDTO> = emptyList(),
+    val accessTokens: List<AccessTokenDTO> = mutableListOf(),
 
     @OneToMany(mappedBy = "session", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    val refreshTokens: List<RefreshTokenDTO> = emptyList()
+    val refreshTokens: List<RefreshTokenDTO> = mutableListOf()
 ) {
     companion object {
         fun fromDomain(session: Session) = SessionDTO(

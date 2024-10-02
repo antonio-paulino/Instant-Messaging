@@ -1,10 +1,13 @@
 package repositories
 
 import jakarta.persistence.EntityManager
+import jakarta.transaction.Transactional
 import model.user.UserDTO
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Modifying
+import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Repository
 import user.User
@@ -12,16 +15,21 @@ import user.UserRepository
 import java.util.*
 
 @Repository
-interface UserRepositoryJpa : JpaRepository<UserDTO, Long>
+interface UserRepositoryJpa : JpaRepository<UserDTO, Long> {
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM UserDTO u WHERE u.id = :id")
+    fun deleteByIdCustom(id: Long) // For some reason, deleteById is not being persisted
+}
 
 @Component
 class UserRepositoryImpl : UserRepository {
 
     @Autowired
-    private lateinit var entityManager: EntityManager
+    private lateinit var userRepositoryJpa: UserRepositoryJpa
 
     @Autowired
-    private lateinit var userRepositoryJpa: UserRepositoryJpa
+    private lateinit var entityManager: EntityManager
 
     override fun findByName(name: String): User? {
         val query = entityManager.createQuery("SELECT u FROM UserDTO u WHERE u.name = :name", UserDTO::class.java)
@@ -79,6 +87,7 @@ class UserRepositoryImpl : UserRepository {
 
     override fun deleteById(id: Long) {
         userRepositoryJpa.deleteById(id)
+        userRepositoryJpa.deleteByIdCustom(id)
     }
 
     override fun existsById(id: Long): Boolean {
@@ -99,9 +108,11 @@ class UserRepositoryImpl : UserRepository {
 
     override fun delete(entity: User) {
         userRepositoryJpa.delete(UserDTO.fromDomain(entity))
+        userRepositoryJpa.deleteByIdCustom(entity.id)
     }
 
     override fun deleteAllById(ids: Iterable<Long>) {
         userRepositoryJpa.deleteAllById(ids)
     }
+
 }

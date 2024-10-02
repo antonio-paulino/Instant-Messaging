@@ -5,16 +5,17 @@ import invitations.ImInvitationRepository
 import jakarta.persistence.EntityManager
 import model.invitation.ImInvitationDTO
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.Sort
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Repository
 import java.util.*
 
 @Repository
-interface ImInvitationRepositoryJpa : JpaRepository<ImInvitationDTO, Long>
+interface ImInvitationRepositoryJpa : JpaRepository<ImInvitationDTO, UUID>
 
 @Component
-class ImInvitationRepositoryImpl: ImInvitationRepository {
+class ImInvitationRepositoryImpl : ImInvitationRepository {
     @Autowired
     private lateinit var entityManager: EntityManager
 
@@ -38,7 +39,7 @@ class ImInvitationRepositoryImpl: ImInvitationRepository {
         return imInvitationRepositoryJpa.saveAll(entities.map { ImInvitationDTO.fromDomain(it) }).map { it.toDomain() }
     }
 
-    override fun findById(id: Long): Optional<ImInvitation> {
+    override fun findById(id: UUID): Optional<ImInvitation> {
         return imInvitationRepositoryJpa.findById(id).map { it.toDomain() }
     }
 
@@ -47,13 +48,14 @@ class ImInvitationRepositoryImpl: ImInvitationRepository {
     }
 
     override fun findFirst(page: Int, pageSize: Int): List<ImInvitation> {
-        val res = imInvitationRepositoryJpa.findAll(org.springframework.data.domain.PageRequest.of(page, pageSize))
+        val pageable = org.springframework.data.domain.PageRequest.of(page, pageSize, Sort.by("expiresAt"))
+        val res = imInvitationRepositoryJpa.findAll(pageable)
         return res.content.map { it.toDomain() }
     }
 
     override fun findLast(page: Int, pageSize: Int): List<ImInvitation> {
         val query = entityManager.createQuery(
-            "SELECT i FROM ImInvitationDTO i ORDER BY i.id DESC",
+            "SELECT i FROM ImInvitationDTO i ORDER BY i.expiresAt DESC",
             ImInvitationDTO::class.java
         )
         query.firstResult = page * pageSize
@@ -61,15 +63,15 @@ class ImInvitationRepositoryImpl: ImInvitationRepository {
         return query.resultList.map { it.toDomain() }
     }
 
-    override fun findAllById(ids: Iterable<Long>): Iterable<ImInvitation> {
+    override fun findAllById(ids: Iterable<UUID>): Iterable<ImInvitation> {
         return imInvitationRepositoryJpa.findAllById(ids).map { it.toDomain() }
     }
 
-    override fun deleteById(id: Long) {
+    override fun deleteById(id: UUID) {
         imInvitationRepositoryJpa.deleteById(id)
     }
 
-    override fun existsById(id: Long): Boolean {
+    override fun existsById(id: UUID): Boolean {
         return imInvitationRepositoryJpa.existsById(id)
     }
 
@@ -89,7 +91,8 @@ class ImInvitationRepositoryImpl: ImInvitationRepository {
         imInvitationRepositoryJpa.delete(ImInvitationDTO.fromDomain(entity))
     }
 
-    override fun deleteAllById(ids: Iterable<Long>) {
+    override fun deleteAllById(ids: Iterable<UUID>) {
         imInvitationRepositoryJpa.deleteAllById(ids)
     }
+
 }

@@ -7,8 +7,8 @@ import java.time.LocalDateTime
 
 const val SESSION_DURATION_DAYS = 90L
 
-data class Session (
-    val id: Long,
+data class Session(
+    val id: Long = 0,
     val user: User,
     val expiresAt: LocalDateTime,
     val accessTokens: List<AccessToken>,

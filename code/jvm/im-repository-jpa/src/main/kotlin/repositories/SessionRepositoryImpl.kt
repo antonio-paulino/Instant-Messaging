@@ -9,8 +9,6 @@ import org.springframework.stereotype.Component
 import org.springframework.stereotype.Repository
 import sessions.Session
 import sessions.SessionRepository
-import tokens.AccessToken
-import tokens.RefreshToken
 import java.util.*
 
 @Repository
@@ -24,24 +22,6 @@ class SessionRepositoryImpl : SessionRepository {
 
     @Autowired
     private lateinit var entityManager: EntityManager
-
-    override fun findByAccessToken(accessToken: AccessToken): Session? {
-        val query = entityManager.createQuery(
-            "SELECT s FROM AccessTokenDTO a JOIN SessionDTO s WHERE a.session = :session",
-            SessionDTO::class.java
-        )
-        query.setParameter("session", accessToken.session)
-        return query.resultList.firstOrNull()?.toDomain()
-    }
-
-    override fun findByRefreshToken(refreshToken: RefreshToken): Session? {
-        val query = entityManager.createQuery(
-            "SELECT s FROM RefreshTokenDTO r JOIN SessionDTO s WHERE r.session = :session",
-            SessionDTO::class.java
-        )
-        query.setParameter("session", refreshToken.session)
-        return query.resultList.firstOrNull()?.toDomain()
-    }
 
     override fun save(entity: Session): Session {
         return sessionRepositoryJpa.save(SessionDTO.fromDomain(entity)).toDomain()
