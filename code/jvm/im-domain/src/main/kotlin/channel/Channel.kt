@@ -9,7 +9,7 @@ data class Channel(
     val owner: User,
     val isPublic: Boolean,
     val createdAt: LocalDateTime = LocalDateTime.now(),
-    val members: Map<User, ChannelRole> = hashMapOf(owner to ChannelRole.OWNER),
+    val members: Map<User, ChannelRole> = mapOf(owner to ChannelRole.OWNER),
 ) {
     fun updateChannel(name: String, isPublic: Boolean) = copy(name = name, isPublic = isPublic)
     fun addMember(user: User, role: ChannelRole) = copy(members = members + (user to role))

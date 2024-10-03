@@ -96,6 +96,8 @@ open class ChannelRepositoryTest {
         assertEquals(testChannel1.name, savedChannel.name)
         assertEquals(testChannel1.isPublic, savedChannel.isPublic)
         assertEquals(testChannel1.owner, savedChannel.owner)
+        assertEquals(testChannel1.createdAt, savedChannel.createdAt)
+        assertEquals(testChannel1.members, savedChannel.members)
     }
 
     @Test

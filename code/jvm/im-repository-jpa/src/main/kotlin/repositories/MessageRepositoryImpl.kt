@@ -23,7 +23,7 @@ class MessageRepositoryImpl : MessageRepository {
     @Autowired
     private lateinit var entityManager: EntityManager
 
-    override fun findByChannel(channel: Channel): Iterable<Message> {
+    override fun findByChannel(channel: Channel): List<Message> {
         val query = entityManager.createQuery(
             "SELECT m FROM MessageDTO m WHERE m.channel.id = :channelId",
             MessageDTO::class.java
@@ -32,7 +32,7 @@ class MessageRepositoryImpl : MessageRepository {
         return query.resultList.map { it.toDomain() }
     }
 
-    override fun findLatest(channel: Channel, pages: Int, pageSize: Int): Iterable<Message> {
+    override fun findLatest(channel: Channel, pages: Int, pageSize: Int): List<Message> {
         val query = entityManager.createQuery(
             "SELECT m FROM MessageDTO m WHERE m.channel.id = :channelId ORDER BY m.createdAt DESC",
             MessageDTO::class.java

@@ -47,7 +47,7 @@ class ChannelRepositoryImpl : ChannelRepository {
         return query.resultList.firstOrNull()?.toDomain()
     }
 
-    override fun findByPartialName(name: String): Iterable<Channel> {
+    override fun findByPartialName(name: String): List<Channel> {
         val query = entityManager.createQuery(
             "SELECT c FROM ChannelDTO c WHERE lower(c.name ) LIKE lower(:name)",
             ChannelDTO::class.java
@@ -56,7 +56,7 @@ class ChannelRepositoryImpl : ChannelRepository {
         return query.resultList.map { it.toDomain() }
     }
 
-    override fun getInvitations(channel: Channel, status: ChannelInvitationStatus): Iterable<ChannelInvitation> {
+    override fun getInvitations(channel: Channel, status: ChannelInvitationStatus): List<ChannelInvitation> {
         val query = entityManager.createQuery(
             "SELECT i FROM ChannelInvitationDTO i WHERE i.channel.id = :channelId AND i.status = :status",
             ChannelInvitationDTO::class.java
@@ -66,7 +66,7 @@ class ChannelRepositoryImpl : ChannelRepository {
         return query.resultList.map { it.toDomain() }
     }
 
-    override fun getMessages(channel: Channel): Iterable<Message> {
+    override fun getMessages(channel: Channel): List<Message> {
         val query = entityManager.createQuery(
             "SELECT m FROM MessageDTO m WHERE m.channel.id = :channelId",
             MessageDTO::class.java
@@ -119,7 +119,7 @@ class ChannelRepositoryImpl : ChannelRepository {
         return query.resultList.map { it.toDomain() }
     }
 
-    override fun findAllById(ids: Iterable<Long>): Iterable<Channel> {
+    override fun findAllById(ids: Iterable<Long>): List<Channel> {
         return channelRepositoryJpa.findAllById(ids).map { it.toDomain() }
     }
 

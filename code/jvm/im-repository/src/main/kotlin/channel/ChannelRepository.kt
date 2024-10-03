@@ -23,7 +23,7 @@ interface ChannelRepository : Repository<Channel, Long> {
      * @param name the partial name of the channels
      * @return the channels whose name contains the given string
      */
-    fun findByPartialName(name: String): Iterable<Channel>
+    fun findByPartialName(name: String): List<Channel>
 
     /**
      * Finds all channels where the user is a member.
@@ -31,7 +31,7 @@ interface ChannelRepository : Repository<Channel, Long> {
      * @param userId the ID of the user
      * @return the channels where the user is a member
      */
-    fun getInvitations(channel: Channel, status: ChannelInvitationStatus): Iterable<ChannelInvitation>
+    fun getInvitations(channel: Channel, status: ChannelInvitationStatus): List<ChannelInvitation>
 
     /**
      * Finds all messages in a channel.
@@ -39,7 +39,7 @@ interface ChannelRepository : Repository<Channel, Long> {
      * @param channelId the ID of the channel
      * @return the messages in the channel
      */
-    fun getMessages(channel: Channel): Iterable<Message>
+    fun getMessages(channel: Channel): List<Message>
 
     /**
      * Finds the role of a user in a channel.

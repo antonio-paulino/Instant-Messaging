@@ -10,7 +10,6 @@ repositories {
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.springframework.data:spring-data-jpa:3.3.4")
     implementation("org.postgresql:postgresql")
     implementation(project(":im-repository"))
     implementation(project(":im-domain"))
@@ -18,7 +17,6 @@ dependencies {
 
     testImplementation(kotlin("test"))
     testImplementation("org.springframework.boot:spring-boot-starter-test:3.3.4")
-    testImplementation("io.mockk:mockk:1.13.12")
 }
 
 tasks.test {

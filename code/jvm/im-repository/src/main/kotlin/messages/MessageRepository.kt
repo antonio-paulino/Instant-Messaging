@@ -14,7 +14,7 @@ interface MessageRepository : Repository<Message, Long> {
      * @param channel the channel
      * @return the messages in the channel
      */
-    fun findByChannel(channel: Channel): Iterable<Message>
+    fun findByChannel(channel: Channel): List<Message>
 
     /**
      * Finds the latest messages in a channel.
@@ -24,5 +24,5 @@ interface MessageRepository : Repository<Message, Long> {
      * @param pageSize the number of messages to return
      * @return the latest messages in the channel
      */
-    fun findLatest(channel: Channel, pages: Int, pageSize: Int): Iterable<Message>
+    fun findLatest(channel: Channel, pages: Int, pageSize: Int): List<Message>
 }
