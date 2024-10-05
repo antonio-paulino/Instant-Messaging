@@ -35,7 +35,7 @@ open class MessageRepositoryTest(
         channelRepository.deleteAll()
         userRepository.deleteAll()
 
-        testUser = userRepository.save(User(1L, "testUser", "password"))
+        testUser = userRepository.save(User(1L, "testUser", "password", "user1@daw.isel.pt"))
 
         testChannel = channelRepository.save(Channel(1L, "General", testUser, true))
         testChannel2 = channelRepository.save(Channel(2L, "Random", testUser, true))

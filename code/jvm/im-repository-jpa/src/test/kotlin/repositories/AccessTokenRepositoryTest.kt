@@ -36,7 +36,7 @@ open class AccessTokenRepositoryTest(
         sessionRepository.deleteAll()
         accessTokenRepository.deleteAll()
 
-        testUser = userRepository.save(User(1, "user", "password"))
+        testUser = userRepository.save(User(1, "user", "password", "user1@daw.isel.pt"))
         testSession = sessionRepository.save(
             Session(
                 user = testUser,

@@ -25,7 +25,7 @@ open class SessionRepositoryTest(
     @Autowired private val refreshTokenRepository: RefreshTokenRepositoryImpl,
 ) {
 
-    private var testUser = User(1, "user", "password")
+    private var testUser = User(1, "user", "password", "user1@daw.isel.pt")
 
     private var testSession: Session = Session(
         user = testUser,

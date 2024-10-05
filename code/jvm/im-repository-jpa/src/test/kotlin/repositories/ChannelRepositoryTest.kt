@@ -41,8 +41,8 @@ open class ChannelRepositoryTest(
         channelInvitationRepository.deleteAll()
         messageRepository.deleteAll()
 
-        testOwner = userRepository.save(User(1, "Owner", "password"))
-        testMember = userRepository.save(User(2, "Member", "password"))
+        testOwner = userRepository.save(User(1, "Owner", "password", "user1@daw.isel.pt"))
+        testMember = userRepository.save(User(2, "Member", "password", "user2@daw.isel.pt"))
 
         testChannel1 = Channel(
             id = 1L,
@@ -256,7 +256,7 @@ open class ChannelRepositoryTest(
     @Test
     @Transactional
     open fun `should add member to channel with role Member`() {
-        val user = userRepository.save(User(1, "Member1", "password"))
+        val user = userRepository.save(User(1, "Member1", "password", "user1@daw.isel.pt"))
         val savedChannel = channelRepository.save(testChannel1)
         val newChannel = savedChannel.copy(members = savedChannel.members + (user to ChannelRole.MEMBER))
         val updatedChannel = channelRepository.save(newChannel)
@@ -267,7 +267,7 @@ open class ChannelRepositoryTest(
     @Test
     @Transactional
     open fun `should add member to channel with role Guest`() {
-        val user = userRepository.save(User(1, "Admin1", "password"))
+        val user = userRepository.save(User(1, "Admin1", "password", "user1@daw.isel.pt"))
         val savedChannel = channelRepository.save(testChannel1)
         val newChannel = savedChannel.copy(members = savedChannel.members + (user to ChannelRole.GUEST))
         val updatedChannel = channelRepository.save(newChannel)
@@ -278,7 +278,7 @@ open class ChannelRepositoryTest(
     @Test
     @Transactional
     open fun `should remove member from channel`() {
-        val user = userRepository.save(User(1, "Member 1", "password"))
+        val user = userRepository.save(User(1, "Member 1", "password", "user1@daw.isel.pt"))
         val savedChannel = channelRepository.save(testChannel1)
 
         val newChannel = savedChannel.copy(members = savedChannel.members + (user to ChannelRole.MEMBER))

@@ -49,6 +49,16 @@ class UserRepositoryImpl(
         return query.resultList.firstOrNull()?.toDomain()
     }
 
+    override fun findByEmailAndPassword(email: String, password: String): User? {
+        val query = entityManager.createQuery(
+            "SELECT u FROM UserDTO u WHERE lower(u.email) = lower(:email) AND u.password = :password",
+            UserDTO::class.java
+        )
+        query.setParameter("email", email)
+        query.setParameter("password", password)
+        return query.resultList.firstOrNull()?.toDomain()
+    }
+
     override fun getOwnedChannels(user: User): List<Channel> {
         val query = entityManager.createQuery(
             "SELECT c FROM ChannelDTO c WHERE c.owner.id = :userId",

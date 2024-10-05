@@ -34,7 +34,7 @@ open class RefreshTokenRepositoryTest(
         refreshTokenRepository.deleteAll()
 
         testUser = userRepository.save(
-            User(1, "user", "password")
+            User(1, "user", "password", "user1@daw.isel.pt")
         )
         testSession = sessionRepository.save(
             Session(

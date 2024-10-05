@@ -36,8 +36,8 @@ open class ChannelInvitationRepositoryTest(
     fun setUp() {
         channelInvitationRepository.deleteAll()
 
-        testInviter = userRepository.save(User(1, "Inviter", "password"))
-        testInvitee = userRepository.save(User(2, "Invitee", "password"))
+        testInviter = userRepository.save(User(1, "Inviter", "password", "user1@daw.isel.pt"))
+        testInvitee = userRepository.save(User(2, "Invitee", "password", "user1@daw.isel.pt"))
         testChannel = channelRepository.save(Channel(1, "General", testInviter, true))
 
         testInvitation1 = ChannelInvitation(

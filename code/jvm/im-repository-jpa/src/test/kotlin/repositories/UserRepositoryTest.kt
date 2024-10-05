@@ -47,8 +47,8 @@ open class UserRepositoryTest(
         channelRepository.deleteAll()
         channelInvitationRepository.deleteAll()
 
-        testUser = User(1, "user1", "password")
-        testUser2 = User(2, "user2", "password")
+        testUser = User(1, "user1", "password", "user1@daw.isel.pt")
+        testUser2 = User(2, "user2", "password", "user2@daw.isel.pt")
 
         testSession = Session(
             user = testUser,
@@ -328,10 +328,12 @@ open class UserRepositoryTest(
         val user1 = User(
             name = "john.doe",
             password = "password1",
+            email = "user1@daw.isel.pt"
         )
         val user2 = User(
             name = "jane.doe",
             password = "password2",
+            email = "user2@daw.isel.pt"
         )
         userRepository.save(user1)
         userRepository.save(user2)
@@ -345,10 +347,12 @@ open class UserRepositoryTest(
         val user1 = User(
             name = "john.doe",
             password = "password1",
+            email = "user1@daw.isel.pt"
         )
         val user2 = User(
             name = "jane.doe",
             password = "password2",
+            email = "user2@daw.isel.pt"
         )
         userRepository.save(user1)
         userRepository.save(user2)
@@ -370,6 +374,23 @@ open class UserRepositoryTest(
     @Transactional
     open fun `should return null when user not found by name and password`() {
         val user = userRepository.findByNameAndPassword("non-existing", "non-existing")
+        assertTrue(user == null)
+    }
+
+    @Test
+    @Transactional
+    open fun `should find user by email and password`() {
+        userRepository.save(testUser)
+        val user = userRepository.findByEmailAndPassword(testUser.email, testUser.password)
+        assertNotNull(user)
+        assertEquals(testUser.email, user.email)
+        assertEquals(testUser.password, user.password)
+    }
+
+    @Test
+    @Transactional
+    open fun `should return null when user not found by email and password`() {
+        val user = userRepository.findByEmailAndPassword("non-existing", "non-existing")
         assertTrue(user == null)
     }
 

@@ -21,12 +21,16 @@ data class UserDTO(
 
     @Column(nullable = false, length = 100)
     val password: String = "",
+
+    @Column(unique = true, nullable = false, length = 100)
+    val email: String = "",
 ) {
     companion object {
         fun fromDomain(user: User): UserDTO = UserDTO(
             id = user.id,
             name = user.name,
             password = user.password,
+            email = user.email,
         )
     }
 
@@ -34,5 +38,7 @@ data class UserDTO(
         id = id,
         name = name,
         password = password,
+        email = email,
+
     )
 }

@@ -36,6 +36,15 @@ interface UserRepository : Repository<User, Long> {
     fun findByNameAndPassword(name: String, password: String): User?
 
     /**
+     * Finds a user by their email and password.
+     *
+     * @param email the email of the user
+     * @param password the password of the user
+     * @return the user with the given email and password, or `null` if no such user exists
+     */
+    fun findByEmailAndPassword(email: String, password: String): User?
+
+    /**
      * Finds all channels owned by the user.
      *
      * @param user the user

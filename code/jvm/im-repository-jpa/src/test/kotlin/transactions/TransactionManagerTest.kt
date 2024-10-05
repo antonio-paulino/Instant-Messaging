@@ -21,7 +21,7 @@ class TransactionManagerTest(
     @Autowired private val userRepository: UserRepository
 ) {
 
-    private val testUser = User(1L, "testUser", "password")
+    private val testUser = User(1L, "testUser", "password", "user1@daw.isel.pt")
 
     @BeforeEach
     fun setUp() {
@@ -51,7 +51,7 @@ class TransactionManagerTest(
     @Test
     fun `test transaction run with serialization exception retries and saves`() {
         var retried = false
-        var testUser = User(1L, "testUser", "password")
+        var testUser = User(1L, "testUser", "password","user1@daw.isel.pt")
         assertDoesNotThrow {
             transactionManager.run({
                 testUser = userRepository.save(testUser)
