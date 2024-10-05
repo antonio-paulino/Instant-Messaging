@@ -17,7 +17,6 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Repository
 import user.User
-import java.util.*
 
 @Repository
 interface ChannelRepositoryJpa : JpaRepository<ChannelDTO, Long>
@@ -90,8 +89,8 @@ class ChannelRepositoryImpl(
         return channelRepositoryJpa.saveAll(entities.map { ChannelDTO.fromDomain(it) }).map { it.toDomain() }
     }
 
-    override fun findById(id: Long): Optional<Channel> {
-        return channelRepositoryJpa.findById(id).map { it.toDomain() }
+    override fun findById(id: Long): Channel? {
+        return channelRepositoryJpa.findById(id).map { it.toDomain() }.orElse(null)
     }
 
     override fun findAll(): List<Channel> {

@@ -13,13 +13,16 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.test.context.ContextConfiguration
-import sessions.SESSION_DURATION_DAYS
 import sessions.Session
 import user.User
 import java.time.LocalDateTime
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
+
+private const val SESSION_DURATION_DAYS = 90L
+
 
 @SpringBootTest
 @ContextConfiguration(classes = [TestAppRepository::class])
@@ -81,11 +84,28 @@ open class UserRepositoryTest(
 
     @Test
     @Transactional
+    open fun `should find user by email`() {
+        userRepository.save(testUser)
+        val user = userRepository.findByEmail(testUser.email)
+        assertNotNull(user)
+        assertEquals(testUser.email, user.email)
+    }
+
+    @Test
+    @Transactional
+    open fun `should return null when user not found by email`() {
+        val user = userRepository.findByEmail("non-existing")
+        assertNull(user)
+    }
+
+
+    @Test
+    @Transactional
     open fun `should find user by id`() {
         val savedUser = userRepository.save(testUser)
         val user = userRepository.findById(savedUser.id)
         assertNotNull(user)
-        assertEquals(savedUser.id, user.get().id)
+        assertEquals(savedUser.id, user.id)
     }
 
     @Test
@@ -97,9 +117,9 @@ open class UserRepositoryTest(
 
     @Test
     @Transactional
-    open fun `should return empty when user not found by id`() {
+    open fun `should return null when user not found by id`() {
         val user = userRepository.findById(9999L)
-        assertTrue(user.isEmpty)
+        assertNull(user)
     }
 
     @Test
@@ -110,9 +130,9 @@ open class UserRepositoryTest(
         userRepository.save(updatedUser)
 
         val user = userRepository.findById(savedUser.id)
-        assertTrue(user.isPresent)
-        assertEquals("updatedName", user.get().name)
-        assertEquals("updatedPassword", user.get().password)
+        assertNotNull(user)
+        assertEquals("updatedName", user.name)
+        assertEquals("updatedPassword", user.password)
     }
 
     @Test
@@ -125,7 +145,7 @@ open class UserRepositoryTest(
         userRepository.deleteById(savedUser.id)
 
         val user = userRepository.findById(savedUser.id)
-        assertTrue(user.isEmpty)
+        assertNull(user)
     }
 
     @Test
@@ -138,7 +158,7 @@ open class UserRepositoryTest(
         userRepository.delete(savedUser)
 
         val user = userRepository.findById(savedUser.id)
-        assertTrue(user.isEmpty)
+        assertNull(user)
     }
 
     @Test

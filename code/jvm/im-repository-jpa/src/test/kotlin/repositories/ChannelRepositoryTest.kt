@@ -105,8 +105,8 @@ open class ChannelRepositoryTest(
     open fun `should find channel by id`() {
         val savedChannel = channelRepository.save(testChannel1)
         val foundChannel = channelRepository.findById(savedChannel.id)
-        assertTrue(foundChannel.isPresent)
-        assertEquals(savedChannel.id, foundChannel.get().id)
+        assertNotNull(foundChannel)
+        assertEquals(savedChannel.id, foundChannel?.id)
     }
 
     @Test
@@ -256,37 +256,34 @@ open class ChannelRepositoryTest(
     @Test
     @Transactional
     open fun `should add member to channel with role Member`() {
-        val user = userRepository.save(User(1, "Member1", "password", "user1@daw.isel.pt"))
         val savedChannel = channelRepository.save(testChannel1)
-        val newChannel = savedChannel.copy(members = savedChannel.members + (user to ChannelRole.MEMBER))
+        val newChannel = savedChannel.copy(members = savedChannel.members + (testMember to ChannelRole.MEMBER))
         val updatedChannel = channelRepository.save(newChannel)
         assertEquals(2, updatedChannel.members.size) // Owner + Member
-        assertEquals(ChannelRole.MEMBER, updatedChannel.members[user])
+        assertEquals(ChannelRole.MEMBER, updatedChannel.members[testMember])
     }
 
     @Test
     @Transactional
     open fun `should add member to channel with role Guest`() {
-        val user = userRepository.save(User(1, "Admin1", "password", "user1@daw.isel.pt"))
         val savedChannel = channelRepository.save(testChannel1)
-        val newChannel = savedChannel.copy(members = savedChannel.members + (user to ChannelRole.GUEST))
+        val newChannel = savedChannel.copy(members = savedChannel.members + (testMember to ChannelRole.GUEST))
         val updatedChannel = channelRepository.save(newChannel)
         assertEquals(2, updatedChannel.members.size) // Owner + Guest
-        assertEquals(ChannelRole.GUEST, updatedChannel.members[user])
+        assertEquals(ChannelRole.GUEST, updatedChannel.members[testMember])
     }
 
     @Test
     @Transactional
     open fun `should remove member from channel`() {
-        val user = userRepository.save(User(1, "Member 1", "password", "user1@daw.isel.pt"))
         val savedChannel = channelRepository.save(testChannel1)
 
-        val newChannel = savedChannel.copy(members = savedChannel.members + (user to ChannelRole.MEMBER))
+        val newChannel = savedChannel.copy(members = savedChannel.members + (testMember to ChannelRole.MEMBER))
         val updatedChannel = channelRepository.save(newChannel)
         assertEquals(2, updatedChannel.members.size)
-        assertEquals(ChannelRole.MEMBER, updatedChannel.members[user])
+        assertEquals(ChannelRole.MEMBER, updatedChannel.members[testMember])
         // Remove Member
-        val newChannel2 = updatedChannel.copy(members = updatedChannel.members - user)
+        val newChannel2 = updatedChannel.copy(members = updatedChannel.members - testMember)
         val updatedChannel2 = channelRepository.save(newChannel2)
 
         assertEquals(1, updatedChannel2.members.size) // Owner

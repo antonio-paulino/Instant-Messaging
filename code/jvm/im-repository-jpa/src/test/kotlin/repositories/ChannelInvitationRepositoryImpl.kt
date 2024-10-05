@@ -8,6 +8,7 @@ import jakarta.transaction.Transactional
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
@@ -37,7 +38,7 @@ open class ChannelInvitationRepositoryTest(
         channelInvitationRepository.deleteAll()
 
         testInviter = userRepository.save(User(1, "Inviter", "password", "user1@daw.isel.pt"))
-        testInvitee = userRepository.save(User(2, "Invitee", "password", "user1@daw.isel.pt"))
+        testInvitee = userRepository.save(User(2, "Invitee", "password", "user2@daw.isel.pt"))
         testChannel = channelRepository.save(Channel(1, "General", testInviter, true))
 
         testInvitation1 = ChannelInvitation(
@@ -133,15 +134,15 @@ open class ChannelInvitationRepositoryTest(
     open fun `should find channel invitation by id`() {
         val savedInvitation = channelInvitationRepository.save(testInvitation1)
         val foundInvitation = channelInvitationRepository.findById(savedInvitation.id)
-        assertTrue(foundInvitation.isPresent)
-        assertEquals(savedInvitation, foundInvitation.get())
+        assertNotNull(foundInvitation)
+        assertEquals(savedInvitation, foundInvitation)
     }
 
     @Test
     @Transactional
-    open fun `should return empty optional for non-existent id`() {
+    open fun `should return null for non-existent id`() {
         val foundInvitation = channelInvitationRepository.findById(999L)
-        assertTrue(foundInvitation.isEmpty)
+        assertNull(foundInvitation)
     }
 
     @Test

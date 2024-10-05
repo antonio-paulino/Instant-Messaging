@@ -7,7 +7,6 @@ import model.invitation.ChannelInvitationDTO
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Repository
-import java.util.Optional
 
 @Repository
 interface ChannelInvitationRepositoryJpa : JpaRepository<ChannelInvitationDTO, Long>
@@ -27,8 +26,8 @@ class ChannelInvitationRepositoryImpl(
             .map { it.toDomain() }
     }
 
-    override fun findById(id: Long): Optional<ChannelInvitation> {
-        return channelInvitationRepositoryJpa.findById(id).map { it.toDomain() }
+    override fun findById(id: Long): ChannelInvitation? {
+        return channelInvitationRepositoryJpa.findById(id).map { it.toDomain() }.orElse(null)
     }
 
     override fun findAll(): List<ChannelInvitation> {
@@ -54,7 +53,7 @@ class ChannelInvitationRepositoryImpl(
         channelInvitationRepositoryJpa.deleteById(id)
     }
 
-    override fun findAllById(ids: Iterable<Long>): Iterable<ChannelInvitation> {
+    override fun findAllById(ids: Iterable<Long>): List<ChannelInvitation> {
         return channelInvitationRepositoryJpa.findAllById(ids).map { it.toDomain() }
     }
 

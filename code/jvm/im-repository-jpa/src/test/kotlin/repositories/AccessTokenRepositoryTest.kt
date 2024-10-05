@@ -15,6 +15,7 @@ import java.util.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 
 @SpringBootTest
 @ContextConfiguration(classes = [TestAppRepository::class])
@@ -62,16 +63,16 @@ open class AccessTokenRepositoryTest(
     @Transactional
     open fun `should find access token by id`() {
         val savedToken = accessTokenRepository.save(testAccessToken)
-        val foundToken = accessTokenRepository.findById(savedToken.token).get()
+        val foundToken = accessTokenRepository.findById(savedToken.token)
         assertNotNull(foundToken)
         assertEquals(savedToken.token, foundToken.token)
     }
 
     @Test
     @Transactional
-    open fun `should return empty when id does not exist`() {
+    open fun `should return null when id does not exist`() {
         val foundToken = accessTokenRepository.findById(UUID.randomUUID())
-        assertTrue(foundToken.isEmpty)
+        assertNull(foundToken)
     }
 
     @Test
@@ -220,7 +221,8 @@ open class AccessTokenRepositoryTest(
     @Transactional
     open fun `expired access token should still be retrievable`() {
         accessTokenRepository.save(expiredAccessToken)
-        val foundToken = accessTokenRepository.findById(expiredAccessToken.token).get()
+        val foundToken = accessTokenRepository.findById(expiredAccessToken.token)
+        assertNotNull(foundToken)
         assertEquals(expiredAccessToken.token, foundToken.token)
         assertTrue(foundToken.expiresAt.isBefore(LocalDateTime.now()))
     }

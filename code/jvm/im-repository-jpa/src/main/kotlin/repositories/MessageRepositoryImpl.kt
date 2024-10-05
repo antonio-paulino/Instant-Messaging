@@ -9,7 +9,6 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Repository
-import java.util.*
 
 @Repository
 interface MessageRepositoryJpa : JpaRepository<MessageDTO, Long>
@@ -48,8 +47,8 @@ class MessageRepositoryImpl(
         return messageRepositoryJpa.saveAll(entities.map { MessageDTO.fromDomain(it) }).map { it.toDomain() }
     }
 
-    override fun findById(id: Long): Optional<Message> {
-        return messageRepositoryJpa.findById(id).map { it.toDomain() }
+    override fun findById(id: Long): Message? {
+        return messageRepositoryJpa.findById(id).map { it.toDomain() }.orElse(null)
     }
 
     override fun findAll(): List<Message> {
@@ -68,7 +67,7 @@ class MessageRepositoryImpl(
         return query.resultList.map { it.toDomain() }
     }
 
-    override fun findAllById(ids: Iterable<Long>): Iterable<Message> {
+    override fun findAllById(ids: Iterable<Long>): List<Message> {
         return messageRepositoryJpa.findAllById(ids).map { it.toDomain() }
     }
 

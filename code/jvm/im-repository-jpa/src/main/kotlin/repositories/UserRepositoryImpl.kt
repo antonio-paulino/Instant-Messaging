@@ -33,6 +33,12 @@ class UserRepositoryImpl(
         return query.resultList.firstOrNull()?.toDomain()
     }
 
+    override fun findByEmail(email: String): User? {
+        val query = entityManager.createQuery("SELECT u FROM UserDTO u WHERE u.email = :email", UserDTO::class.java)
+        query.setParameter("email", email)
+        return query.resultList.firstOrNull()?.toDomain()
+    }
+
     override fun findByPartialName(name: String): List<User> {
         val query = entityManager.createQuery("SELECT u FROM UserDTO u WHERE u.name LIKE :name", UserDTO::class.java)
         query.setParameter("name", "$name%")
@@ -106,8 +112,8 @@ class UserRepositoryImpl(
         return userRepositoryJpa.saveAll(entities.map { UserDTO.fromDomain(it) }).map { it.toDomain() }
     }
 
-    override fun findById(id: Long): Optional<User> {
-        return userRepositoryJpa.findById(id).map { it.toDomain() }
+    override fun findById(id: Long): User? {
+        return userRepositoryJpa.findById(id).map { it.toDomain() }.orElse(null)
     }
 
     override fun findAll(): List<User> {
@@ -126,7 +132,7 @@ class UserRepositoryImpl(
         return query.resultList.map { it.toDomain() }
     }
 
-    override fun findAllById(ids: Iterable<Long>): Iterable<User> {
+    override fun findAllById(ids: Iterable<Long>): List<User> {
         return userRepositoryJpa.findAllById(ids).map { it.toDomain() }
     }
 

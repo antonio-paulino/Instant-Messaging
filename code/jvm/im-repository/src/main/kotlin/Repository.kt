@@ -32,7 +32,7 @@ interface Repository<T, ID> {
      * @param id the ID of the entity
      * @return an [Optional] containing the entity, or an empty [Optional] if the entity is not found
      */
-    fun findById(id: ID): Optional<T>
+    fun findById(id: ID): T?
 
     /**
      * Finds all entities.
@@ -69,7 +69,7 @@ interface Repository<T, ID> {
      * @param ids the IDs of the entities
      * @return the entities with the given IDs
      */
-    fun findAllById(ids: Iterable<ID>): Iterable<T>
+    fun findAllById(ids: Iterable<ID>): List<T>
 
     /**
      * Deletes an entity by its ID.

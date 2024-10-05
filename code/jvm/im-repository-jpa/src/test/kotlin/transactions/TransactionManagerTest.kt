@@ -12,6 +12,7 @@ import user.UserRepository
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 @SpringBootTest
@@ -45,7 +46,7 @@ class TransactionManagerTest(
             }
         }
         val user = userRepository.findById(testUser.id)
-        assertTrue(user.isEmpty)
+        assertNull(user)
     }
 
     @Test
@@ -62,7 +63,7 @@ class TransactionManagerTest(
             }, TransactionIsolation.SERIALIZABLE)
         }
         val user = userRepository.findById(testUser.id)
-        assertTrue(user.isPresent)
+        assertEquals(testUser, user)
     }
 
     @Test
