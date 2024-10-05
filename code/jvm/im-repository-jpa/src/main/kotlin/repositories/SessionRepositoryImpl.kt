@@ -4,7 +4,6 @@ import jakarta.persistence.EntityManager
 import model.session.SessionDTO
 import model.token.AccessTokenDTO
 import model.token.RefreshTokenDTO
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Component
@@ -19,13 +18,10 @@ import java.util.*
 interface SessionRepositoryJpa : JpaRepository<SessionDTO, Long>
 
 @Component
-class SessionRepositoryImpl : SessionRepository {
-
-    @Autowired
-    private lateinit var sessionRepositoryJpa: SessionRepositoryJpa
-
-    @Autowired
-    private lateinit var entityManager: EntityManager
+class SessionRepositoryImpl(
+    private val sessionRepositoryJpa: SessionRepositoryJpa,
+    private val entityManager: EntityManager
+) : SessionRepository {
 
     override fun getAccessTokens(session: Session): List<AccessToken> {
         val query = entityManager.createQuery(

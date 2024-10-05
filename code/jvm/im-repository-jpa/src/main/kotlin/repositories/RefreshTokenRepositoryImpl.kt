@@ -2,7 +2,6 @@ package repositories
 
 import jakarta.persistence.EntityManager
 import model.token.RefreshTokenDTO
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Component
@@ -15,13 +14,10 @@ import java.util.*
 interface RefreshTokenRepositoryJpa : JpaRepository<RefreshTokenDTO, UUID>
 
 @Component
-class RefreshTokenRepositoryImpl : RefreshTokenRepository {
-
-    @Autowired
-    private lateinit var entityManager: EntityManager
-
-    @Autowired
-    private lateinit var refreshTokenRepositoryJpa: RefreshTokenRepositoryJpa
+class RefreshTokenRepositoryImpl(
+    private val refreshTokenRepositoryJpa: RefreshTokenRepositoryJpa,
+    private val entityManager: EntityManager
+) : RefreshTokenRepository {
 
     override fun save(entity: RefreshToken): RefreshToken {
         return refreshTokenRepositoryJpa.save(RefreshTokenDTO.fromDomain(entity)).toDomain()

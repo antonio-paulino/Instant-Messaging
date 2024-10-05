@@ -17,11 +17,10 @@ import java.util.*
 import kotlin.test.Test
 
 @SpringBootTest
-@ContextConfiguration(classes = [TestApp::class])
-open class ImInvitationRepositoryTest {
-
-    @Autowired
-    private lateinit var imInvitationRepository: ImInvitationRepositoryImpl
+@ContextConfiguration(classes = [TestAppRepository::class])
+open class ImInvitationRepositoryTest(
+    @Autowired private val imInvitationRepository: ImInvitationRepositoryImpl
+) {
 
     private lateinit var testInvitation1: ImInvitation
     private lateinit var testInvitation2: ImInvitation

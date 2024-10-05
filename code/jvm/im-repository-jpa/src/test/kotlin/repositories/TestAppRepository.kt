@@ -5,4 +5,4 @@ import org.springframework.boot.autoconfigure.domain.EntityScan
 
 @SpringBootApplication
 @EntityScan("model")
-open class TestApp
+open class TestAppRepository

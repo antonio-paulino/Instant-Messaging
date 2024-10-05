@@ -2,7 +2,6 @@ package repositories
 
 import jakarta.persistence.EntityManager
 import model.token.AccessTokenDTO
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Component
@@ -15,13 +14,10 @@ import java.util.*
 interface AccessTokenRepositoryJpa : JpaRepository<AccessTokenDTO, UUID>
 
 @Component
-class AccessTokenRepositoryImpl : AccessTokenRepository {
-
-    @Autowired
-    private lateinit var entityManager: EntityManager
-
-    @Autowired
-    private lateinit var accessTokenRepositoryJpa: AccessTokenRepositoryJpa
+class AccessTokenRepositoryImpl(
+    private val accessTokenRepositoryJpa: AccessTokenRepositoryJpa,
+    private val entityManager: EntityManager
+) : AccessTokenRepository {
 
     override fun save(entity: AccessToken): AccessToken {
         return accessTokenRepositoryJpa.save(AccessTokenDTO.fromDomain(entity)).toDomain()

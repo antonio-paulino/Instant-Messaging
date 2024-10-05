@@ -17,20 +17,13 @@ import java.util.*
 import kotlin.test.assertEquals
 
 @SpringBootTest
-@ContextConfiguration(classes = [TestApp::class])
-open class SessionRepositoryTest {
-
-    @Autowired
-    private lateinit var sessionRepository: SessionRepositoryImpl
-
-    @Autowired
-    private lateinit var userRepository: UserRepositoryImpl
-
-    @Autowired
-    private lateinit var accessTokenRepository: AccessTokenRepositoryImpl
-
-    @Autowired
-    private lateinit var refreshTokenRepository: RefreshTokenRepositoryImpl
+@ContextConfiguration(classes = [TestAppRepository::class])
+open class SessionRepositoryTest(
+    @Autowired private val sessionRepository: SessionRepositoryImpl,
+    @Autowired private val userRepository: UserRepositoryImpl,
+    @Autowired private val accessTokenRepository: AccessTokenRepositoryImpl,
+    @Autowired private val refreshTokenRepository: RefreshTokenRepositoryImpl,
+) {
 
     private var testUser = User(1, "user", "password")
 

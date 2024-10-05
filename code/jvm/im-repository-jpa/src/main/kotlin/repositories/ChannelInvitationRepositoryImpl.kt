@@ -4,7 +4,6 @@ import invitations.ChannelInvitation
 import invitations.ChannelInvitationRepository
 import jakarta.persistence.EntityManager
 import model.invitation.ChannelInvitationDTO
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Repository
@@ -14,13 +13,10 @@ import java.util.Optional
 interface ChannelInvitationRepositoryJpa : JpaRepository<ChannelInvitationDTO, Long>
 
 @Component
-class ChannelInvitationRepositoryImpl : ChannelInvitationRepository {
-
-    @Autowired
-    private lateinit var channelInvitationRepositoryJpa: ChannelInvitationRepositoryJpa
-
-    @Autowired
-    private lateinit var entityManager: EntityManager
+class ChannelInvitationRepositoryImpl(
+    private val channelInvitationRepositoryJpa: ChannelInvitationRepositoryJpa,
+    private val entityManager: EntityManager
+) : ChannelInvitationRepository {
 
     override fun save(entity: ChannelInvitation): ChannelInvitation {
         return channelInvitationRepositoryJpa.save(ChannelInvitationDTO.fromDomain(entity)).toDomain()

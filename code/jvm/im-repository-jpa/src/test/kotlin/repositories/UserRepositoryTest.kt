@@ -22,20 +22,13 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 
 @SpringBootTest
-@ContextConfiguration(classes = [TestApp::class])
-open class UserRepositoryTest {
-
-    @Autowired
-    private lateinit var userRepository: UserRepositoryImpl
-
-    @Autowired
-    private lateinit var sessionRepository: SessionRepositoryImpl
-
-    @Autowired
-    private lateinit var channelRepository: ChannelRepositoryImpl
-
-    @Autowired
-    private lateinit var channelInvitationRepository: ChannelInvitationRepositoryImpl
+@ContextConfiguration(classes = [TestAppRepository::class])
+open class UserRepositoryTest(
+    @Autowired private val userRepository: UserRepositoryImpl,
+    @Autowired private val sessionRepository: SessionRepositoryImpl,
+    @Autowired private val channelRepository: ChannelRepositoryImpl,
+    @Autowired private val channelInvitationRepository: ChannelInvitationRepositoryImpl,
+) {
 
     private lateinit var testUser: User
     private lateinit var testUser2: User

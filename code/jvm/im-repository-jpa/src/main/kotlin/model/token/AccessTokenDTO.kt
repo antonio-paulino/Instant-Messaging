@@ -15,7 +15,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 @Entity
-@Table(name = "AccessToken")
+@Table(name = "access_token")
 data class AccessTokenDTO(
     @Id
     @Column(nullable = false, length = 32)

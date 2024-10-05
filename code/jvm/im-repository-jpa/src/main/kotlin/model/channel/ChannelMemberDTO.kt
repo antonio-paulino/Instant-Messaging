@@ -1,7 +1,6 @@
 package model.channel
 
 import jakarta.persistence.Column
-import jakarta.persistence.Convert
 import jakarta.persistence.EmbeddedId
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
@@ -28,6 +27,5 @@ data class ChannelMemberDTO(
     val user: UserDTO = UserDTO(),
 
     @Column(name = "role")
-    @Convert(converter = ChannelRoleConverter::class)
     val role: ChannelRoleDTO = ChannelRoleDTO.MEMBER
 )
