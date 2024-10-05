@@ -1,10 +1,10 @@
 package model.invitation
+
 import invitations.ChannelInvitation
 import invitations.ChannelInvitationStatus
 import channel.ChannelRole
 import jakarta.persistence.*
 import model.channel.ChannelDTO
-import model.channel.ChannelRoleConverter
 import model.user.UserDTO
 import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction
@@ -34,12 +34,10 @@ data class ChannelInvitationDTO(
 
     @Column(nullable = false, length = 10)
     @Enumerated(EnumType.STRING)
-    @Convert(converter = ChannelInvitationStatusConverter::class)
     val status: ChannelInvitationStatus = ChannelInvitationStatus.PENDING,
 
     @Column(nullable = false, length = 10)
     @Enumerated(EnumType.STRING)
-    @Convert(converter = ChannelRoleConverter::class)
     val role: ChannelRole = ChannelRole.MEMBER,
 
     @Column(name = "expires_at", nullable = false)

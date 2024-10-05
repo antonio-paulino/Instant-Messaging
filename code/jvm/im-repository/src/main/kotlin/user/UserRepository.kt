@@ -54,7 +54,7 @@ interface UserRepository : Repository<User, Long> {
     /**
      * Finds all invitations of the user.
      *
-     * @param userId the ID of the user
+     * @param user the user
      * @return the invitations of the user
      */
     fun getInvitations(user: User): List<ChannelInvitation>
@@ -62,7 +62,7 @@ interface UserRepository : Repository<User, Long> {
     /**
      * Finds all sessions of the user.
      *
-     * @param userId the ID of the user
+     * @param user the user
      * @return the sessions of the user
      */
     fun getSessions(user: User): List<Session>

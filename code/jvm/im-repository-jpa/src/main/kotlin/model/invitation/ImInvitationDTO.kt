@@ -1,4 +1,5 @@
 package model.invitation
+
 import invitations.ImInvitation
 import invitations.ImInvitationStatus
 import jakarta.persistence.*
@@ -6,7 +7,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 @Entity
-@Table(name = "ImInvitation")
+@Table(name = "im_invitation")
 data class ImInvitationDTO(
     @Id
     @Column(nullable = false, length = 32)
@@ -17,7 +18,6 @@ data class ImInvitationDTO(
 
     @Column(nullable = false, length = 10)
     @Enumerated(EnumType.STRING)
-    @Convert(converter = ImInvitationStatusConverter::class)
     val status: ImInvitationStatus = ImInvitationStatus.PENDING
 ) {
     companion object {

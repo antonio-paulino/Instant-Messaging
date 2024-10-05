@@ -36,7 +36,6 @@ data class ChannelDTO(
     )
     @MapKeyJoinColumn(name = "user_id")
     @Column(name = "role")
-    @Convert(converter = ChannelRoleConverter::class)
     val members: Map<UserDTO, ChannelRoleDTO> = hashMapOf(),
 ) {
     companion object {

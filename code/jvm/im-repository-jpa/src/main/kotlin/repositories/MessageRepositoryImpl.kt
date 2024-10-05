@@ -5,7 +5,6 @@ import jakarta.persistence.EntityManager
 import messages.Message
 import messages.MessageRepository
 import model.message.MessageDTO
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Component
@@ -16,12 +15,10 @@ import java.util.*
 interface MessageRepositoryJpa : JpaRepository<MessageDTO, Long>
 
 @Component
-class MessageRepositoryImpl : MessageRepository {
-    @Autowired
-    private lateinit var messageRepositoryJpa: MessageRepositoryJpa
-
-    @Autowired
-    private lateinit var entityManager: EntityManager
+class MessageRepositoryImpl(
+    private val messageRepositoryJpa: MessageRepositoryJpa,
+    private val entityManager: EntityManager
+) : MessageRepository {
 
     override fun findByChannel(channel: Channel): List<Message> {
         val query = entityManager.createQuery(

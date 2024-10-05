@@ -17,8 +17,9 @@ interface ChannelRepository : Repository<Channel, Long> {
      * @return the channel with the given name, or `null` if no such channel exists
      */
     fun findByName(name: String): Channel?
+
     /**
-     * Finds channels whose name starts with the given string, case-insensitive.
+     * Finds channels where the name starts with the given string, case-insensitive.
      *
      * @param name the partial name of the channels
      * @return the channels whose name contains the given string
@@ -26,17 +27,18 @@ interface ChannelRepository : Repository<Channel, Long> {
     fun findByPartialName(name: String): List<Channel>
 
     /**
-     * Finds all channels where the user is a member.
+     * Finds all invitations to a channel with a given status.
      *
-     * @param userId the ID of the user
-     * @return the channels where the user is a member
+     * @param channel the channel
+     * @param status the status of the invitations
+     * @return the invitations to the channel with the given status
      */
     fun getInvitations(channel: Channel, status: ChannelInvitationStatus): List<ChannelInvitation>
 
     /**
      * Finds all messages in a channel.
      *
-     * @param channelId the ID of the channel
+     * @param channel the channel
      * @return the messages in the channel
      */
     fun getMessages(channel: Channel): List<Message>
@@ -44,8 +46,8 @@ interface ChannelRepository : Repository<Channel, Long> {
     /**
      * Finds the role of a user in a channel.
      *
-     * @param channelId the ID of the channel
-     * @param userId the ID of the user
+     * @param channel the channel
+     * @param user the user
      * @return the role of the user in the channel, or `null` if the user is not a member
      */
     fun getMember(channel: Channel, user: User): Pair<User, ChannelRole>?

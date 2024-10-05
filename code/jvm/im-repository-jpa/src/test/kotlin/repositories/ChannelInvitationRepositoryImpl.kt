@@ -18,17 +18,12 @@ import java.time.LocalDateTime
 import kotlin.test.Test
 
 @SpringBootTest
-@ContextConfiguration(classes = [TestApp::class])
-open class ChannelInvitationRepositoryTest {
-
-    @Autowired
-    private lateinit var channelInvitationRepository: ChannelInvitationRepositoryImpl
-
-    @Autowired
-    private lateinit var channelRepository: ChannelRepositoryImpl
-
-    @Autowired
-    private lateinit var userRepository: UserRepositoryImpl
+@ContextConfiguration(classes = [TestAppRepository::class])
+open class ChannelInvitationRepositoryTest(
+    @Autowired private val userRepository: UserRepositoryImpl,
+    @Autowired private val channelRepository: ChannelRepositoryImpl,
+    @Autowired private val channelInvitationRepository: ChannelInvitationRepositoryImpl,
+) {
 
     private lateinit var testChannel: Channel
     private lateinit var testInviter: User

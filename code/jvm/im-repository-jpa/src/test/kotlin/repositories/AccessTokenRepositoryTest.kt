@@ -17,17 +17,12 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 @SpringBootTest
-@ContextConfiguration(classes = [TestApp::class])
-open class AccessTokenRepositoryTest {
-
-    @Autowired
-    private lateinit var accessTokenRepository: AccessTokenRepositoryImpl
-
-    @Autowired
-    private lateinit var userRepository: UserRepositoryImpl
-
-    @Autowired
-    private lateinit var sessionRepository: SessionRepositoryImpl
+@ContextConfiguration(classes = [TestAppRepository::class])
+open class AccessTokenRepositoryTest(
+    @Autowired private val userRepository: UserRepositoryImpl,
+    @Autowired private val sessionRepository: SessionRepositoryImpl,
+    @Autowired private val accessTokenRepository: AccessTokenRepositoryImpl,
+) {
 
     private lateinit var testUser: User
     private lateinit var testSession: Session

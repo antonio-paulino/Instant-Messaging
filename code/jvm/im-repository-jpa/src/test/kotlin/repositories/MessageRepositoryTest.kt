@@ -16,18 +16,12 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 @SpringBootTest
-@ContextConfiguration(classes = [TestApp::class])
-open class MessageRepositoryTest {
-
-    @Autowired
-    private lateinit var messageRepository: MessageRepositoryImpl
-
-    @Autowired
-    private lateinit var channelRepository: ChannelRepositoryImpl
-
-    @Autowired
-    private lateinit var userRepository: UserRepositoryImpl
-
+@ContextConfiguration(classes = [TestAppRepository::class])
+open class MessageRepositoryTest(
+    @Autowired private val messageRepository: MessageRepositoryImpl,
+    @Autowired private val channelRepository: ChannelRepositoryImpl,
+    @Autowired private val userRepository: UserRepositoryImpl
+) {
     private lateinit var testChannel: Channel
     private lateinit var testChannel2: Channel
     private lateinit var testUser: User

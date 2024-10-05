@@ -12,7 +12,6 @@ import model.channel.ChannelMemberDTO
 import model.channel.ChannelMemberId
 import model.invitation.ChannelInvitationDTO
 import model.message.MessageDTO
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Component
@@ -27,16 +26,11 @@ interface ChannelRepositoryJpa : JpaRepository<ChannelDTO, Long>
 interface ChannelMemberRepositoryJpa : JpaRepository<ChannelMemberDTO, ChannelMemberId>
 
 @Component
-class ChannelRepositoryImpl : ChannelRepository {
-
-    @Autowired
-    private lateinit var channelRepositoryJpa: ChannelRepositoryJpa
-
-    @Autowired
-    private lateinit var channelMemberRepositoryJpa: ChannelMemberRepositoryJpa
-
-    @Autowired
-    private lateinit var entityManager: EntityManager
+class ChannelRepositoryImpl(
+    private val channelRepositoryJpa: ChannelRepositoryJpa,
+    private val channelMemberRepositoryJpa: ChannelMemberRepositoryJpa,
+    private val entityManager: EntityManager
+) : ChannelRepository {
 
     override fun findByName(name: String): Channel? {
         val query = entityManager.createQuery(

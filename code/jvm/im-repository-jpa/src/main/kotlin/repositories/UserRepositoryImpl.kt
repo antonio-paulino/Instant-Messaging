@@ -9,7 +9,6 @@ import model.channel.ChannelRoleDTO
 import model.invitation.ChannelInvitationDTO
 import model.session.SessionDTO
 import model.user.UserDTO
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Component
@@ -23,13 +22,10 @@ import java.util.*
 interface UserRepositoryJpa : JpaRepository<UserDTO, Long>
 
 @Component
-class UserRepositoryImpl : UserRepository {
-
-    @Autowired
-    private lateinit var userRepositoryJpa: UserRepositoryJpa
-
-    @Autowired
-    private lateinit var entityManager: EntityManager
+class UserRepositoryImpl(
+    private val userRepositoryJpa: UserRepositoryJpa,
+    private val entityManager: EntityManager
+) : UserRepository {
 
     override fun findByName(name: String): User? {
         val query = entityManager.createQuery("SELECT u FROM UserDTO u WHERE u.name = :name", UserDTO::class.java)

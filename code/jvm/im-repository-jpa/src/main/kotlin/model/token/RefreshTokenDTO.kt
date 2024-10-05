@@ -14,7 +14,7 @@ import tokens.RefreshToken
 import java.util.UUID
 
 @Entity
-@Table(name = "RefreshToken")
+@Table(name = "refresh_token")
 data class RefreshTokenDTO(
     @Id
     @Column(nullable = false, length = 32)

@@ -4,7 +4,6 @@ import invitations.ImInvitation
 import invitations.ImInvitationRepository
 import jakarta.persistence.EntityManager
 import model.invitation.ImInvitationDTO
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Sort
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Component
@@ -15,12 +14,10 @@ import java.util.*
 interface ImInvitationRepositoryJpa : JpaRepository<ImInvitationDTO, UUID>
 
 @Component
-class ImInvitationRepositoryImpl : ImInvitationRepository {
-    @Autowired
-    private lateinit var entityManager: EntityManager
-
-    @Autowired
-    private lateinit var imInvitationRepositoryJpa: ImInvitationRepositoryJpa
+class ImInvitationRepositoryImpl(
+    private val imInvitationRepositoryJpa: ImInvitationRepositoryJpa,
+    private val entityManager: EntityManager
+) : ImInvitationRepository {
 
     override fun findByToken(token: UUID): ImInvitation? {
         val query = entityManager.createQuery(

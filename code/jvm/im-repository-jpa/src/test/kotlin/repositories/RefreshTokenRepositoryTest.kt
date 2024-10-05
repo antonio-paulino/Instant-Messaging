@@ -15,18 +15,12 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 @SpringBootTest
-@ContextConfiguration(classes = [TestApp::class])
-open class RefreshTokenRepositoryTest {
-
-    @Autowired
-    private lateinit var refreshTokenRepository: RefreshTokenRepositoryImpl
-
-    @Autowired
-    private lateinit var userRepository: UserRepositoryImpl
-
-    @Autowired
-    private lateinit var sessionRepository: SessionRepositoryImpl
-
+@ContextConfiguration(classes = [TestAppRepository::class])
+open class RefreshTokenRepositoryTest(
+    @Autowired private val userRepository: UserRepositoryImpl,
+    @Autowired private val sessionRepository: SessionRepositoryImpl,
+    @Autowired private val refreshTokenRepository: RefreshTokenRepositoryImpl,
+) {
     private lateinit var testUser: User
     private lateinit var testSession: Session
     private lateinit var testSession2: Session
