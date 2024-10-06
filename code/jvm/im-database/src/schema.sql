@@ -8,14 +8,14 @@ drop table if exists channel cascade;
 drop table if exists session cascade;
 drop table if exists users cascade;
 
-# add constrain to check the email type like
 
 create table users
 (
     id       bigserial primary key,
     name     varchar(30) unique not null,
-    password varchar(100)       not null,
-    email    varchar(100) unique not null
+    password varchar(30)       not null,
+    email    varchar(50) unique not null,
+    check ( email ~* '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$' )
 );
 
 create table session
