@@ -27,9 +27,7 @@ dependencies {
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
-	implementation(project(":im-domain"))
-	implementation(project(":im-repository"))
-	implementation(project(":im-repository-jpa"))
+    implementation(project(":im-services"))
 }
 
 kotlin {

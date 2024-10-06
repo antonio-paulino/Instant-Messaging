@@ -13,7 +13,7 @@ create table users
 (
     id       bigserial primary key,
     name     varchar(30) unique not null,
-    password varchar(30)       not null,
+    password varchar(30)        not null,
     email    varchar(50) unique not null,
     check ( email ~* '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$' )
 );
@@ -74,7 +74,8 @@ create table message
     edited_at  timestamp          default null
 );
 
-create table channel_invitation(
+create table channel_invitation
+(
     id         bigserial primary key,
     channel_id bigint      not null references channel (id) on delete cascade,
     inviter    bigint      not null references users (id) on delete cascade,
