@@ -86,15 +86,15 @@ open class ImInvitationRepositoryTest(
     open fun `should find invitation by id`() {
         val savedInvitation = imInvitationRepository.save(testInvitation1)
         val foundInvitation = imInvitationRepository.findById(savedInvitation.token)
-        assertTrue(foundInvitation.isPresent)
-        assertEquals(savedInvitation.token, foundInvitation.get().token)
+        assertNotNull(foundInvitation)
+        assertEquals(savedInvitation.token, foundInvitation!!.token)
     }
 
     @Test
     @Transactional
-    open fun `should return empty optional for non-existent id`() {
+    open fun `should return null for non-existent id`() {
         val foundInvitation = imInvitationRepository.findById(UUID.randomUUID())
-        assertTrue(foundInvitation.isEmpty)
+        assertNull(foundInvitation)
     }
 
     @Test

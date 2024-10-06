@@ -5,6 +5,7 @@ import jakarta.transaction.Transactional
 import messages.Message
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
@@ -59,17 +60,18 @@ open class MessageRepositoryTest(
     @Transactional
     open fun `should find message by id`() {
         val savedMessage = messageRepository.save(testMessage1)
-        val foundMessage = messageRepository.findById(savedMessage.id).get()
-        assertEquals(savedMessage.id, foundMessage.id)
+        val foundMessage = messageRepository.findById(savedMessage.id)
+        assertNotNull(foundMessage)
+        assertEquals(savedMessage.id, foundMessage!!.id)
         assertEquals(savedMessage.content, foundMessage.content)
         assertEquals(savedMessage.user, foundMessage.user)
     }
 
     @Test
     @Transactional
-    open fun `should return empty optional for non-existent id`() {
+    open fun `should return null for non-existent id`() {
         val foundMessage = messageRepository.findById(999L)
-        assertTrue(foundMessage.isEmpty)
+        assertNull(foundMessage)
     }
 
     @Test

@@ -2,12 +2,12 @@ package repositories
 
 import jakarta.transaction.Transactional
 import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ContextConfiguration
-import sessions.SESSION_DURATION_DAYS
 import sessions.Session
 import tokens.AccessToken
 import tokens.RefreshToken
@@ -15,6 +15,8 @@ import user.User
 import java.time.LocalDateTime
 import java.util.*
 import kotlin.test.assertEquals
+
+private const val SESSION_DURATION_DAYS = 90L
 
 @SpringBootTest
 @ContextConfiguration(classes = [TestAppRepository::class])
@@ -71,9 +73,9 @@ open class SessionRepositoryTest(
                 expiresAt = LocalDateTime.now().plusDays(SESSION_DURATION_DAYS),
             )
         )
-        val foundSession = sessionRepository.findById(session.id).get()
+        val foundSession = sessionRepository.findById(session.id)
         assertNotNull(foundSession)
-        assertEquals(session.user, foundSession.user)
+        assertEquals(session.user, foundSession!!.user)
         assertEquals(session.expiresAt, foundSession.expiresAt)
     }
 
@@ -81,7 +83,7 @@ open class SessionRepositoryTest(
     @Transactional
     open fun `should not find by id`() {
         val foundSession = sessionRepository.findById(9999)
-        assertEquals(false, foundSession.isPresent)
+        assertNull(foundSession)
     }
 
     @Test
@@ -175,8 +177,8 @@ open class SessionRepositoryTest(
             expiresAt = LocalDateTime.now().plusDays(SESSION_DURATION_DAYS + 1)
         )
         sessionRepository.save(updatedSession)
-        val foundSession = sessionRepository.findById(session.id).get()
-        assertEquals(updatedSession.expiresAt, foundSession.expiresAt)
+        val foundSession = sessionRepository.findById(session.id)
+        assertEquals(updatedSession.expiresAt, foundSession!!.expiresAt)
     }
 
     @Test

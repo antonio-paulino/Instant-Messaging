@@ -27,8 +27,8 @@ class RefreshTokenRepositoryImpl(
         return refreshTokenRepositoryJpa.saveAll(entities.map { RefreshTokenDTO.fromDomain(it) }).map { it.toDomain() }
     }
 
-    override fun findById(id: UUID): Optional<RefreshToken> {
-        return refreshTokenRepositoryJpa.findById(id).map { it.toDomain() }
+    override fun findById(id: UUID): RefreshToken? {
+        return refreshTokenRepositoryJpa.findById(id).map { it.toDomain() }.orElse(null)
     }
 
     override fun findAll(): List<RefreshToken> {
@@ -50,7 +50,7 @@ class RefreshTokenRepositoryImpl(
         return query.resultList.map { it.toDomain() }
     }
 
-    override fun findAllById(ids: Iterable<UUID>): Iterable<RefreshToken> {
+    override fun findAllById(ids: Iterable<UUID>): List<RefreshToken> {
         return refreshTokenRepositoryJpa.findAllById(ids).map { it.toDomain() }
     }
 

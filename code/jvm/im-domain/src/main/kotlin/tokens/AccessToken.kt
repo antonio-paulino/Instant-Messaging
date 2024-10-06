@@ -5,9 +5,10 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 data class AccessToken(
-    val token: UUID,
+    val token: UUID = UUID.randomUUID(),
     val session: Session,
     val expiresAt: LocalDateTime
 ) {
-    fun isExpired(): Boolean = LocalDateTime.now().isAfter(expiresAt)
+    val expired: Boolean
+        get() = expiresAt.isBefore(LocalDateTime.now())
 }

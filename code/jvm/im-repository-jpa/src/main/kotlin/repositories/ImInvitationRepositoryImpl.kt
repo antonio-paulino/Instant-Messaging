@@ -36,8 +36,8 @@ class ImInvitationRepositoryImpl(
         return imInvitationRepositoryJpa.saveAll(entities.map { ImInvitationDTO.fromDomain(it) }).map { it.toDomain() }
     }
 
-    override fun findById(id: UUID): Optional<ImInvitation> {
-        return imInvitationRepositoryJpa.findById(id).map { it.toDomain() }
+    override fun findById(id: UUID): ImInvitation? {
+        return imInvitationRepositoryJpa.findById(id).map { it.toDomain() }.orElse(null)
     }
 
     override fun findAll(): List<ImInvitation> {
@@ -60,7 +60,7 @@ class ImInvitationRepositoryImpl(
         return query.resultList.map { it.toDomain() }
     }
 
-    override fun findAllById(ids: Iterable<UUID>): Iterable<ImInvitation> {
+    override fun findAllById(ids: Iterable<UUID>): List<ImInvitation> {
         return imInvitationRepositoryJpa.findAllById(ids).map { it.toDomain() }
     }
 

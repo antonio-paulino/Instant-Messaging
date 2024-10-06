@@ -3,12 +3,13 @@ package sessions
 import user.User
 import java.time.LocalDateTime
 
-const val SESSION_DURATION_DAYS = 90L
-
 data class Session(
     val id: Long = 0,
     val user: User,
-    val expiresAt: LocalDateTime,
+    val expiresAt: LocalDateTime
 ) {
-    fun refresh(): Session = copy(expiresAt = LocalDateTime.now().plusDays(SESSION_DURATION_DAYS))
+    val expired: Boolean
+        get() = expiresAt.isBefore(LocalDateTime.now())
+
+    fun refresh(newExpiresAt: LocalDateTime): Session = copy(expiresAt = newExpiresAt)
 }

@@ -12,7 +12,6 @@ import sessions.Session
 import sessions.SessionRepository
 import tokens.AccessToken
 import tokens.RefreshToken
-import java.util.*
 
 @Repository
 interface SessionRepositoryJpa : JpaRepository<SessionDTO, Long>
@@ -49,8 +48,8 @@ class SessionRepositoryImpl(
         return sessionRepositoryJpa.saveAll(entities.map { SessionDTO.fromDomain(it) }).map { it.toDomain() }
     }
 
-    override fun findById(id: Long): Optional<Session> {
-        return sessionRepositoryJpa.findById(id).map { it.toDomain() }
+    override fun findById(id: Long): Session? {
+        return sessionRepositoryJpa.findById(id).map { it.toDomain() }.orElse(null)
     }
 
     override fun findAll(): List<Session> {
@@ -72,7 +71,7 @@ class SessionRepositoryImpl(
         return query.resultList.map { it.toDomain() }
     }
 
-    override fun findAllById(ids: Iterable<Long>): Iterable<Session> {
+    override fun findAllById(ids: Iterable<Long>): List<Session> {
         return sessionRepositoryJpa.findAllById(ids).map { it.toDomain() }
     }
 

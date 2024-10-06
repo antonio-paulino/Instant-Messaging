@@ -27,8 +27,8 @@ class AccessTokenRepositoryImpl(
         return accessTokenRepositoryJpa.saveAll(entities.map { AccessTokenDTO.fromDomain(it) }).map { it.toDomain() }
     }
 
-    override fun findById(id: UUID): Optional<AccessToken> {
-        return accessTokenRepositoryJpa.findById(id).map { it.toDomain() }
+    override fun findById(id: UUID): AccessToken? {
+        return accessTokenRepositoryJpa.findById(id).map { it.toDomain() }.orElse(null)
     }
 
     override fun findAll(): List<AccessToken> {
@@ -50,7 +50,7 @@ class AccessTokenRepositoryImpl(
         return query.resultList.map { it.toDomain() }
     }
 
-    override fun findAllById(ids: Iterable<UUID>): Iterable<AccessToken> {
+    override fun findAllById(ids: Iterable<UUID>): List<AccessToken> {
         return accessTokenRepositoryJpa.findAllById(ids).map { it.toDomain() }
     }
 

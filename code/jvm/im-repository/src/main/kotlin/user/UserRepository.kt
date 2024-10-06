@@ -19,6 +19,14 @@ interface UserRepository : Repository<User, Long> {
     fun findByName(name: String): User?
 
     /**
+     * Finds a user by their email.
+     *
+     * @param email the email of the user
+     * @return the user with the given email, or `null` if no such user exists
+     */
+    fun findByEmail(email: String): User?
+
+    /**
      * Finds users whose name starts with the given string, case-insensitive.
      *
      * @param name the partial name of the users

@@ -13,6 +13,7 @@ import java.util.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 
 @SpringBootTest
 @ContextConfiguration(classes = [TestAppRepository::class])
@@ -78,7 +79,7 @@ open class RefreshTokenRepositoryTest(
     @Transactional
     open fun `should find refresh token by id`() {
         val savedToken = refreshTokenRepository.save(testRefreshToken)
-        val foundToken = refreshTokenRepository.findById(savedToken.token).get()
+        val foundToken = refreshTokenRepository.findById(savedToken.token)
         assertNotNull(foundToken)
         assertEquals(savedToken.token, foundToken.token)
         assertEquals(savedToken.session, foundToken.session)
@@ -88,7 +89,7 @@ open class RefreshTokenRepositoryTest(
     @Transactional
     open fun `should not find refresh token by id`() {
         val foundToken = refreshTokenRepository.findById(UUID.randomUUID())
-        assertEquals(false, foundToken.isPresent)
+        assertNull(foundToken)
     }
 
     @Test
