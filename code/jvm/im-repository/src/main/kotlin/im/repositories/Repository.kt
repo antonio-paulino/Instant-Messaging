@@ -53,7 +53,7 @@ interface Repository<T, ID> {
      * @param pagination the pagination request
      * @return the entities and the pagination information.
      */
-    fun find(pagination: PaginationRequest): Pair<List<T>, Pagination>
+    fun find(pagination: PaginationRequest): Pagination<T>
 
 
     /**

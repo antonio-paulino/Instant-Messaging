@@ -17,7 +17,8 @@ interface RefreshTokenRepositoryJpa : JpaRepository<RefreshTokenDTO, UUID>
 @Component
 class RefreshTokenRepositoryImpl(
     private val refreshTokenRepositoryJpa: RefreshTokenRepositoryJpa,
-    private val entityManager: EntityManager
+    private val entityManager: EntityManager,
+    private val utils: JpaRepositoryUtils
 ) : RefreshTokenRepository {
 
     override fun save(entity: RefreshToken): RefreshToken {
@@ -36,9 +37,9 @@ class RefreshTokenRepositoryImpl(
         return refreshTokenRepositoryJpa.findAll().map { it.toDomain() }
     }
 
-    override fun find(pagination: PaginationRequest): Pair<List<RefreshToken>, Pagination> {
-        val res = refreshTokenRepositoryJpa.findAll(pagination.toPageRequest("token"))
-        return res.content.map { it.toDomain() } to res.getPagination(res.pageable)
+    override fun find(pagination: PaginationRequest): Pagination<RefreshToken> {
+        val res = refreshTokenRepositoryJpa.findAll(utils.toPageRequest(pagination, "token"))
+        return Pagination(res.content.map { it.toDomain() }, utils.getPaginationInfo(res))
     }
 
     override fun findAllById(ids: Iterable<UUID>): List<RefreshToken> {

@@ -7,10 +7,10 @@ package im.pagination
  *
  * @param page the page number
  * @param size the page size
- * @param sort the sort
+ * @param sort the sorting order
  */
 data class PaginationRequest(
     val page: Int,
     val size: Int,
-    val sort: Sort? = null
+    val sort: Sort = Sort.ASC
 )

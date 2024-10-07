@@ -20,7 +20,8 @@ interface SessionRepositoryJpa : JpaRepository<SessionDTO, Long>
 @Component
 class SessionRepositoryImpl(
     private val sessionRepositoryJpa: SessionRepositoryJpa,
-    private val entityManager: EntityManager
+    private val entityManager: EntityManager,
+    private val utils: JpaRepositoryUtils
 ) : SessionRepository {
 
     override fun getAccessTokens(session: Session): List<AccessToken> {
@@ -57,9 +58,9 @@ class SessionRepositoryImpl(
         return sessionRepositoryJpa.findAll().map { it.toDomain() }
     }
 
-    override fun find(pagination: PaginationRequest): Pair<List<Session>, Pagination> {
-        val res = sessionRepositoryJpa.findAll(pagination.toPageRequest("id"))
-        return res.content.map { it.toDomain() } to res.getPagination(res.pageable)
+    override fun find(pagination: PaginationRequest): Pagination<Session> {
+        val res = sessionRepositoryJpa.findAll(utils.toPageRequest(pagination, "id"))
+        return Pagination(res.content.map { it.toDomain() }, utils.getPaginationInfo(res))
     }
 
     override fun findAllById(ids: Iterable<Long>): List<Session> {

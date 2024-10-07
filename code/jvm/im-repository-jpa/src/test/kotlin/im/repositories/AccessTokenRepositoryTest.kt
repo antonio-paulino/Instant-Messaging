@@ -170,7 +170,7 @@ open class AccessTokenRepositoryTest(
     @Test
     @Transactional
     open fun `pagination on empty repository should return empty list`() {
-        val tokens = accessTokenRepository.find(PaginationRequest(1, 1)).first
+        val tokens = accessTokenRepository.find(PaginationRequest(1, 1)).items
         assertEquals(0, tokens.size)
     }
 

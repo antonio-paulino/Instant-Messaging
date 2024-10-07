@@ -25,7 +25,8 @@ interface UserRepositoryJpa : JpaRepository<UserDTO, Long>
 @Component
 class UserRepositoryImpl(
     private val userRepositoryJpa: UserRepositoryJpa,
-    private val entityManager: EntityManager
+    private val entityManager: EntityManager,
+    private val utils: JpaRepositoryUtils
 ) : UserRepository {
 
     override fun findByName(name: String): User? {
@@ -121,9 +122,9 @@ class UserRepositoryImpl(
         return userRepositoryJpa.findAll().map { it.toDomain() }
     }
 
-    override fun find(pagination: PaginationRequest): Pair<List<User>, Pagination> {
-        val res = userRepositoryJpa.findAll(pagination.toPageRequest("id"))
-        return res.content.map { it.toDomain() } to res.getPagination(res.pageable)
+    override fun find(pagination: PaginationRequest): Pagination<User> {
+        val res = userRepositoryJpa.findAll(utils.toPageRequest(pagination, "id"))
+        return Pagination(res.content.map { it.toDomain() }, utils.getPaginationInfo(res))
     }
 
     override fun findAllById(ids: Iterable<Long>): List<User> {

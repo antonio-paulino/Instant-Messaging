@@ -17,7 +17,8 @@ interface ImInvitationRepositoryJpa : JpaRepository<ImInvitationDTO, UUID>
 @Component
 class ImInvitationRepositoryImpl(
     private val imInvitationRepositoryJpa: ImInvitationRepositoryJpa,
-    private val entityManager: EntityManager
+    private val entityManager: EntityManager,
+    private val utils: JpaRepositoryUtils
 ) : ImInvitationRepository {
 
     override fun save(entity: ImInvitation): ImInvitation {
@@ -36,9 +37,9 @@ class ImInvitationRepositoryImpl(
         return imInvitationRepositoryJpa.findAll().map { it.toDomain() }
     }
 
-    override fun find(pagination: PaginationRequest): Pair<List<ImInvitation>, Pagination> {
-        val res = imInvitationRepositoryJpa.findAll(pagination.toPageRequest("expiresAt"))
-        return res.content.map { it.toDomain() } to res.getPagination(res.pageable)
+    override fun find(pagination: PaginationRequest): Pagination<ImInvitation> {
+        val res = imInvitationRepositoryJpa.findAll(utils.toPageRequest(pagination, "expiresAt"))
+        return Pagination(res.content.map { it.toDomain() }, utils.getPaginationInfo(res))
     }
 
     override fun findAllById(ids: Iterable<UUID>): List<ImInvitation> {

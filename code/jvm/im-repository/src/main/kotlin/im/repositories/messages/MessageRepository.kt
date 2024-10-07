@@ -20,11 +20,11 @@ interface MessageRepository : Repository<Message, Long> {
     fun findByChannel(channel: Channel): List<Message>
 
     /**
-     * Finds the latest messages in a channel.
+     * Finds the messages in a channel with pagination.
      *
      * @param channel the channel
      * @param paginationRequest the pagination request
      * @return the latest messages in the channel
      */
-    fun findLatest(channel: Channel, paginationRequest: PaginationRequest): Pair<List<Message>, Pagination>
+    fun findByChannel(channel: Channel, paginationRequest: PaginationRequest): Pagination<Message>
 }

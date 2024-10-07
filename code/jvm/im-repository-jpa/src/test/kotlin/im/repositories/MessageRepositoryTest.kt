@@ -5,6 +5,7 @@ import im.channel.Channel
 import jakarta.transaction.Transactional
 import im.messages.Message
 import im.pagination.PaginationRequest
+import im.pagination.Sort
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
@@ -106,11 +107,11 @@ open class MessageRepositoryTest(
     @Test
     @Transactional
     open fun `should return latest messages in channel 1 ordered by createdAt`() {
-        messageRepository.save(testMessage1)
         messageRepository.save(testMessage2)
+        messageRepository.save(testMessage1)
         messageRepository.save(testMessage3)
 
-        val (latestMessages, pagination) = messageRepository.findLatest(testChannel, PaginationRequest(1, 2))
+        val (latestMessages, pagination) = messageRepository.findByChannel(testChannel, PaginationRequest(1, 2, Sort.DESC))
 
         assertEquals(1, pagination.currentPage)
         assertEquals(null, pagination.nextPage)

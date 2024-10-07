@@ -29,7 +29,8 @@ interface ChannelMemberRepositoryJpa : JpaRepository<ChannelMemberDTO, ChannelMe
 class ChannelRepositoryImpl(
     private val channelRepositoryJpa: ChannelRepositoryJpa,
     private val channelMemberRepositoryJpa: ChannelMemberRepositoryJpa,
-    private val entityManager: EntityManager
+    private val entityManager: EntityManager,
+    private val utils: JpaRepositoryUtils
 ) : ChannelRepository {
 
     override fun findByName(name: String): Channel? {
@@ -98,9 +99,9 @@ class ChannelRepositoryImpl(
         return channelRepositoryJpa.findAll().map { it.toDomain() }
     }
 
-    override fun find(pagination: PaginationRequest): Pair<List<Channel>, Pagination> {
-        val res = channelRepositoryJpa.findAll(pagination.toPageRequest("id"))
-        return res.content.map { it.toDomain() } to res.getPagination(res.pageable)
+    override fun find(pagination: PaginationRequest): Pagination<Channel> {
+        val res = channelRepositoryJpa.findAll(utils.toPageRequest(pagination, "id"))
+        return Pagination(res.content.map { it.toDomain() }, utils.getPaginationInfo(res))
     }
 
     override fun findAllById(ids: Iterable<Long>): List<Channel> {

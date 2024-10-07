@@ -6,6 +6,7 @@ import jakarta.persistence.EntityManager
 import im.messages.Message
 import im.repositories.messages.MessageRepository
 import im.model.message.MessageDTO
+import im.pagination.PaginationInfo
 import im.pagination.PaginationRequest
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Component
@@ -17,7 +18,8 @@ interface MessageRepositoryJpa : JpaRepository<MessageDTO, Long>
 @Component
 class MessageRepositoryImpl(
     private val messageRepositoryJpa: MessageRepositoryJpa,
-    private val entityManager: EntityManager
+    private val entityManager: EntityManager,
+    private val utils: JpaRepositoryUtils
 ) : MessageRepository {
 
     override fun findByChannel(channel: Channel): List<Message> {
@@ -29,7 +31,7 @@ class MessageRepositoryImpl(
         return query.resultList.map { it.toDomain() }
     }
 
-    override fun findLatest(channel: Channel, paginationRequest: PaginationRequest): Pair<List<Message>, Pagination> {
+    override fun findByChannel(channel: Channel, paginationRequest: PaginationRequest): Pagination<Message> {
         val totalMessagesQuery = entityManager.createQuery(
             "SELECT COUNT(m) FROM MessageDTO m WHERE m.channel.id = :channelId",
             Long::class.java
@@ -38,7 +40,7 @@ class MessageRepositoryImpl(
         val totalMessages = totalMessagesQuery.singleResult
 
         val query = entityManager.createQuery(
-            "SELECT m FROM MessageDTO m WHERE m.channel.id = :channelId ORDER BY m.id DESC",
+            "SELECT m FROM MessageDTO m WHERE m.channel.id = :channelId ORDER BY m.createdAt ${paginationRequest.sort}",
             MessageDTO::class.java
         )
         query.setParameter("channelId", channel.id)
@@ -53,14 +55,17 @@ class MessageRepositoryImpl(
         val prevPage = if (currentPage > 1) currentPage - 1 else null
 
         val pagination = Pagination(
-            total = totalMessages,
-            currentPage = currentPage,
-            totalPages = totalPages,
-            nextPage = nextPage,
-            prevPage = prevPage
+            res.map { it.toDomain() },
+            PaginationInfo(
+                totalMessages,
+                totalPages,
+                currentPage,
+                nextPage,
+                prevPage
+            )
         )
 
-        return res.map { it.toDomain() } to pagination
+        return pagination
     }
 
 
@@ -80,9 +85,9 @@ class MessageRepositoryImpl(
         return messageRepositoryJpa.findAll().map { it.toDomain() }
     }
 
-    override fun find(pagination: PaginationRequest): Pair<List<Message>, Pagination> {
-        val res = messageRepositoryJpa.findAll(pagination.toPageRequest("id"))
-        return res.content.map { it.toDomain() } to res.getPagination(res.pageable)
+    override fun find(pagination: PaginationRequest): Pagination<Message> {
+        val res = messageRepositoryJpa.findAll(utils.toPageRequest(pagination, "createdAt"))
+        return Pagination(res.content.map { it.toDomain() }, utils.getPaginationInfo(res))
     }
 
     override fun findAllById(ids: Iterable<Long>): List<Message> {

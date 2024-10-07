@@ -16,7 +16,8 @@ interface ChannelInvitationRepositoryJpa : JpaRepository<ChannelInvitationDTO, L
 @Component
 class ChannelInvitationRepositoryImpl(
     private val channelInvitationRepositoryJpa: ChannelInvitationRepositoryJpa,
-    private val entityManager: EntityManager
+    private val entityManager: EntityManager,
+    private val utils: JpaRepositoryUtils
 ) : ChannelInvitationRepository {
 
     override fun save(entity: ChannelInvitation): ChannelInvitation {
@@ -36,9 +37,9 @@ class ChannelInvitationRepositoryImpl(
         return channelInvitationRepositoryJpa.findAll().map { it.toDomain() }
     }
 
-    override fun find(pagination: PaginationRequest): Pair<List<ChannelInvitation>, Pagination> {
-        val res = channelInvitationRepositoryJpa.findAll(pagination.toPageRequest("id"))
-        return res.content.map { it.toDomain() } to res.getPagination(res.pageable)
+    override fun find(pagination: PaginationRequest): Pagination<ChannelInvitation> {
+        val res = channelInvitationRepositoryJpa.findAll(utils.toPageRequest(pagination, "id"))
+        return Pagination(res.content.map { it.toDomain() }, utils.getPaginationInfo(res))
     }
 
     override fun deleteById(id: Long) {
