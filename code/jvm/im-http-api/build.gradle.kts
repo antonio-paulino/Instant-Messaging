@@ -1,15 +1,15 @@
 plugins {
-	application
-	kotlin("jvm") version "1.9.25"
-	id("org.springframework.boot") version "3.3.4"
-	id("io.spring.dependency-management") version "1.1.6"
+    application
+    kotlin("jvm")
+    id("org.springframework.boot") version "3.3.4"
+    id("io.spring.dependency-management") version "1.1.6"
 }
 
 group = "im"
 version = "0.0.1-SNAPSHOT"
 
 application {
-	mainClass.set("im.http.api.AppKt")
+	mainClass.set("im.AppKt")
 }
 
 java {

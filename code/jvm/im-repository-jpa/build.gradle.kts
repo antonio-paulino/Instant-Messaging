@@ -1,6 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.9.25"
-    id("org.springframework.boot") version "3.3.4"
+    kotlin("jvm")
     id("io.spring.dependency-management") version "1.1.6"
 }
 
@@ -10,7 +9,7 @@ repositories {
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa:3.3.4")
-    implementation("org.postgresql:postgresql")
+    implementation("org.postgresql:postgresql:42.7.2")
     implementation(project(":im-repository"))
     implementation(project(":im-domain"))
     implementation(kotlin("reflect"))

@@ -180,7 +180,7 @@ open class MessageRepositoryTest(
     @Test
     @Transactional
     open fun `pagination on empty repository should return empty list`() {
-        val (messages, pagination) = messageRepository.find(PaginationRequest(1, 2))
+        val (messages) = messageRepository.find(PaginationRequest(1, 2))
         assertTrue(messages.isEmpty())
     }
 
