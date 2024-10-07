@@ -1,6 +1,8 @@
 package im.repositories
 
 import im.TestApp
+import im.pagination.PaginationRequest
+import im.pagination.Sort
 import jakarta.transaction.Transactional
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -108,10 +110,17 @@ open class AccessTokenRepositoryTest(
     open fun `find first page size 1 should return 1 token`() {
         accessTokenRepository.save(testAccessToken)
         accessTokenRepository.save(testAccessToken2)
-        val tokens = accessTokenRepository.findFirst(0, 1)
+
+        val (tokens, pagination) = accessTokenRepository.find(PaginationRequest(1, 1))
+
+        assertEquals(2, pagination.totalPages)
+        assertEquals(1, pagination.currentPage)
+        assertEquals(2, pagination.total)
+        assertEquals(null, pagination.prevPage)
+        assertEquals(2, pagination.nextPage)
+
         assertEquals(1, tokens.size)
-        val token = tokens.first()
-        assertEquals(testAccessToken.token, token.token)
+        assertEquals(testAccessToken.token, tokens.first().token)
     }
 
     @Test
@@ -119,7 +128,14 @@ open class AccessTokenRepositoryTest(
     open fun `find last page size 1 should return last token`() {
         accessTokenRepository.save(testAccessToken)
         accessTokenRepository.save(testAccessToken2)
-        val tokens = accessTokenRepository.findLast(0, 1)
+        val (tokens, pagination) = accessTokenRepository.find(PaginationRequest(1, 1, Sort.DESC))
+
+        assertEquals(2, pagination.totalPages)
+        assertEquals(1, pagination.currentPage)
+        assertEquals(2, pagination.total)
+        assertEquals(null, pagination.prevPage)
+        assertEquals(2, pagination.nextPage)
+
         assertEquals(1, tokens.size)
         val token = tokens.first()
         assertEquals(testAccessToken2.token, token.token)
@@ -130,18 +146,31 @@ open class AccessTokenRepositoryTest(
     open fun `pagination should return correct tokens for each page`() {
         accessTokenRepository.save(testAccessToken)
         accessTokenRepository.save(testAccessToken2)
-        val firstPage = accessTokenRepository.findFirst(0, 1)
-        val secondPage = accessTokenRepository.findFirst(1, 1)
-        assertEquals(1, firstPage.size)
-        assertEquals(1, secondPage.size)
-        assertEquals(testAccessToken.token, firstPage.first().token)
-        assertEquals(testAccessToken2.token, secondPage.first().token)
+
+        val (tokens1, pagination1) = accessTokenRepository.find(PaginationRequest(1, 1))
+        val (tokens2, pagination2) = accessTokenRepository.find(PaginationRequest(2, 1))
+
+        assertEquals(1, pagination1.currentPage)
+        assertEquals(2, pagination2.currentPage)
+        assertEquals(2, pagination1.totalPages)
+        assertEquals(2, pagination2.totalPages)
+        assertEquals(2, pagination1.total)
+        assertEquals(2, pagination2.total)
+        assertEquals(null, pagination1.prevPage)
+        assertEquals(2, pagination1.nextPage)
+        assertEquals(1, pagination2.prevPage)
+        assertEquals(null, pagination2.nextPage)
+
+        assertEquals(1, tokens1.size)
+        assertEquals(1, tokens2.size)
+        assertEquals(testAccessToken.token, tokens1.first().token)
+        assertEquals(testAccessToken2.token, tokens2.first().token)
     }
 
     @Test
     @Transactional
     open fun `pagination on empty repository should return empty list`() {
-        val tokens = accessTokenRepository.findFirst(0, 1)
+        val tokens = accessTokenRepository.find(PaginationRequest(1, 1)).first
         assertEquals(0, tokens.size)
     }
 

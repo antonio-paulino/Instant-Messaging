@@ -1,4 +1,4 @@
-package im.transactions
+package im.repositories.transactions
 
 
 /**

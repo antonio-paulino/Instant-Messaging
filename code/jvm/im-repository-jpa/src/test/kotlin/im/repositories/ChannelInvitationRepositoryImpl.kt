@@ -5,6 +5,8 @@ import im.channel.Channel
 import im.invitations.ChannelInvitation
 import im.invitations.ChannelInvitationStatus
 import im.channel.ChannelRole
+import im.pagination.PaginationRequest
+import im.pagination.Sort
 import jakarta.transaction.Transactional
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -161,31 +163,19 @@ open class ChannelInvitationRepositoryTest(
         channelInvitationRepository.save(testInvitation1)
         channelInvitationRepository.save(testInvitation2)
 
-        val invitations = channelInvitationRepository.findFirst(0, 1)
+        val (invitations, pagination) = channelInvitationRepository.find(PaginationRequest(1, 1))
+
+        assertEquals(1, pagination.currentPage)
+        assertEquals(2, pagination.nextPage)
+        assertEquals(2, pagination.total)
+        assertEquals(2, pagination.totalPages)
+        assertEquals(null, pagination.prevPage)
 
         assertEquals(1, invitations.size)
-
         assertEquals(testInvitation1.inviter, invitations.first().inviter)
         assertEquals(testInvitation1.invitee, invitations.first().invitee)
         assertEquals(testInvitation1.expiresAt, invitations.first().expiresAt)
         assertEquals(testInvitation1.role, invitations.first().role)
-    }
-
-    @Test
-    @Transactional
-    open fun `should find last page of invitations ordered by id desc`() {
-        channelInvitationRepository.save(testInvitation1)
-        channelInvitationRepository.save(testInvitation2)
-        channelInvitationRepository.save(testInvitation3)
-
-        val lastInvitations = channelInvitationRepository.findLast(0, 2)
-        assertEquals(2, lastInvitations.size)
-        assertEquals(testInvitation3.role, lastInvitations.first().role)
-        assertEquals(testInvitation3.expiresAt, lastInvitations.first().expiresAt)
-        assertEquals(testInvitation3.invitee, lastInvitations.first().invitee)
-        assertEquals(testInvitation2.role, lastInvitations.last().role)
-        assertEquals(testInvitation2.expiresAt, lastInvitations.last().expiresAt)
-        assertEquals(testInvitation2.invitee, lastInvitations.last().invitee)
     }
 
     @Test
@@ -195,6 +185,32 @@ open class ChannelInvitationRepositoryTest(
         val updatedInvitation = savedInvitation.copy(status = ChannelInvitationStatus.ACCEPTED)
         val result = channelInvitationRepository.save(updatedInvitation)
         assertEquals(ChannelInvitationStatus.ACCEPTED, result.status)
+    }
+
+    @Transactional
+    @Test
+    open fun `should find last page of invitations ordered by id`() {
+        channelInvitationRepository.save(testInvitation1)
+        channelInvitationRepository.save(testInvitation2)
+        channelInvitationRepository.save(testInvitation3)
+
+        val (lastInvitations, pagination) = channelInvitationRepository.find(PaginationRequest(1, 2, Sort.DESC))
+
+        // pagination
+        assertEquals(1, pagination.currentPage)
+        assertEquals(2, pagination.nextPage)
+        assertEquals(3, pagination.total)
+        assertEquals(2, pagination.totalPages)
+        assertEquals(null, pagination.prevPage)
+
+
+        assertEquals(2, lastInvitations.size)
+        assertEquals(testInvitation3.role, lastInvitations.first().role)
+        assertEquals(testInvitation3.expiresAt, lastInvitations.first().expiresAt)
+        assertEquals(testInvitation3.invitee, lastInvitations.first().invitee)
+        assertEquals(testInvitation2.role, lastInvitations.last().role)
+        assertEquals(testInvitation2.expiresAt, lastInvitations.last().expiresAt)
+        assertEquals(testInvitation2.invitee, lastInvitations.last().invitee)
     }
 
     @Test

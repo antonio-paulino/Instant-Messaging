@@ -1,15 +1,16 @@
 package im.repositories
 
+import im.pagination.Pagination
 import im.model.session.SessionDTO
 import im.model.token.AccessTokenDTO
 import im.model.token.RefreshTokenDTO
+import im.pagination.PaginationRequest
 import jakarta.persistence.EntityManager
-import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Repository
 import im.sessions.Session
-import im.sessions.SessionRepository
+import im.repositories.sessions.SessionRepository
 import im.tokens.AccessToken
 import im.tokens.RefreshToken
 
@@ -56,19 +57,9 @@ class SessionRepositoryImpl(
         return sessionRepositoryJpa.findAll().map { it.toDomain() }
     }
 
-    override fun findFirst(page: Int, pageSize: Int): List<Session> {
-        val res = sessionRepositoryJpa.findAll(Pageable.ofSize(pageSize).withPage(page))
-        return res.content.map { it.toDomain() }
-    }
-
-    override fun findLast(page: Int, pageSize: Int): List<Session> {
-        val query = entityManager.createQuery(
-            "SELECT s FROM SessionDTO s ORDER BY s.id DESC",
-            SessionDTO::class.java
-        )
-        query.firstResult = page * pageSize
-        query.maxResults = pageSize
-        return query.resultList.map { it.toDomain() }
+    override fun find(pagination: PaginationRequest): Pair<List<Session>, Pagination> {
+        val res = sessionRepositoryJpa.findAll(pagination.toPageRequest("id"))
+        return res.content.map { it.toDomain() } to res.getPagination(res.pageable)
     }
 
     override fun findAllById(ids: Iterable<Long>): List<Session> {

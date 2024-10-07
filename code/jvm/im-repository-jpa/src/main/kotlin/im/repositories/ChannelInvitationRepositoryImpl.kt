@@ -1,8 +1,10 @@
 package im.repositories
 
+import im.pagination.Pagination
 import im.invitations.ChannelInvitation
-import im.invitations.ChannelInvitationRepository
+import im.repositories.invitations.ChannelInvitationRepository
 import im.model.invitation.ChannelInvitationDTO
+import im.pagination.PaginationRequest
 import jakarta.persistence.EntityManager
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Component
@@ -34,19 +36,9 @@ class ChannelInvitationRepositoryImpl(
         return channelInvitationRepositoryJpa.findAll().map { it.toDomain() }
     }
 
-    override fun findFirst(page: Int, pageSize: Int): List<ChannelInvitation> {
-        val res = channelInvitationRepositoryJpa.findAll(org.springframework.data.domain.PageRequest.of(page, pageSize))
-        return res.content.map { it.toDomain() }
-    }
-
-    override fun findLast(page: Int, pageSize: Int): List<ChannelInvitation> {
-        val query = entityManager.createQuery(
-            "SELECT i FROM ChannelInvitationDTO i ORDER BY i.id DESC",
-            ChannelInvitationDTO::class.java
-        )
-        query.firstResult = page * pageSize
-        query.maxResults = pageSize
-        return query.resultList.map { it.toDomain() }
+    override fun find(pagination: PaginationRequest): Pair<List<ChannelInvitation>, Pagination> {
+        val res = channelInvitationRepositoryJpa.findAll(pagination.toPageRequest("id"))
+        return res.content.map { it.toDomain() } to res.getPagination(res.pageable)
     }
 
     override fun deleteById(id: Long) {

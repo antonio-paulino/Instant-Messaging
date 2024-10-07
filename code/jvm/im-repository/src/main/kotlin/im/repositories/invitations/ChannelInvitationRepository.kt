@@ -1,6 +1,7 @@
-package im.invitations
+package im.repositories.invitations
 
-import im.Repository
+import im.repositories.Repository
+import im.invitations.ChannelInvitation
 
 
 /**

@@ -1,7 +1,8 @@
 package im.repositories
 
+import im.pagination.Pagination
 import im.channel.Channel
-import im.channel.ChannelRepository
+import im.repositories.channel.ChannelRepository
 import im.channel.ChannelRole
 import im.invitations.ChannelInvitation
 import im.invitations.ChannelInvitationStatus
@@ -12,7 +13,7 @@ import im.model.channel.ChannelMemberDTO
 import im.model.channel.ChannelMemberId
 import im.model.invitation.ChannelInvitationDTO
 import im.model.message.MessageDTO
-import org.springframework.data.domain.Pageable
+import im.pagination.PaginationRequest
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Repository
@@ -97,19 +98,9 @@ class ChannelRepositoryImpl(
         return channelRepositoryJpa.findAll().map { it.toDomain() }
     }
 
-    override fun findFirst(page: Int, pageSize: Int): List<Channel> {
-        val res = channelRepositoryJpa.findAll(Pageable.ofSize(pageSize).withPage(page))
-        return res.content.map { it.toDomain() }
-    }
-
-    override fun findLast(page: Int, pageSize: Int): List<Channel> {
-        val query = entityManager.createQuery(
-            "SELECT c FROM ChannelDTO c ORDER BY c.id DESC",
-            ChannelDTO::class.java
-        )
-        query.firstResult = page * pageSize
-        query.maxResults = pageSize
-        return query.resultList.map { it.toDomain() }
+    override fun find(pagination: PaginationRequest): Pair<List<Channel>, Pagination> {
+        val res = channelRepositoryJpa.findAll(pagination.toPageRequest("id"))
+        return res.content.map { it.toDomain() } to res.getPagination(res.pageable)
     }
 
     override fun findAllById(ids: Iterable<Long>): List<Channel> {

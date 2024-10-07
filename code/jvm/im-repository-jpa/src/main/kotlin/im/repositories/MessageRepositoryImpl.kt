@@ -1,11 +1,12 @@
 package im.repositories
 
+import im.pagination.Pagination
 import im.channel.Channel
 import jakarta.persistence.EntityManager
 import im.messages.Message
-import im.messages.MessageRepository
+import im.repositories.messages.MessageRepository
 import im.model.message.MessageDTO
-import org.springframework.data.domain.PageRequest
+import im.pagination.PaginationRequest
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Repository
@@ -28,16 +29,40 @@ class MessageRepositoryImpl(
         return query.resultList.map { it.toDomain() }
     }
 
-    override fun findLatest(channel: Channel, pages: Int, pageSize: Int): List<Message> {
+    override fun findLatest(channel: Channel, paginationRequest: PaginationRequest): Pair<List<Message>, Pagination> {
+        val totalMessagesQuery = entityManager.createQuery(
+            "SELECT COUNT(m) FROM MessageDTO m WHERE m.channel.id = :channelId",
+            Long::class.java
+        )
+        totalMessagesQuery.setParameter("channelId", channel.id)
+        val totalMessages = totalMessagesQuery.singleResult
+
         val query = entityManager.createQuery(
-            "SELECT m FROM MessageDTO m WHERE m.channel.id = :channelId ORDER BY m.createdAt DESC",
+            "SELECT m FROM MessageDTO m WHERE m.channel.id = :channelId ORDER BY m.id DESC",
             MessageDTO::class.java
         )
         query.setParameter("channelId", channel.id)
-        query.firstResult = pages * pageSize
-        query.maxResults = pageSize
-        return query.resultList.map { it.toDomain() }
+        query.firstResult = (paginationRequest.page - 1) * paginationRequest.size
+        query.maxResults = paginationRequest.size
+        val res = query.resultList
+
+        val remainder = if (totalMessages % paginationRequest.size == 0L) 0 else 1
+        val totalPages = (totalMessages / paginationRequest.size).toInt() + remainder
+        val currentPage = paginationRequest.page
+        val nextPage = if (currentPage + 1 < totalPages) currentPage + 1 else null
+        val prevPage = if (currentPage > 1) currentPage - 1 else null
+
+        val pagination = Pagination(
+            total = totalMessages,
+            currentPage = currentPage,
+            totalPages = totalPages,
+            nextPage = nextPage,
+            prevPage = prevPage
+        )
+
+        return res.map { it.toDomain() } to pagination
     }
+
 
     override fun save(entity: Message): Message {
         return messageRepositoryJpa.save(MessageDTO.fromDomain(entity)).toDomain()
@@ -55,16 +80,9 @@ class MessageRepositoryImpl(
         return messageRepositoryJpa.findAll().map { it.toDomain() }
     }
 
-    override fun findFirst(page: Int, pageSize: Int): List<Message> {
-        val res = messageRepositoryJpa.findAll(PageRequest.of(page, pageSize))
-        return res.content.map { it.toDomain() }
-    }
-
-    override fun findLast(page: Int, pageSize: Int): List<Message> {
-        val query = entityManager.createQuery("SELECT m FROM MessageDTO m ORDER BY m.id DESC", MessageDTO::class.java)
-        query.firstResult = page * pageSize
-        query.maxResults = pageSize
-        return query.resultList.map { it.toDomain() }
+    override fun find(pagination: PaginationRequest): Pair<List<Message>, Pagination> {
+        val res = messageRepositoryJpa.findAll(pagination.toPageRequest("id"))
+        return res.content.map { it.toDomain() } to res.getPagination(res.pageable)
     }
 
     override fun findAllById(ids: Iterable<Long>): List<Message> {

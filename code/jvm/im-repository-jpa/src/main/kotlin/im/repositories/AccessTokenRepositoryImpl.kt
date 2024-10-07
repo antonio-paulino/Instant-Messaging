@@ -1,17 +1,41 @@
 package im.repositories
 
+import im.pagination.Pagination
 import im.model.token.AccessTokenDTO
+import im.pagination.PaginationRequest
 import jakarta.persistence.EntityManager
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Repository
 import im.tokens.AccessToken
-import im.tokens.AccessTokenRepository
+import im.repositories.tokens.AccessTokenRepository
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import java.util.*
 
 @Repository
 interface AccessTokenRepositoryJpa : JpaRepository<AccessTokenDTO, UUID>
+
+internal fun <T> Page<T>.getPagination(pageable: Pageable): Pagination {
+    val currentPage = pageable.pageNumber + 1 // Page starts at 0, Pagination at 1
+    val nextPage = if (hasNext()) currentPage + 1 else null
+    val prevPage = if (hasPrevious()) currentPage - 1 else null
+    return Pagination(totalElements, currentPage, totalPages, nextPage, prevPage)
+}
+
+internal fun im.pagination.Sort?.toSpringSort(): Sort.Direction {
+    return when (this) {
+        im.pagination.Sort.ASC -> Sort.Direction.ASC
+        im.pagination.Sort.DESC -> Sort.Direction.DESC
+        null -> Sort.Direction.ASC
+    }
+}
+
+internal fun PaginationRequest.toPageRequest(property: String): PageRequest {
+    return PageRequest.of(page - 1, size, sort.toSpringSort(), property)
+}
 
 @Component
 class AccessTokenRepositoryImpl(
@@ -35,19 +59,9 @@ class AccessTokenRepositoryImpl(
         return accessTokenRepositoryJpa.findAll().map { it.toDomain() }
     }
 
-    override fun findFirst(page: Int, pageSize: Int): List<AccessToken> {
-        val res = accessTokenRepositoryJpa.findAll(Pageable.ofSize(pageSize).withPage(page))
-        return res.content.map { it.toDomain() }
-    }
-
-    override fun findLast(page: Int, pageSize: Int): List<AccessToken> {
-        val query = entityManager.createQuery(
-            "SELECT u FROM AccessTokenDTO u ORDER BY u.expiresAt DESC",
-            AccessTokenDTO::class.java
-        )
-        query.firstResult = page * pageSize
-        query.maxResults = pageSize
-        return query.resultList.map { it.toDomain() }
+    override fun find(pagination: PaginationRequest): Pair<List<AccessToken>, Pagination> {
+        val res = accessTokenRepositoryJpa.findAll(pagination.toPageRequest("expiresAt"))
+        return res.content.map { it.toDomain() } to res.getPagination(res.pageable)
     }
 
     override fun findAllById(ids: Iterable<UUID>): List<AccessToken> {

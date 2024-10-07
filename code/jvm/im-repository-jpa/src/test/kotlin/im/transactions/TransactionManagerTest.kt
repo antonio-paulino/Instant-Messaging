@@ -1,6 +1,7 @@
 package im.transactions
 
 import im.TestApp
+import im.repositories.transactions.TransactionIsolation
 import org.hibernate.type.SerializationException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.assertDoesNotThrow
@@ -9,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ContextConfiguration
 import im.user.User
-import im.user.UserRepository
+import im.repositories.user.UserRepository
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith

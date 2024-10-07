@@ -9,8 +9,8 @@ import jakarta.inject.Named
 import im.sessions.Session
 import im.tokens.AccessToken
 import im.tokens.RefreshToken
-import im.transactions.Transaction
-import im.transactions.TransactionManager
+import im.repositories.transactions.Transaction
+import im.repositories.transactions.TransactionManager
 import im.user.User
 import java.time.LocalDateTime
 import java.util.*

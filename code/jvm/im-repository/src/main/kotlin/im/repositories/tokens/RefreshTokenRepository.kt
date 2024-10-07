@@ -1,6 +1,7 @@
-package im.tokens
+package im.repositories.tokens
 
-import im.Repository
+import im.repositories.Repository
+import im.tokens.RefreshToken
 import java.util.UUID
 
 /**

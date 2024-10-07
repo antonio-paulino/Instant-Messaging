@@ -1,6 +1,8 @@
 package im.repositories
 
 import im.TestApp
+import im.pagination.PaginationRequest
+import im.pagination.Sort
 import jakarta.transaction.Transactional
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
@@ -108,7 +110,14 @@ open class SessionRepositoryTest(
     open fun `find first, first page size 1 should return 1 session`() {
         sessionRepository.save(testSession)
         sessionRepository.save(testSession2)
-        val sessions = sessionRepository.findFirst(0, 1)
+        val (sessions, pagination) = sessionRepository.find(PaginationRequest(1, 1))
+
+        assertEquals(1, pagination.currentPage)
+        assertEquals(2, pagination.nextPage)
+        assertEquals(2, pagination.total)
+        assertEquals(2, pagination.totalPages)
+        assertEquals(null, pagination.prevPage)
+
         assertEquals(1, sessions.count())
         val session = sessions.first()
         assertEquals(testSession.user, session.user)
@@ -120,7 +129,15 @@ open class SessionRepositoryTest(
     open fun `find last, first page size 1 should return 1 session`() {
         sessionRepository.save(testSession)
         sessionRepository.save(testSession2)
-        val sessions = sessionRepository.findLast(0, 1)
+
+        val (sessions, pagination) = sessionRepository.find(PaginationRequest(1, 1, Sort.DESC))
+
+        assertEquals(1, pagination.currentPage)
+        assertEquals(2, pagination.nextPage)
+        assertEquals(2, pagination.total)
+        assertEquals(2, pagination.totalPages)
+        assertEquals(null, pagination.prevPage)
+
         assertEquals(1, sessions.count())
         val session = sessions.first()
         assertEquals(testSession2.user, session.user)

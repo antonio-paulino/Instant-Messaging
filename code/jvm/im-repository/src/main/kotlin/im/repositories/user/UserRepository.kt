@@ -1,10 +1,11 @@
-package im.user
+package im.repositories.user
 
-import im.Repository
+import im.repositories.Repository
 import im.channel.Channel
 import im.channel.ChannelRole
 import im.invitations.ChannelInvitation
 import im.sessions.Session
+import im.user.User
 
 /**
  * [Repository] for [User] entities.

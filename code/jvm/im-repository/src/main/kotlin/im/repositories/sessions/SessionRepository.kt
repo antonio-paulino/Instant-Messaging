@@ -1,6 +1,7 @@
-package im.sessions
+package im.repositories.sessions
 
-import im.Repository
+import im.repositories.Repository
+import im.sessions.Session
 import im.tokens.AccessToken
 import im.tokens.RefreshToken
 

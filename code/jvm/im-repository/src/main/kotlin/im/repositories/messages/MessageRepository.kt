@@ -1,7 +1,10 @@
-package im.messages
+package im.repositories.messages
 
-import im.Repository
+import im.pagination.Pagination
+import im.repositories.Repository
 import im.channel.Channel
+import im.messages.Message
+import im.pagination.PaginationRequest
 
 /**
  * [Repository] for [Message] entities.
@@ -20,9 +23,8 @@ interface MessageRepository : Repository<Message, Long> {
      * Finds the latest messages in a channel.
      *
      * @param channel the channel
-     * @param pages the number of pages to skip
-     * @param pageSize the number of messages to return
+     * @param paginationRequest the pagination request
      * @return the latest messages in the channel
      */
-    fun findLatest(channel: Channel, pages: Int, pageSize: Int): List<Message>
+    fun findLatest(channel: Channel, paginationRequest: PaginationRequest): Pair<List<Message>, Pagination>
 }

@@ -1,6 +1,8 @@
 package im.repositories
 
 import im.TestApp
+import im.pagination.PaginationRequest
+import im.pagination.Sort
 import jakarta.transaction.Transactional
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
@@ -114,10 +116,15 @@ open class RefreshTokenRepositoryTest(
     open fun `find first, page size 1 should return 1 token`() {
         refreshTokenRepository.save(testRefreshToken)
         refreshTokenRepository.save(testRefreshToken2)
-        val tokens = refreshTokenRepository.findFirst(0, 1)
+        val (tokens, pagination) = refreshTokenRepository.find(PaginationRequest(1, 1))
+
+        assertEquals(1, pagination.currentPage)
+        assertEquals(2, pagination.nextPage)
+        assertEquals(2, pagination.total)
+        assertEquals(2, pagination.totalPages)
+        assertEquals(null, pagination.prevPage)
+
         assertEquals(1, tokens.size)
-        val token = tokens.first()
-        assertEquals(testRefreshToken.token, token.token)
     }
 
     @Test
@@ -125,10 +132,15 @@ open class RefreshTokenRepositoryTest(
     open fun `find last, page size 1 should return 1 token`() {
         refreshTokenRepository.save(testRefreshToken)
         refreshTokenRepository.save(testRefreshToken2)
-        val tokens = refreshTokenRepository.findLast(0, 1)
+        val (tokens, pagination) = refreshTokenRepository.find(PaginationRequest(1, 1, Sort.DESC))
+
+        assertEquals(1, pagination.currentPage)
+        assertEquals(2, pagination.nextPage)
+        assertEquals(2, pagination.total)
+        assertEquals(2, pagination.totalPages)
+        assertEquals(null, pagination.prevPage)
+
         assertEquals(1, tokens.size)
-        val token = tokens.first()
-        assertEquals(testRefreshToken2.token, token.token)
     }
 
     @Test

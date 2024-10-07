@@ -1,6 +1,8 @@
-package im.channel
+package im.repositories.channel
 
-import im.Repository
+import im.repositories.Repository
+import im.channel.Channel
+import im.channel.ChannelRole
 import im.invitations.ChannelInvitation
 import im.invitations.ChannelInvitationStatus
 import im.messages.Message

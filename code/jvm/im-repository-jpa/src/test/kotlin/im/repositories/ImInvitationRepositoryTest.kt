@@ -3,6 +3,8 @@ package im.repositories
 import im.TestApp
 import im.invitations.ImInvitation
 import im.invitations.ImInvitationStatus
+import im.pagination.PaginationRequest
+import im.pagination.Sort
 import jakarta.transaction.Transactional
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -89,9 +91,35 @@ open class ImInvitationRepositoryTest(
         imInvitationRepository.save(testInvitation1)
         imInvitationRepository.save(testInvitation2)
         imInvitationRepository.save(testInvitation3)
-        val invitations = imInvitationRepository.findFirst(0, 1)
+        val (invitations, pagination) = imInvitationRepository.find(PaginationRequest(1, 1))
+
+        assertEquals(1, pagination.currentPage)
+        assertEquals(2, pagination.nextPage)
+        assertEquals(3, pagination.total)
+        assertEquals(3, pagination.totalPages)
+        assertEquals(null, pagination.prevPage)
+
         assertEquals(1, invitations.size)
         assertEquals(testInvitation3.token, invitations.first().token)
+    }
+
+    @Test
+    @Transactional
+    open fun `should find last page of invitations ordered by expiration desc`() {
+        imInvitationRepository.save(testInvitation1)
+        imInvitationRepository.save(testInvitation2)
+        imInvitationRepository.save(testInvitation3)
+        val (invitations, pagination) = imInvitationRepository.find(PaginationRequest(1, 2, Sort.DESC))
+
+        assertEquals(1, pagination.currentPage)
+        assertEquals(2, pagination.nextPage)
+        assertEquals(3, pagination.total)
+        assertEquals(2, pagination.totalPages)
+        assertEquals(null, pagination.prevPage)
+
+        assertEquals(2, invitations.size)
+        assertEquals(testInvitation1.token, invitations.first().token)
+        assertEquals(testInvitation2.token, invitations.last().token)
     }
 
     @Test
@@ -114,18 +142,6 @@ open class ImInvitationRepositoryTest(
             imInvitationRepository.save(usedAgainInvitation)
         }
         assertTrue(exception.message!!.contains("Cannot set status to USED if it is already USED"))
-    }
-
-    @Test
-    @Transactional
-    open fun `should find last page of invitations ordered by expiration desc`() {
-        imInvitationRepository.save(testInvitation1)
-        imInvitationRepository.save(testInvitation2)
-        imInvitationRepository.save(testInvitation3)
-        val lastInvitations = imInvitationRepository.findLast(0, 2)
-        assertEquals(2, lastInvitations.size)
-        assertEquals(testInvitation1.token, lastInvitations.first().token)
-        assertEquals(testInvitation2.token, lastInvitations.last().token)
     }
 
     @Test

@@ -1,14 +1,15 @@
 package im.transactions
 
-import im.channel.ChannelRepository
-import im.invitations.ChannelInvitationRepository
-import im.invitations.ImInvitationRepository
+import im.repositories.channel.ChannelRepository
+import im.repositories.invitations.ChannelInvitationRepository
+import im.repositories.invitations.ImInvitationRepository
+import im.repositories.transactions.Transaction
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.TransactionStatus
-import im.sessions.SessionRepository
-import im.tokens.AccessTokenRepository
-import im.tokens.RefreshTokenRepository
-import im.user.UserRepository
+import im.repositories.sessions.SessionRepository
+import im.repositories.tokens.AccessTokenRepository
+import im.repositories.tokens.RefreshTokenRepository
+import im.repositories.user.UserRepository
 
 class TransactionJpa(
     private val manager: PlatformTransactionManager,

@@ -1,5 +1,7 @@
-package im
+package im.repositories
 
+import im.pagination.Pagination
+import im.pagination.PaginationRequest
 import java.util.*
 
 /**
@@ -44,26 +46,15 @@ interface Repository<T, ID> {
     fun findAll(): List<T>
 
     /**
-     * Finds the first [pageSize] entities on the [page].
+     * Finds entities based on the pagination request.
      *
      * Use this method to implement pagination.
      *
-     * @param page the page number
-     * @param pageSize the number of entities to return
-     * @return the first [pageSize] entities on the [page]
+     * @param pagination the pagination request
+     * @return the entities and the pagination information.
      */
-    fun findFirst(page: Int, pageSize: Int): List<T>
+    fun find(pagination: PaginationRequest): Pair<List<T>, Pagination>
 
-    /**
-     * Finds the last [pageSize] entities on the [page].
-     *
-     * Use this method to implement pagination.
-     *
-     * @param page the page number
-     * @param pageSize the number of entities to return
-     * @return the last [pageSize] entities on the [page]
-     */
-    fun findLast(page: Int, pageSize: Int): List<T>
 
     /**
      * Finds all entities by their IDs.

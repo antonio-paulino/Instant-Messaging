@@ -1,12 +1,12 @@
-package im.transactions
+package im.repositories.transactions
 
-import im.channel.ChannelRepository
-import im.invitations.ChannelInvitationRepository
-import im.invitations.ImInvitationRepository
-import im.sessions.SessionRepository
-import im.tokens.AccessTokenRepository
-import im.tokens.RefreshTokenRepository
-import im.user.UserRepository
+import im.repositories.channel.ChannelRepository
+import im.repositories.invitations.ChannelInvitationRepository
+import im.repositories.invitations.ImInvitationRepository
+import im.repositories.sessions.SessionRepository
+import im.repositories.tokens.AccessTokenRepository
+import im.repositories.tokens.RefreshTokenRepository
+import im.repositories.user.UserRepository
 
 /**
  * Represents a transaction in DBMS.

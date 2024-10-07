@@ -1,10 +1,11 @@
 package im.repositories
 
+import im.pagination.Pagination
 import im.invitations.ImInvitation
-import im.invitations.ImInvitationRepository
+import im.repositories.invitations.ImInvitationRepository
 import im.model.invitation.ImInvitationDTO
+import im.pagination.PaginationRequest
 import jakarta.persistence.EntityManager
-import org.springframework.data.domain.Sort
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Repository
@@ -35,20 +36,9 @@ class ImInvitationRepositoryImpl(
         return imInvitationRepositoryJpa.findAll().map { it.toDomain() }
     }
 
-    override fun findFirst(page: Int, pageSize: Int): List<ImInvitation> {
-        val pageable = org.springframework.data.domain.PageRequest.of(page, pageSize, Sort.by("expiresAt"))
-        val res = imInvitationRepositoryJpa.findAll(pageable)
-        return res.content.map { it.toDomain() }
-    }
-
-    override fun findLast(page: Int, pageSize: Int): List<ImInvitation> {
-        val query = entityManager.createQuery(
-            "SELECT i FROM ImInvitationDTO i ORDER BY i.expiresAt DESC",
-            ImInvitationDTO::class.java
-        )
-        query.firstResult = page * pageSize
-        query.maxResults = pageSize
-        return query.resultList.map { it.toDomain() }
+    override fun find(pagination: PaginationRequest): Pair<List<ImInvitation>, Pagination> {
+        val res = imInvitationRepositoryJpa.findAll(pagination.toPageRequest("expiresAt"))
+        return res.content.map { it.toDomain() } to res.getPagination(res.pageable)
     }
 
     override fun findAllById(ids: Iterable<UUID>): List<ImInvitation> {

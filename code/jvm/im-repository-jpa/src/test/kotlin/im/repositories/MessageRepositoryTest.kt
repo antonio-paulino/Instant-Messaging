@@ -4,6 +4,7 @@ import im.TestApp
 import im.channel.Channel
 import jakarta.transaction.Transactional
 import im.messages.Message
+import im.pagination.PaginationRequest
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
@@ -109,7 +110,14 @@ open class MessageRepositoryTest(
         messageRepository.save(testMessage2)
         messageRepository.save(testMessage3)
 
-        val latestMessages = messageRepository.findLatest(testChannel, 0, 3)
+        val (latestMessages, pagination) = messageRepository.findLatest(testChannel, PaginationRequest(1, 2))
+
+        assertEquals(1, pagination.currentPage)
+        assertEquals(null, pagination.nextPage)
+        assertEquals(null, pagination.prevPage)
+        assertEquals(2, pagination.total)
+        assertEquals(1, pagination.totalPages)
+
         assertEquals(2, latestMessages.count())
         assertEquals(testMessage2.content, latestMessages.first().content)
         assertEquals(testMessage1.content, latestMessages.last().content)
@@ -148,8 +156,20 @@ open class MessageRepositoryTest(
         messageRepository.save(testMessage2)
         messageRepository.save(testMessage3)
 
-        val firstPage = messageRepository.findFirst(0, 2)
-        val secondPage = messageRepository.findFirst(1, 2)
+        val (firstPage, pagination1) = messageRepository.find(PaginationRequest(1, 2))
+        val (secondPage, pagination2) = messageRepository.find(PaginationRequest(2, 2))
+
+        assertEquals(1, pagination1.currentPage)
+        assertEquals(2, pagination1.nextPage)
+        assertEquals(3, pagination1.total)
+        assertEquals(2, pagination1.totalPages)
+        assertEquals(null, pagination1.prevPage)
+
+        assertEquals(2, pagination2.currentPage)
+        assertEquals(null, pagination2.nextPage)
+        assertEquals(3, pagination2.total)
+        assertEquals(2, pagination2.totalPages)
+        assertEquals(1, pagination2.prevPage)
 
         assertEquals(2, firstPage.size)
         assertEquals(1, secondPage.size)
@@ -160,21 +180,8 @@ open class MessageRepositoryTest(
     @Test
     @Transactional
     open fun `pagination on empty repository should return empty list`() {
-        val messages = messageRepository.findFirst(0, 1)
+        val (messages, pagination) = messageRepository.find(PaginationRequest(1, 2))
         assertTrue(messages.isEmpty())
-    }
-
-    @Test
-    @Transactional
-    open fun `should return last messages ordered by id desc`() {
-        messageRepository.save(testMessage1)
-        messageRepository.save(testMessage2)
-        messageRepository.save(testMessage3)
-
-        val lastMessages = messageRepository.findLast(0, 2)
-        assertEquals(2, lastMessages.size)
-        assertEquals(testMessage3.content, lastMessages.first().content)
-        assertEquals(testMessage2.content, lastMessages.last().content)
     }
 
     @Test

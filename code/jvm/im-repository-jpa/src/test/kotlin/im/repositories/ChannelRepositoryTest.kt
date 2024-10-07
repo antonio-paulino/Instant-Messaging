@@ -7,6 +7,8 @@ import im.invitations.ChannelInvitation
 import im.invitations.ChannelInvitationStatus
 import jakarta.transaction.Transactional
 import im.messages.Message
+import im.pagination.PaginationRequest
+import im.pagination.Sort
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -163,9 +165,19 @@ open class ChannelRepositoryTest(
     open fun `should find first page of channels`() {
         channelRepository.save(testChannel1)
         channelRepository.save(testChannel2)
-        val channels = channelRepository.findFirst(0, 1)
-        assertEquals(1, channels.size)
-        assertEquals(testChannel1.name, channels.first().name)
+
+        val res = channelRepository.find(PaginationRequest(1, 1))
+
+        val (firstChannels, pagination) = res
+
+        assertEquals(2, pagination.total)
+        assertEquals(1, pagination.currentPage)
+        assertEquals(2, pagination.nextPage)
+        assertEquals(2, pagination.totalPages)
+        assertEquals(null, pagination.prevPage)
+
+        assertEquals(1, firstChannels.size)
+        assertEquals(testChannel1.name, firstChannels.first().name)
     }
 
     @Test
@@ -174,11 +186,19 @@ open class ChannelRepositoryTest(
         channelRepository.save(testChannel1)
         channelRepository.save(testChannel2)
 
-        val lastChannels = channelRepository.findLast(0, 2)
+        val (lastChannels, pagination) = channelRepository.find(PaginationRequest(1, 2, Sort.DESC))
+
+        assertEquals(2, pagination.total)
+        assertEquals(1, pagination.currentPage)
+        assertEquals(null, pagination.nextPage)
+        assertEquals(1, pagination.totalPages)
+        assertEquals(null, pagination.prevPage)
+
         assertEquals(2, lastChannels.size)
         assertEquals(testChannel2.name, lastChannels.first().name)
         assertEquals(testChannel1.name, lastChannels.last().name)
     }
+
 
     @Test
     @Transactional

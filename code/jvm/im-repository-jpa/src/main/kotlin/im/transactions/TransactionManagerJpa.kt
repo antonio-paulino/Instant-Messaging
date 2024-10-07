@@ -1,18 +1,21 @@
 package im.transactions
 
-import im.channel.ChannelRepository
-import im.invitations.ChannelInvitationRepository
-import im.invitations.ImInvitationRepository
+import im.repositories.channel.ChannelRepository
+import im.repositories.invitations.ChannelInvitationRepository
+import im.repositories.invitations.ImInvitationRepository
+import im.repositories.transactions.Transaction
+import im.repositories.transactions.TransactionIsolation
+import im.repositories.transactions.TransactionManager
 import org.hibernate.type.SerializationException
 import org.springframework.stereotype.Component
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.TransactionDefinition
 import org.springframework.transaction.TransactionStatus
 import org.springframework.transaction.support.DefaultTransactionDefinition
-import im.sessions.SessionRepository
-import im.tokens.AccessTokenRepository
-import im.tokens.RefreshTokenRepository
-import im.user.UserRepository
+import im.repositories.sessions.SessionRepository
+import im.repositories.tokens.AccessTokenRepository
+import im.repositories.tokens.RefreshTokenRepository
+import im.repositories.user.UserRepository
 
 private const val MAX_SERIALIZABLE_RETRIES = 3
 

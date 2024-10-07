@@ -5,6 +5,8 @@ import im.channel.Channel
 import im.channel.ChannelRole
 import im.invitations.ChannelInvitation
 import im.invitations.ChannelInvitationStatus
+import im.pagination.PaginationRequest
+import im.pagination.Sort
 import jakarta.transaction.Transactional
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
@@ -420,7 +422,14 @@ open class UserRepositoryTest(
     open fun `find first, page with size 1 should return user1`() {
         userRepository.save(testUser)
         userRepository.save(testUser2)
-        val users = userRepository.findFirst(0, 1)
+        val (users, pagination) = userRepository.find(PaginationRequest(1, 1))
+
+        assertEquals(1, pagination.currentPage)
+        assertEquals(2, pagination.nextPage)
+        assertEquals(2, pagination.total)
+        assertEquals(2, pagination.totalPages)
+        assertEquals(null, pagination.prevPage)
+
         assertEquals(1, users.size)
         assertEquals(testUser.name, users[0].name)
         assertEquals(testUser.password, users[0].password)
@@ -432,7 +441,13 @@ open class UserRepositoryTest(
         userRepository.save(testUser)
         userRepository.save(testUser2)
 
-        val users = userRepository.findLast(0, 1)
+        val (users, pagination) = userRepository.find(PaginationRequest(1, 1, Sort.DESC))
+
+        assertEquals(1, pagination.currentPage)
+        assertEquals(2, pagination.nextPage)
+        assertEquals(2, pagination.total)
+        assertEquals(2, pagination.totalPages)
+        assertEquals(null, pagination.prevPage)
 
         assertEquals(1, users.size)
         assertEquals(testUser2.name, users[0].name)

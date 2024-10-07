@@ -1,5 +1,6 @@
 package im.repositories
 
+import im.pagination.Pagination
 import im.channel.Channel
 import im.channel.ChannelRole
 import im.invitations.ChannelInvitation
@@ -8,14 +9,14 @@ import im.model.channel.ChannelRoleDTO
 import im.model.invitation.ChannelInvitationDTO
 import im.model.session.SessionDTO
 import im.model.user.UserDTO
+import im.pagination.PaginationRequest
 import jakarta.persistence.EntityManager
-import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Repository
 import im.sessions.Session
 import im.user.User
-import im.user.UserRepository
+import im.repositories.user.UserRepository
 import java.util.*
 
 @Repository
@@ -120,16 +121,9 @@ class UserRepositoryImpl(
         return userRepositoryJpa.findAll().map { it.toDomain() }
     }
 
-    override fun findFirst(page: Int, pageSize: Int): List<User> {
-        val res = userRepositoryJpa.findAll(Pageable.ofSize(pageSize).withPage(page))
-        return res.content.map { it.toDomain() }
-    }
-
-    override fun findLast(page: Int, pageSize: Int): List<User> {
-        val query = entityManager.createQuery("SELECT u FROM UserDTO u ORDER BY u.id DESC", UserDTO::class.java)
-        query.firstResult = page * pageSize
-        query.maxResults = pageSize
-        return query.resultList.map { it.toDomain() }
+    override fun find(pagination: PaginationRequest): Pair<List<User>, Pagination> {
+        val res = userRepositoryJpa.findAll(pagination.toPageRequest("id"))
+        return res.content.map { it.toDomain() } to res.getPagination(res.pageable)
     }
 
     override fun findAllById(ids: Iterable<Long>): List<User> {

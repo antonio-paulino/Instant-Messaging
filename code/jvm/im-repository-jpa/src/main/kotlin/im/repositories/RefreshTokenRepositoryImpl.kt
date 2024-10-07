@@ -1,13 +1,14 @@
 package im.repositories
 
+import im.pagination.Pagination
 import im.model.token.RefreshTokenDTO
+import im.pagination.PaginationRequest
 import jakarta.persistence.EntityManager
-import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Repository
 import im.tokens.RefreshToken
-import im.tokens.RefreshTokenRepository
+import im.repositories.tokens.RefreshTokenRepository
 import java.util.*
 
 @Repository
@@ -35,19 +36,9 @@ class RefreshTokenRepositoryImpl(
         return refreshTokenRepositoryJpa.findAll().map { it.toDomain() }
     }
 
-    override fun findFirst(page: Int, pageSize: Int): List<RefreshToken> {
-        val res = refreshTokenRepositoryJpa.findAll(Pageable.ofSize(pageSize).withPage(page))
-        return res.content.map { it.toDomain() }
-    }
-
-    override fun findLast(page: Int, pageSize: Int): List<RefreshToken> {
-        val query = entityManager.createQuery(
-            "SELECT u FROM RefreshTokenDTO u ORDER BY u.session.expiresAt DESC",
-            RefreshTokenDTO::class.java
-        )
-        query.firstResult = page * pageSize
-        query.maxResults = pageSize
-        return query.resultList.map { it.toDomain() }
+    override fun find(pagination: PaginationRequest): Pair<List<RefreshToken>, Pagination> {
+        val res = refreshTokenRepositoryJpa.findAll(pagination.toPageRequest("token"))
+        return res.content.map { it.toDomain() } to res.getPagination(res.pageable)
     }
 
     override fun findAllById(ids: Iterable<UUID>): List<RefreshToken> {
