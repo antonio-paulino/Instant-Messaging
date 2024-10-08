@@ -49,7 +49,7 @@ create table im_invitation
 create table channel
 (
     id         bigserial primary key,
-    name       varchar(30) not null,
+    name       varchar(30) unique not null,
     owner      bigint      not null references "users" (id) on delete cascade,
     is_public  boolean     not null,
     created_at timestamp   not null default current_timestamp

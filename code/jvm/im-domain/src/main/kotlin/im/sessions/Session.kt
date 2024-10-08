@@ -8,6 +8,9 @@ data class Session(
     val user: User,
     val expiresAt: LocalDateTime
 ) {
+    init {
+        require(id >= 0) { "Session ID must be positive" }
+    }
     val expired: Boolean
         get() = expiresAt.isBefore(LocalDateTime.now())
 

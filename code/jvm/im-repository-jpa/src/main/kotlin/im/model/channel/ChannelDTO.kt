@@ -45,7 +45,8 @@ open class ChannelDTO(
             owner = UserDTO.fromDomain(channel.owner),
             isPublic = channel.isPublic,
             createdAt = channel.createdAt,
-            members = channel.members.mapKeys { UserDTO.fromDomain(it.key) }
+            members = channel.members
+                .mapKeys { UserDTO.fromDomain(it.key) }
                 .mapValues { ChannelRoleDTO.valueOf(it.value.name) },
         )
     }
@@ -56,7 +57,10 @@ open class ChannelDTO(
         owner = owner!!.toDomain(),
         isPublic = isPublic,
         createdAt = createdAt,
-        members = members.mapKeys { it.key.toDomain() }
-            .mapValues { it.value.toDomain() },
+        membersLazy = lazy {
+            members
+                .mapKeys { it.key.toDomain() }
+                .mapValues { it.value.toDomain() }
+        }
     )
 }

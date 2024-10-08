@@ -33,23 +33,58 @@ class ChannelRepositoryImpl(
     private val utils: JpaRepositoryUtils
 ) : ChannelRepository {
 
-    override fun findByName(name: String): Channel? {
+    override fun findByName(name: String, filterPublic: Boolean): List<Channel> {
+        val baseQuery = "SELECT c FROM ChannelDTO c WHERE c.name = :name"
+        val publicFilter = if (filterPublic) " AND c.isPublic = true" else ""
         val query = entityManager.createQuery(
-            "SELECT c FROM ChannelDTO c WHERE c.name = :name",
-            ChannelDTO::class.java
+            "$baseQuery$publicFilter", ChannelDTO::class.java
         )
         query.setParameter("name", name)
-        return query.resultList.firstOrNull()?.toDomain()
-    }
-
-    override fun findByPartialName(name: String): List<Channel> {
-        val query = entityManager.createQuery(
-            "SELECT c FROM ChannelDTO c WHERE lower(c.name ) LIKE lower(:name)",
-            ChannelDTO::class.java
-        )
-        query.setParameter("name", "%$name%")
         return query.resultList.map { it.toDomain() }
     }
+
+    override fun findByPartialName(name: String, filterPublic: Boolean, pagination: PaginationRequest): Pagination<Channel> {
+        val baseQuery = "FROM ChannelDTO c WHERE c.name LIKE :name"
+        val publicFilter = if (filterPublic) " AND c.isPublic = true" else ""
+
+        val countQuery = entityManager.createQuery(
+            "SELECT COUNT(c) $baseQuery$publicFilter", Long::class.java
+        )
+
+        countQuery.setParameter("name", "%$name%")
+
+        val count = countQuery.singleResult
+
+        val query = entityManager.createQuery(
+            "SELECT c $baseQuery$publicFilter", ChannelDTO::class.java
+        )
+
+        query.setParameter("name", "%$name%")
+        query.firstResult = (pagination.page - 1) * pagination.size
+        query.maxResults = pagination.size
+
+        return utils.calculatePagination(query.resultList.map { it.toDomain() }, count, pagination)
+    }
+
+    override fun find(pagination: PaginationRequest, filterPublic: Boolean): Pagination<Channel> {
+        val baseCountQuery = "SELECT COUNT(c) FROM ChannelDTO c"
+        val baseSelectQuery = "SELECT c FROM ChannelDTO c"
+        val publicFilter = if (filterPublic) " WHERE c.isPublic = true" else ""
+
+        val countQuery = entityManager.createQuery(
+            "$baseCountQuery$publicFilter", Long::class.java
+        )
+        val count = countQuery.getSingleResult()
+
+        val query = entityManager.createQuery(
+            "$baseSelectQuery$publicFilter", ChannelDTO::class.java
+        )
+        query.firstResult = (pagination.page - 1) * pagination.size
+        query.maxResults = pagination.size
+
+        return utils.calculatePagination(query.resultList.map { it.toDomain() }, count, pagination)
+    }
+
 
     override fun getInvitations(channel: Channel, status: ChannelInvitationStatus): List<ChannelInvitation> {
         val query = entityManager.createQuery(

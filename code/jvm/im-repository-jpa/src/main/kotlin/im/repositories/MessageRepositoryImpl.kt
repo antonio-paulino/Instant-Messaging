@@ -6,7 +6,6 @@ import jakarta.persistence.EntityManager
 import im.messages.Message
 import im.repositories.messages.MessageRepository
 import im.model.message.MessageDTO
-import im.pagination.PaginationInfo
 import im.pagination.PaginationRequest
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Component
@@ -48,24 +47,7 @@ class MessageRepositoryImpl(
         query.maxResults = paginationRequest.size
         val res = query.resultList
 
-        val remainder = if (totalMessages % paginationRequest.size == 0L) 0 else 1
-        val totalPages = (totalMessages / paginationRequest.size).toInt() + remainder
-        val currentPage = paginationRequest.page
-        val nextPage = if (currentPage + 1 < totalPages) currentPage + 1 else null
-        val prevPage = if (currentPage > 1) currentPage - 1 else null
-
-        val pagination = Pagination(
-            res.map { it.toDomain() },
-            PaginationInfo(
-                totalMessages,
-                totalPages,
-                currentPage,
-                nextPage,
-                prevPage
-            )
-        )
-
-        return pagination
+        return utils.calculatePagination(res.map { it.toDomain() }, totalMessages, paginationRequest)
     }
 
 

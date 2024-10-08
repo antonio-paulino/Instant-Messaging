@@ -29,6 +29,13 @@ class ChannelsController(private val channelService: ChannelService) {
         channelService.getChannelById(channelId.toLong())
     }
 
+    @GetMapping
+    fun getChannels(
+
+    ) {
+        channelService.getChannels()
+    }
+
     @PatchMapping("/{channelId}")
     fun updateChannel(
         @PathVariable channelId: String,

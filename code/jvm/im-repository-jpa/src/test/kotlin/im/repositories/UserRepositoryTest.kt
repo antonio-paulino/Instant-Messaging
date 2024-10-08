@@ -61,8 +61,8 @@ open class UserRepositoryTest(
             expiresAt = LocalDateTime.now().plusDays(SESSION_DURATION_DAYS),
         )
 
-        testOwnedChannel = Channel(1, "General", testUser, true, members = mapOf())
-        testInvitedChannel = Channel(2, "General", testUser2, true, members = mapOf())
+        testOwnedChannel = Channel(1, "General1", testUser, true, members = mapOf(testUser2 to ChannelRole.OWNER))
+        testInvitedChannel = Channel(2, "General2", testUser2, true, members = mapOf())
 
         testInvitation = ChannelInvitation(
             1L,
@@ -225,8 +225,9 @@ open class UserRepositoryTest(
     @Transactional
     open fun `get joined channels should return empty list`() {
         testUser = userRepository.save(testUser)
+        testUser2 = userRepository.save(testUser2)
 
-        testOwnedChannel = testOwnedChannel.copy(owner = testUser)
+        testOwnedChannel = testOwnedChannel.copy(owner = testUser, membersLazy = lazy { mapOf(testUser2 to ChannelRole.MEMBER) })
         testInvitedChannel = testInvitedChannel.copy(owner = testUser)
 
         channelRepository.save(testOwnedChannel)
@@ -242,14 +243,14 @@ open class UserRepositoryTest(
         testUser = userRepository.save(testUser)
         testUser2 = userRepository.save(testUser2)
 
-        testOwnedChannel = testOwnedChannel.copy(owner = testUser)
-        testInvitedChannel = testInvitedChannel.copy(owner = testUser2, members = mapOf(testUser to ChannelRole.MEMBER))
+        testOwnedChannel = testOwnedChannel.copy(owner = testUser, membersLazy = lazy { mapOf(testUser2 to ChannelRole.MEMBER, testUser to ChannelRole.OWNER) } )
+        testInvitedChannel = testInvitedChannel.copy(owner = testUser2, membersLazy = lazy { mapOf(testUser to ChannelRole.MEMBER, testUser2 to ChannelRole.OWNER) })
 
         channelRepository.save(testOwnedChannel)
         testInvitedChannel = channelRepository.save(testInvitedChannel)
 
         val channels = userRepository.getJoinedChannels(testUser)
-        assertEquals(1, channels.size)
+        assertEquals(2, channels.size)
         assertEquals(ChannelRole.MEMBER, channels[testInvitedChannel])
     }
 
@@ -259,7 +260,7 @@ open class UserRepositoryTest(
         testUser = userRepository.save(testUser)
         testUser2 = userRepository.save(testUser2)
 
-        testOwnedChannel = testOwnedChannel.copy(owner = testUser)
+        testOwnedChannel = testOwnedChannel.copy(owner = testUser, membersLazy = lazy { mapOf(testUser2 to ChannelRole.MEMBER) })
         testInvitedChannel = testInvitedChannel.copy(owner = testUser)
 
         channelRepository.save(testOwnedChannel)
@@ -275,7 +276,7 @@ open class UserRepositoryTest(
         testUser = userRepository.save(testUser)
         testUser2 = userRepository.save(testUser2)
 
-        testOwnedChannel = testOwnedChannel.copy(owner = testUser)
+        testOwnedChannel = testOwnedChannel.copy(owner = testUser, membersLazy = lazy { mapOf(testUser2 to ChannelRole.MEMBER) })
         testInvitedChannel = testInvitedChannel.copy(owner = testUser2)
 
         testOwnedChannel = channelRepository.save(testOwnedChannel)
@@ -290,8 +291,9 @@ open class UserRepositoryTest(
     @Transactional
     open fun `get invitations should return empty list`() {
         testUser = userRepository.save(testUser)
+        testUser2 = userRepository.save(testUser2)
 
-        testOwnedChannel = testOwnedChannel.copy(owner = testUser)
+        testOwnedChannel = testOwnedChannel.copy(owner = testUser, membersLazy = lazy { mapOf(testUser2 to ChannelRole.MEMBER) })
         testInvitedChannel = testInvitedChannel.copy(owner = testUser)
 
         channelRepository.save(testOwnedChannel)
@@ -307,8 +309,8 @@ open class UserRepositoryTest(
         testUser = userRepository.save(testUser)
         testUser2 = userRepository.save(testUser2)
 
-        testOwnedChannel = testOwnedChannel.copy(owner = testUser)
-        testInvitedChannel = testInvitedChannel.copy(owner = testUser2)
+        testOwnedChannel = testOwnedChannel.copy(owner = testUser, membersLazy = lazy { mapOf(testUser2 to ChannelRole.MEMBER) })
+        testInvitedChannel = testInvitedChannel.copy(owner = testUser2, membersLazy = lazy { mapOf(testUser to ChannelRole.MEMBER) })
 
         channelRepository.save(testOwnedChannel)
         testInvitedChannel = channelRepository.save(testInvitedChannel)

@@ -116,9 +116,19 @@ open class ChannelRepositoryTest(
     @Transactional
     open fun `should find channel by name`() {
         channelRepository.save(testChannel1)
-        val foundChannel = channelRepository.findByName("General")
+        val foundChannel = channelRepository.findByName("General", false)
         assertNotNull(foundChannel)
-        assertEquals("General", foundChannel?.name)
+        assertEquals("General", foundChannel.first().name)
+    }
+
+    @Test
+    @Transactional
+    open fun `find filter public should return only public channels`() {
+        channelRepository.save(testChannel1)
+        channelRepository.save(testChannel2)
+        val (channels) = channelRepository.find(PaginationRequest(1, 10), true)
+        assertEquals(1, channels.size)
+        assertEquals(testChannel1.name, channels.first().name)
     }
 
     @Test
@@ -136,9 +146,9 @@ open class ChannelRepositoryTest(
 
     @Test
     @Transactional
-    open fun `should return null for non-existent channel name`() {
-        val foundChannel = channelRepository.findByName("NonExistentChannel")
-        assertNull(foundChannel)
+    open fun `should return empty for non-existent channel name`() {
+        val foundChannel = channelRepository.findByName("NonExistentChannel", false)
+        assertTrue(foundChannel.isEmpty())
     }
 
     @Test
@@ -146,7 +156,7 @@ open class ChannelRepositoryTest(
     open fun `should find channels by partial name`() {
         channelRepository.save(testChannel1)
         channelRepository.save(testChannel2)
-        val foundChannels = channelRepository.findByPartialName("Gen")
+        val (foundChannels) = channelRepository.findByPartialName("Gen", false, PaginationRequest(1, 10))
         assertEquals(1, foundChannels.count())
         assertEquals(testChannel1.name, foundChannels.first().name)
     }
@@ -266,7 +276,7 @@ open class ChannelRepositoryTest(
     @Transactional
     open fun `get member should return member`() {
         val savedChannel = channelRepository.save(testChannel1)
-        val newChannel = savedChannel.copy(members = savedChannel.members + (testMember to ChannelRole.MEMBER))
+        val newChannel = savedChannel.addMember(testMember, ChannelRole.MEMBER)
         val updatedChannel = channelRepository.save(newChannel)
         val member = channelRepository.getMember(updatedChannel, testMember)
         assertNotNull(member)
@@ -278,7 +288,7 @@ open class ChannelRepositoryTest(
     @Transactional
     open fun `should add member to channel with role Member`() {
         val savedChannel = channelRepository.save(testChannel1)
-        val newChannel = savedChannel.copy(members = savedChannel.members + (testMember to ChannelRole.MEMBER))
+        val newChannel = savedChannel.addMember(testMember, ChannelRole.MEMBER)
         val updatedChannel = channelRepository.save(newChannel)
         assertEquals(2, updatedChannel.members.size) // Owner + Member
         assertEquals(ChannelRole.MEMBER, updatedChannel.members[testMember])
@@ -288,7 +298,7 @@ open class ChannelRepositoryTest(
     @Transactional
     open fun `should add member to channel with role Guest`() {
         val savedChannel = channelRepository.save(testChannel1)
-        val newChannel = savedChannel.copy(members = savedChannel.members + (testMember to ChannelRole.GUEST))
+        val newChannel = savedChannel.addMember(testMember, ChannelRole.GUEST)
         val updatedChannel = channelRepository.save(newChannel)
         assertEquals(2, updatedChannel.members.size) // Owner + Guest
         assertEquals(ChannelRole.GUEST, updatedChannel.members[testMember])
@@ -299,12 +309,12 @@ open class ChannelRepositoryTest(
     open fun `should remove member from channel`() {
         val savedChannel = channelRepository.save(testChannel1)
 
-        val newChannel = savedChannel.copy(members = savedChannel.members + (testMember to ChannelRole.MEMBER))
+        val newChannel = savedChannel.addMember(testMember, ChannelRole.MEMBER)
         val updatedChannel = channelRepository.save(newChannel)
         assertEquals(2, updatedChannel.members.size)
         assertEquals(ChannelRole.MEMBER, updatedChannel.members[testMember])
         // Remove Member
-        val newChannel2 = updatedChannel.copy(members = updatedChannel.members - testMember)
+        val newChannel2 = updatedChannel.removeMember(testMember)
         val updatedChannel2 = channelRepository.save(newChannel2)
 
         assertEquals(1, updatedChannel2.members.size) // Owner
