@@ -136,7 +136,7 @@ open class ChannelInvitationRepositoryTest(
     @Transactional
     open fun `should find channel invitation by id`() {
         val savedInvitation = channelInvitationRepository.save(testInvitation1)
-        val foundInvitation = channelInvitationRepository.findById(savedInvitation.id)
+        val foundInvitation = channelInvitationRepository.findById(savedInvitation.id.value)
         assertNotNull(foundInvitation)
         assertEquals(savedInvitation, foundInvitation)
     }
@@ -217,7 +217,7 @@ open class ChannelInvitationRepositoryTest(
     @Transactional
     open fun `should delete channel invitation by id`() {
         val savedInvitation = channelInvitationRepository.save(testInvitation1)
-        channelInvitationRepository.deleteById(savedInvitation.id)
+        channelInvitationRepository.deleteById(savedInvitation.id.value)
         assertEquals(0, channelInvitationRepository.count())
     }
 
@@ -226,7 +226,7 @@ open class ChannelInvitationRepositoryTest(
     open fun `should delete multiple channel invitations by ids`() {
         val savedInvitation1 = channelInvitationRepository.save(testInvitation1)
         val savedInvitation2 = channelInvitationRepository.save(testInvitation2)
-        channelInvitationRepository.deleteAllById(listOf(savedInvitation1.id, savedInvitation2.id))
+        channelInvitationRepository.deleteAllById(listOf(savedInvitation1.id.value, savedInvitation2.id.value))
         assertEquals(0, channelInvitationRepository.count())
     }
 
@@ -251,7 +251,7 @@ open class ChannelInvitationRepositoryTest(
     @Transactional
     open fun `exists by id should return true for existing invitation`() {
         val savedInvitation = channelInvitationRepository.save(testInvitation1)
-        assertTrue(channelInvitationRepository.existsById(savedInvitation.id))
+        assertTrue(channelInvitationRepository.existsById(savedInvitation.id.value))
     }
 
     @Test

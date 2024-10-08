@@ -6,6 +6,9 @@ import im.channel.ChannelRole
 import im.invitations.ChannelInvitation
 import im.sessions.Session
 import im.user.User
+import im.wrappers.Email
+import im.wrappers.Name
+import im.wrappers.Password
 
 /**
  * [Repository] for [User] entities.
@@ -17,7 +20,7 @@ interface UserRepository : Repository<User, Long> {
      * @param name the name of the user
      * @return the user with the given name, or `null` if no such user exists
      */
-    fun findByName(name: String): User?
+    fun findByName(name: Name): User?
 
     /**
      * Finds a user by their email.
@@ -25,7 +28,7 @@ interface UserRepository : Repository<User, Long> {
      * @param email the email of the user
      * @return the user with the given email, or `null` if no such user exists
      */
-    fun findByEmail(email: String): User?
+    fun findByEmail(email: Email): User?
 
     /**
      * Finds users whose name starts with the given string, case-insensitive.
@@ -42,7 +45,7 @@ interface UserRepository : Repository<User, Long> {
      * @param password the password of the user
      * @return the user with the given name and password, or `null` if no such user exists
      */
-    fun findByNameAndPassword(name: String, password: String): User?
+    fun findByNameAndPassword(name: Name, password: Password): User?
 
     /**
      * Finds a user by their email and password.
@@ -51,7 +54,7 @@ interface UserRepository : Repository<User, Long> {
      * @param password the password of the user
      * @return the user with the given email and password, or `null` if no such user exists
      */
-    fun findByEmailAndPassword(email: String, password: String): User?
+    fun findByEmailAndPassword(email: Email, password: Password): User?
 
     /**
      * Finds all channels owned by the user.

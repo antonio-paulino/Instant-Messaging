@@ -10,9 +10,9 @@ data class UserOutputModel(
     companion object {
         fun fromDomain(user: User): UserOutputModel {
             return UserOutputModel(
-                id = user.id,
-                name = user.name,
-                email = user.email
+                id = user.id.value,
+                name = user.name.value,
+                email = user.email.value
             )
         }
     }

@@ -17,6 +17,9 @@ import org.springframework.stereotype.Repository
 import im.sessions.Session
 import im.user.User
 import im.repositories.user.UserRepository
+import im.wrappers.Email
+import im.wrappers.Name
+import im.wrappers.Password
 import java.util.*
 
 @Repository
@@ -29,41 +32,41 @@ class UserRepositoryImpl(
     private val utils: JpaRepositoryUtils
 ) : UserRepository {
 
-    override fun findByName(name: String): User? {
+    override fun findByName(name: Name): User? {
         val query = entityManager.createQuery("SELECT u FROM UserDTO u WHERE u.name = :name", UserDTO::class.java)
-        query.setParameter("name", name)
+        query.setParameter("name", name.value)
         return query.resultList.firstOrNull()?.toDomain()
     }
 
-    override fun findByEmail(email: String): User? {
+    override fun findByEmail(email: Email): User? {
         val query = entityManager.createQuery("SELECT u FROM UserDTO u WHERE u.email = :email", UserDTO::class.java)
-        query.setParameter("email", email)
+        query.setParameter("email", email.value)
         return query.resultList.firstOrNull()?.toDomain()
     }
 
     override fun findByPartialName(name: String): List<User> {
         val query = entityManager.createQuery("SELECT u FROM UserDTO u WHERE u.name LIKE :name", UserDTO::class.java)
-        query.setParameter("name", "$name%")
+        query.setParameter("name", "${name}%")
         return query.resultList.map { it.toDomain() }
     }
 
-    override fun findByNameAndPassword(name: String, password: String): User? {
+    override fun findByNameAndPassword(name: Name, password: Password): User? {
         val query = entityManager.createQuery(
             "SELECT u FROM UserDTO u WHERE lower(u.name) = lower(:name) AND u.password = :password",
             UserDTO::class.java
         )
-        query.setParameter("name", name)
-        query.setParameter("password", password)
+        query.setParameter("name", name.value)
+        query.setParameter("password", password.value)
         return query.resultList.firstOrNull()?.toDomain()
     }
 
-    override fun findByEmailAndPassword(email: String, password: String): User? {
+    override fun findByEmailAndPassword(email: Email, password: Password): User? {
         val query = entityManager.createQuery(
             "SELECT u FROM UserDTO u WHERE lower(u.email) = lower(:email) AND u.password = :password",
             UserDTO::class.java
         )
-        query.setParameter("email", email)
-        query.setParameter("password", password)
+        query.setParameter("email", email.value)
+        query.setParameter("password", password.value)
         return query.resultList.firstOrNull()?.toDomain()
     }
 
@@ -72,7 +75,7 @@ class UserRepositoryImpl(
             "SELECT c FROM ChannelDTO c WHERE c.owner.id = :userId",
             ChannelDTO::class.java
         )
-        query.setParameter("userId", user.id)
+        query.setParameter("userId", user.id.value)
         return query.resultList.map { it.toDomain() }
     }
 
@@ -81,7 +84,7 @@ class UserRepositoryImpl(
             "SELECT c, r.role FROM ChannelDTO c JOIN ChannelMemberDTO r ON c.id = r.id.channelID WHERE r.id.userID = :userId",
             Array<Any>::class.java,
         )
-        query.setParameter("userId", user.id)
+        query.setParameter("userId", user.id.value)
         val res = query.resultList.associate {
             (it[0] as ChannelDTO).toDomain() to (it[1] as ChannelRoleDTO).toDomain()
         }
@@ -93,7 +96,7 @@ class UserRepositoryImpl(
             "SELECT i FROM ChannelInvitationDTO i WHERE i.invitee.id = :userId",
             ChannelInvitationDTO::class.java
         )
-        query.setParameter("userId", user.id)
+        query.setParameter("userId", user.id.value)
         return query.resultList.map { it.toDomain() }
     }
 
@@ -102,7 +105,7 @@ class UserRepositoryImpl(
             "SELECT s FROM SessionDTO s WHERE s.user.id = :userId",
             SessionDTO::class.java
         )
-        query.setParameter("userId", user.id)
+        query.setParameter("userId", user.id.value)
         return query.resultList.map { it.toDomain() }
     }
 

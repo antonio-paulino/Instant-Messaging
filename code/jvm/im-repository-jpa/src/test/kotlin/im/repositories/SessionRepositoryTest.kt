@@ -76,7 +76,7 @@ open class SessionRepositoryTest(
                 expiresAt = LocalDateTime.now().plusDays(SESSION_DURATION_DAYS),
             )
         )
-        val foundSession = sessionRepository.findById(session.id)
+        val foundSession = sessionRepository.findById(session.id.value)
         assertNotNull(foundSession)
         assertEquals(session.user, foundSession!!.user)
         assertEquals(session.expiresAt, foundSession.expiresAt)
@@ -149,7 +149,7 @@ open class SessionRepositoryTest(
     open fun `find all by ids should return 2 sessions`() {
         val session = sessionRepository.save(testSession)
         val session2 = sessionRepository.save(testSession2)
-        val sessions = sessionRepository.findAllById(listOf(session.id, session2.id))
+        val sessions = sessionRepository.findAllById(listOf(session.id.value, session2.id.value))
         assertEquals(2, sessions.count())
     }
 
@@ -195,7 +195,7 @@ open class SessionRepositoryTest(
             expiresAt = LocalDateTime.now().plusDays(SESSION_DURATION_DAYS + 1)
         )
         sessionRepository.save(updatedSession)
-        val foundSession = sessionRepository.findById(session.id)
+        val foundSession = sessionRepository.findById(session.id.value)
         assertEquals(updatedSession.expiresAt, foundSession!!.expiresAt)
     }
 
@@ -203,7 +203,7 @@ open class SessionRepositoryTest(
     @Transactional
     open fun `should delete session by id`() {
         val session = sessionRepository.save(testSession)
-        sessionRepository.deleteById(session.id)
+        sessionRepository.deleteById(session.id.value)
         assertEquals(0, sessionRepository.count())
     }
 
@@ -221,7 +221,7 @@ open class SessionRepositoryTest(
     open fun `should delete all sessions by ids`() {
         val session = sessionRepository.save(testSession)
         val session2 = sessionRepository.save(testSession2)
-        sessionRepository.deleteAllById(listOf(session.id, session2.id))
+        sessionRepository.deleteAllById(listOf(session.id.value, session2.id.value))
         assertEquals(0, sessionRepository.count())
     }
 
@@ -246,7 +246,7 @@ open class SessionRepositoryTest(
     @Transactional
     open fun `exists by id should return true`() {
         val session = sessionRepository.save(testSession)
-        assertEquals(true, sessionRepository.existsById(session.id))
+        assertEquals(true, sessionRepository.existsById(session.id.value))
     }
 
     @Test

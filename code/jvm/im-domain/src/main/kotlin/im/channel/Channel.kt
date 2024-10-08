@@ -1,11 +1,15 @@
 package im.channel
 
 import im.user.User
+import im.wrappers.Identifier
+import im.wrappers.Name
+import im.wrappers.toIdentifier
+import im.wrappers.toName
 import java.time.LocalDateTime
 
 data class Channel(
-    val id: Long = 0,
-    val name: String,
+    val id: Identifier = Identifier(0),
+    val name: Name,
     val owner: User,
     val isPublic: Boolean,
     val createdAt: LocalDateTime = LocalDateTime.now(),
@@ -22,16 +26,10 @@ data class Channel(
             isPublic: Boolean,
             createdAt: LocalDateTime = LocalDateTime.now(),
             members: Map<User, ChannelRole> = mapOf(owner to ChannelRole.OWNER),
-        ) = Channel(id, name, owner, isPublic, createdAt, lazy { members })
+        ) = Channel(id.toIdentifier(), name.toName(), owner, isPublic, createdAt, lazy { members })
     }
 
-    init {
-        require(id >= 0) { "Channel ID must be positive" }
-        require(name.isNotBlank()) { "Channel name cannot be blank" }
-        require(name.length in 3..30) { "Channel name must be between 3 and 30 characters" }
-    }
-
-    fun updateChannel(name: String, isPublic: Boolean) = copy(name = name, isPublic = isPublic)
+    fun updateChannel(name: String, isPublic: Boolean) = copy(name = Name(name), isPublic = isPublic)
     fun addMember(user: User, role: ChannelRole) = copy(membersLazy = lazy { members + (user to role) })
     fun removeMember(user: User) = copy(membersLazy = lazy { members - user })
 

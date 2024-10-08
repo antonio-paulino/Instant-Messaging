@@ -1,6 +1,10 @@
 package im.transactions
 
 import im.TestApp
+import im.channel.Channel
+import im.channel.ChannelRole
+import im.repositories.ChannelRepositoryImpl
+import im.repositories.UserRepositoryImpl
 import im.repositories.transactions.TransactionIsolation
 import org.hibernate.type.SerializationException
 import org.junit.jupiter.api.BeforeEach
@@ -10,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ContextConfiguration
 import im.user.User
-import im.repositories.user.UserRepository
+import org.hibernate.Hibernate
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -21,14 +25,20 @@ import kotlin.test.assertTrue
 @ContextConfiguration(classes = [TestApp::class])
 class TransactionManagerTest(
     @Autowired private val transactionManager: TransactionManagerJpa,
-    @Autowired private val userRepository: UserRepository
+    @Autowired private val userRepository: UserRepositoryImpl,
+    @Autowired private val channelRepository: ChannelRepositoryImpl
 ) {
 
-    private val testUser = User(1L, "testUser", "password", "user1@daw.isel.pt")
+    private var testUser = User(1L, "testUser", "password", "user1@daw.isel.pt")
+    private var testChannel = Channel(1L, "testChannel", testUser, true)
 
     @BeforeEach
     fun setUp() {
         userRepository.deleteAll()
+        channelRepository.deleteAll()
+
+        testUser = User(1L, "testUser", "password", "user1@daw.isel.pt")
+        testChannel = Channel(1L, "testChannel", testUser, true)
     }
 
     @Test
@@ -47,7 +57,7 @@ class TransactionManagerTest(
                 throw Exception()
             }
         }
-        val user = userRepository.findById(testUser.id)
+        val user = userRepository.findById(testUser.id.value)
         assertNull(user)
     }
 
@@ -64,7 +74,7 @@ class TransactionManagerTest(
                 }
             }, TransactionIsolation.SERIALIZABLE)
         }
-        val user = userRepository.findById(testUser.id)
+        val user = userRepository.findById(testUser.id.value)
         assertEquals(testUser, user)
     }
 
@@ -78,6 +88,46 @@ class TransactionManagerTest(
             }, TransactionIsolation.SERIALIZABLE)
         }
         assertEquals(3, retries)
+    }
+
+    @Test
+    fun `test transaction lazy value initialization`() {
+        testUser = userRepository.save(testUser)
+        testChannel = testChannel.copy(owner = testUser, membersLazy = lazy { mapOf(testUser to ChannelRole.OWNER) })
+        testChannel = channelRepository.save(testChannel)
+        transactionManager.run({
+            testChannel = channelRepository.findById(testChannel.id.value)!!
+            testChannel.members
+        })
+        assertTrue(Hibernate.isInitialized(testChannel.members))
+    }
+
+    @Test
+    fun `test lazy value initialization outside of transaction throws exception`() {
+        testUser = userRepository.save(testUser)
+        testChannel = testChannel.copy(owner = testUser, membersLazy = lazy { mapOf(testUser to ChannelRole.OWNER) })
+        testChannel = channelRepository.save(testChannel)
+        transactionManager.run({
+            testChannel = channelRepository.findById(testChannel.id.value)!!
+        })
+        assertThrows<Exception> {
+            testChannel.members
+        }
+    }
+
+    @Test
+    fun `test lazy value initialization other transaction`() {
+        testUser = userRepository.save(testUser)
+        testChannel = testChannel.copy(owner = testUser, membersLazy = lazy { mapOf(testUser to ChannelRole.OWNER) })
+        testChannel = channelRepository.save(testChannel)
+        transactionManager.run({
+            testChannel = channelRepository.findById(testChannel.id.value)!!
+            testChannel.members
+        })
+        transactionManager.run({
+            val members = testChannel.members
+            assertTrue(Hibernate.isInitialized(members))
+        })
     }
 
 }

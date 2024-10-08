@@ -29,7 +29,7 @@ class SessionRepositoryImpl(
             "SELECT a FROM AccessTokenDTO a WHERE a.session.id = :sessionId",
             AccessTokenDTO::class.java
         )
-        query.setParameter("sessionId", session.id)
+        query.setParameter("sessionId", session.id.value)
         return query.resultList.map { it.toDomain() }
     }
 
@@ -38,7 +38,7 @@ class SessionRepositoryImpl(
             "SELECT r FROM RefreshTokenDTO r WHERE r.session.id = :sessionId",
             RefreshTokenDTO::class.java
         )
-        query.setParameter("sessionId", session.id)
+        query.setParameter("sessionId", session.id.value)
         return query.resultList.map { it.toDomain() }
     }
 

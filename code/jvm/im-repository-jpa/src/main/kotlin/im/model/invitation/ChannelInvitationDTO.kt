@@ -5,6 +5,7 @@ import im.invitations.ChannelInvitationStatus
 import im.channel.ChannelRole
 import im.model.channel.ChannelDTO
 import im.model.user.UserDTO
+import im.wrappers.toIdentifier
 import jakarta.persistence.*
 import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction
@@ -46,7 +47,7 @@ open class ChannelInvitationDTO(
     companion object {
         fun fromDomain(invitation: ChannelInvitation): ChannelInvitationDTO =
             ChannelInvitationDTO(
-                id = invitation.id,
+                id = invitation.id.value,
                 channel = ChannelDTO.fromDomain(invitation.channel),
                 inviter = UserDTO.fromDomain(invitation.inviter),
                 invitee = UserDTO.fromDomain(invitation.invitee),
@@ -57,7 +58,7 @@ open class ChannelInvitationDTO(
     }
 
     fun toDomain(): ChannelInvitation = ChannelInvitation(
-        id = id,
+        id = id.toIdentifier(),
         channel = channel!!.toDomain(),
         inviter = inviter!!.toDomain(),
         invitee = invitee!!.toDomain(),

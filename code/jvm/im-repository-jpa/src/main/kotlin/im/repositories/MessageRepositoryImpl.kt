@@ -26,7 +26,7 @@ class MessageRepositoryImpl(
             "SELECT m FROM MessageDTO m WHERE m.channel.id = :channelId",
             MessageDTO::class.java
         )
-        query.setParameter("channelId", channel.id)
+        query.setParameter("channelId", channel.id.value)
         return query.resultList.map { it.toDomain() }
     }
 
@@ -35,14 +35,14 @@ class MessageRepositoryImpl(
             "SELECT COUNT(m) FROM MessageDTO m WHERE m.channel.id = :channelId",
             Long::class.java
         )
-        totalMessagesQuery.setParameter("channelId", channel.id)
+        totalMessagesQuery.setParameter("channelId", channel.id.value)
         val totalMessages = totalMessagesQuery.singleResult
 
         val query = entityManager.createQuery(
             "SELECT m FROM MessageDTO m WHERE m.channel.id = :channelId ORDER BY m.createdAt ${paginationRequest.sort}",
             MessageDTO::class.java
         )
-        query.setParameter("channelId", channel.id)
+        query.setParameter("channelId", channel.id.value)
         query.firstResult = (paginationRequest.page - 1) * paginationRequest.size
         query.maxResults = paginationRequest.size
         val res = query.resultList

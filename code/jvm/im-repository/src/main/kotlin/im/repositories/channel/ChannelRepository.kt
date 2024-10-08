@@ -9,6 +9,7 @@ import im.messages.Message
 import im.pagination.Pagination
 import im.pagination.PaginationRequest
 import im.user.User
+import im.wrappers.Name
 
 /**
  * [Repository] for [Channel] entities.
@@ -21,7 +22,7 @@ interface ChannelRepository : Repository<Channel, Long> {
      * @param name the name of the channel
      * @return the channel with the given name, or `null` if no such channel exists
      */
-    fun findByName(name: String, filterPublic: Boolean): List<Channel>
+    fun findByName(name: Name, filterPublic: Boolean): Channel?
 
     /**
      * Finds channels where the name starts with the given string, case-insensitive.
@@ -29,7 +30,7 @@ interface ChannelRepository : Repository<Channel, Long> {
      * @param name the partial name of the channels
      * @return the channels whose name contains the given string
      */
-    fun findByPartialName(name: String, filterPublic: Boolean, pagination: PaginationRequest): Pagination<Channel>
+    fun findByPartialName(name: Name, filterPublic: Boolean, pagination: PaginationRequest): Pagination<Channel>
 
 
     /**

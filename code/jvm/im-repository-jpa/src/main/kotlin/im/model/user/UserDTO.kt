@@ -27,10 +27,10 @@ open class UserDTO(
 ) {
     companion object {
         fun fromDomain(user: User): UserDTO = UserDTO(
-            id = user.id,
-            name = user.name,
-            password = user.password,
-            email = user.email,
+            id = user.id.value,
+            name = user.name.value,
+            password = user.password.value,
+            email = user.email.value,
         )
     }
 

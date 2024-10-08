@@ -12,6 +12,9 @@ import im.tokens.RefreshToken
 import im.repositories.transactions.Transaction
 import im.repositories.transactions.TransactionManager
 import im.user.User
+import im.wrappers.Email
+import im.wrappers.Name
+import im.wrappers.Password
 import java.time.LocalDateTime
 import java.util.*
 
@@ -28,14 +31,14 @@ class AuthService(
     private val passwordEncoder: PasswordEncoder
 ) {
     fun register(
-        username: String,
-        password: String,
-        email: String,
-        invitationCode: String
+        username: Name,
+        password: Password,
+        email: Email,
+        invitationCode: UUID
     ): Either<AuthError, Pair<AccessToken, RefreshToken>> =
         transactionManager.run({
 
-            val imInvitation = imInvitationRepository.findById(UUID.fromString(invitationCode))
+            val imInvitation = imInvitationRepository.findById(invitationCode)
                 ?: return@run failure(AuthError.InvalidInvitationCode)
 
             if (imInvitation.status == ImInvitationStatus.USED) {
@@ -68,7 +71,7 @@ class AuthService(
         })
 
 
-    fun login(username: String?, password: String, email: String?): Either<AuthError, Pair<AccessToken, RefreshToken>> =
+    fun login(username: Name?, password: Password, email: Email?): Either<AuthError, Pair<AccessToken, RefreshToken>> =
         transactionManager.run({
 
             val user = when {

@@ -1,15 +1,23 @@
 package im.sessions
 
 import im.user.User
+import im.wrappers.Identifier
+import im.wrappers.toIdentifier
 import java.time.LocalDateTime
 
 data class Session(
-    val id: Long = 0,
+    val id: Identifier = Identifier(0),
     val user: User,
     val expiresAt: LocalDateTime
 ) {
-    init {
-        require(id >= 0) { "Session ID must be positive" }
+    companion object {
+        operator fun invoke(id: Long, user: User, expiresAt: LocalDateTime): Session {
+            return Session(
+                id = id.toIdentifier(),
+                user = user,
+                expiresAt = expiresAt
+            )
+        }
     }
     val expired: Boolean
         get() = expiresAt.isBefore(LocalDateTime.now())

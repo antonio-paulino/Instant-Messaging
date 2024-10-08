@@ -31,7 +31,7 @@ open class SessionDTO(
 ) {
     companion object {
         fun fromDomain(session: Session) = SessionDTO(
-            id = session.id,
+            id = session.id.value,
             user = UserDTO.fromDomain(session.user),
             expiresAt = session.expiresAt,
         )

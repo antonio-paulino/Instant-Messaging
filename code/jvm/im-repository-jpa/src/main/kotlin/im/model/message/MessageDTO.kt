@@ -36,7 +36,7 @@ open class MessageDTO(
 ) {
     companion object {
         fun fromDomain(message: Message): MessageDTO = MessageDTO(
-            id = message.id,
+            id = message.id.value,
             channel = ChannelDTO.fromDomain(message.channel),
             user = UserDTO.fromDomain(message.user),
             content = message.content,

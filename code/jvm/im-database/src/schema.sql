@@ -13,7 +13,7 @@ create table users
 (
     id       bigserial primary key,
     name     varchar(30) unique not null,
-    password varchar(30)        not null,
+    password varchar(80)        not null,
     email    varchar(50) unique not null,
     check ( email ~* '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$' )
 );
@@ -35,7 +35,7 @@ create table access_token
 create table refresh_token
 (
     token      uuid primary key,
-    session_id bigint not null references session(id) on delete cascade
+    session_id bigint not null references session (id) on delete cascade
 );
 
 create table im_invitation
@@ -50,9 +50,9 @@ create table channel
 (
     id         bigserial primary key,
     name       varchar(30) unique not null,
-    owner      bigint      not null references "users" (id) on delete cascade,
-    is_public  boolean     not null,
-    created_at timestamp   not null default current_timestamp
+    owner      bigint             not null references "users" (id) on delete cascade,
+    is_public  boolean            not null,
+    created_at timestamp          not null default current_timestamp
 );
 
 create table channel_member
@@ -87,6 +87,26 @@ create table channel_invitation
     CHECK (role in ('MEMBER', 'GUEST'))
 );
 
-select * from users;
-select * from channel;
-select * from channel_member;
+CREATE OR REPLACE FUNCTION prevent_reused_invitation()
+    RETURNS TRIGGER AS
+$$
+BEGIN
+    IF NEW.status = 'USED' AND OLD.status = 'USED' THEN
+        RAISE EXCEPTION 'Cannot set status to USED if it is already USED';
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER prevent_reused_invitation_trigger
+    BEFORE UPDATE
+    ON im_invitation
+    FOR EACH ROW
+EXECUTE FUNCTION prevent_reused_invitation();
+
+select *
+from users;
+select *
+from channel;
+select *
+from channel_member;

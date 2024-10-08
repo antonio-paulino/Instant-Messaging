@@ -18,6 +18,7 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Repository
 import im.user.User
+import im.wrappers.Name
 
 @Repository
 interface ChannelRepositoryJpa : JpaRepository<ChannelDTO, Long>
@@ -33,17 +34,21 @@ class ChannelRepositoryImpl(
     private val utils: JpaRepositoryUtils
 ) : ChannelRepository {
 
-    override fun findByName(name: String, filterPublic: Boolean): List<Channel> {
+    override fun findByName(name: Name, filterPublic: Boolean): Channel? {
         val baseQuery = "SELECT c FROM ChannelDTO c WHERE c.name = :name"
         val publicFilter = if (filterPublic) " AND c.isPublic = true" else ""
         val query = entityManager.createQuery(
             "$baseQuery$publicFilter", ChannelDTO::class.java
         )
-        query.setParameter("name", name)
-        return query.resultList.map { it.toDomain() }
+        query.setParameter("name", name.value)
+        return query.resultList.firstOrNull()?.toDomain()
     }
 
-    override fun findByPartialName(name: String, filterPublic: Boolean, pagination: PaginationRequest): Pagination<Channel> {
+    override fun findByPartialName(
+        name: Name,
+        filterPublic: Boolean,
+        pagination: PaginationRequest
+    ): Pagination<Channel> {
         val baseQuery = "FROM ChannelDTO c WHERE c.name LIKE :name"
         val publicFilter = if (filterPublic) " AND c.isPublic = true" else ""
 
@@ -74,7 +79,7 @@ class ChannelRepositoryImpl(
         val countQuery = entityManager.createQuery(
             "$baseCountQuery$publicFilter", Long::class.java
         )
-        val count = countQuery.getSingleResult()
+        val count = countQuery.singleResult
 
         val query = entityManager.createQuery(
             "$baseSelectQuery$publicFilter", ChannelDTO::class.java
@@ -91,7 +96,7 @@ class ChannelRepositoryImpl(
             "SELECT i FROM ChannelInvitationDTO i WHERE i.channel.id = :channelId AND i.status = :status",
             ChannelInvitationDTO::class.java
         )
-        query.setParameter("channelId", channel.id)
+        query.setParameter("channelId", channel.id.value)
         query.setParameter("status", status)
         return query.resultList.map { it.toDomain() }
     }
@@ -101,7 +106,7 @@ class ChannelRepositoryImpl(
             "SELECT m FROM MessageDTO m WHERE m.channel.id = :channelId",
             MessageDTO::class.java
         )
-        query.setParameter("channelId", channel.id)
+        query.setParameter("channelId", channel.id.value)
         return query.resultList.map { it.toDomain() }
     }
 
@@ -110,8 +115,8 @@ class ChannelRepositoryImpl(
             "SELECT m FROM ChannelMemberDTO m WHERE m.id.channelID = :channelId AND m.id.userID = :userId",
             ChannelMemberDTO::class.java
         )
-        query.setParameter("channelId", channel.id)
-        query.setParameter("userId", user.id)
+        query.setParameter("channelId", channel.id.value)
+        query.setParameter("userId", user.id.value)
         val result = query.resultList.firstOrNull()
         return if (result != null) {
             Pair(result.user.toDomain(), result.role.toDomain())

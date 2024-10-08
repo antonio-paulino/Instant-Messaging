@@ -2,6 +2,8 @@ package im.model.channel
 
 import im.channel.Channel
 import im.model.user.UserDTO
+import im.wrappers.toIdentifier
+import im.wrappers.toName
 import jakarta.persistence.Entity
 import jakarta.persistence.*
 import org.hibernate.annotations.OnDelete
@@ -40,8 +42,8 @@ open class ChannelDTO(
 ) {
     companion object {
         fun fromDomain(channel: Channel): ChannelDTO = ChannelDTO(
-            id = channel.id,
-            name = channel.name,
+            id = channel.id.value,
+            name = channel.name.value,
             owner = UserDTO.fromDomain(channel.owner),
             isPublic = channel.isPublic,
             createdAt = channel.createdAt,
@@ -52,8 +54,8 @@ open class ChannelDTO(
     }
 
     fun toDomain(): Channel = Channel(
-        id = id,
-        name = name,
+        id = id.toIdentifier(),
+        name = name.toName(),
         owner = owner!!.toDomain(),
         isPublic = isPublic,
         createdAt = createdAt,

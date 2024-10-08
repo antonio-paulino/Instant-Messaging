@@ -18,6 +18,9 @@ import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.test.context.ContextConfiguration
 import im.sessions.Session
 import im.user.User
+import im.wrappers.toEmail
+import im.wrappers.toName
+import im.wrappers.toPassword
 import java.time.LocalDateTime
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -97,7 +100,7 @@ open class UserRepositoryTest(
     @Test
     @Transactional
     open fun `should return null when user not found by email`() {
-        val user = userRepository.findByEmail("non-existing")
+        val user = userRepository.findByEmail("non-existing@isel.pt".toEmail())
         assertNull(user)
     }
 
@@ -106,7 +109,7 @@ open class UserRepositoryTest(
     @Transactional
     open fun `should find user by id`() {
         val savedUser = userRepository.save(testUser)
-        val user = userRepository.findById(savedUser.id)
+        val user = userRepository.findById(savedUser.id.value)
         assertNotNull(user)
         assertEquals(savedUser.id, user.id)
     }
@@ -129,13 +132,13 @@ open class UserRepositoryTest(
     @Transactional
     open fun `should update user information`() {
         val savedUser = userRepository.save(testUser)
-        val updatedUser = savedUser.copy(name = "updatedName", password = "updatedPassword")
+        val updatedUser = savedUser.copy(name = "updatedName".toName(), password = "updatedPassword".toPassword())
         userRepository.save(updatedUser)
 
-        val user = userRepository.findById(savedUser.id)
+        val user = userRepository.findById(savedUser.id.value)
         assertNotNull(user)
-        assertEquals("updatedName", user.name)
-        assertEquals("updatedPassword", user.password)
+        assertEquals("updatedName".toName(), user.name)
+        assertEquals("updatedPassword".toPassword(), user.password)
     }
 
     @Test
@@ -145,9 +148,9 @@ open class UserRepositoryTest(
 
         assertEquals(testUser.name, savedUser.name)
 
-        userRepository.deleteById(savedUser.id)
+        userRepository.deleteById(savedUser.id.value)
 
-        val user = userRepository.findById(savedUser.id)
+        val user = userRepository.findById(savedUser.id.value)
         assertNull(user)
     }
 
@@ -160,7 +163,7 @@ open class UserRepositoryTest(
 
         userRepository.delete(savedUser)
 
-        val user = userRepository.findById(savedUser.id)
+        val user = userRepository.findById(savedUser.id.value)
         assertNull(user)
     }
 
@@ -181,7 +184,7 @@ open class UserRepositoryTest(
         userRepository.save(testUser2)
 
         val users = userRepository.findAll().toList()
-        val ids = users.map { it.id }
+        val ids = users.map { it.id.value }
 
         userRepository.deleteAllById(ids)
         assertEquals(0L, userRepository.count())
@@ -227,7 +230,8 @@ open class UserRepositoryTest(
         testUser = userRepository.save(testUser)
         testUser2 = userRepository.save(testUser2)
 
-        testOwnedChannel = testOwnedChannel.copy(owner = testUser, membersLazy = lazy { mapOf(testUser2 to ChannelRole.MEMBER) })
+        testOwnedChannel =
+            testOwnedChannel.copy(owner = testUser, membersLazy = lazy { mapOf(testUser2 to ChannelRole.MEMBER) })
         testInvitedChannel = testInvitedChannel.copy(owner = testUser)
 
         channelRepository.save(testOwnedChannel)
@@ -243,8 +247,14 @@ open class UserRepositoryTest(
         testUser = userRepository.save(testUser)
         testUser2 = userRepository.save(testUser2)
 
-        testOwnedChannel = testOwnedChannel.copy(owner = testUser, membersLazy = lazy { mapOf(testUser2 to ChannelRole.MEMBER, testUser to ChannelRole.OWNER) } )
-        testInvitedChannel = testInvitedChannel.copy(owner = testUser2, membersLazy = lazy { mapOf(testUser to ChannelRole.MEMBER, testUser2 to ChannelRole.OWNER) })
+        testOwnedChannel = testOwnedChannel.copy(
+            owner = testUser,
+            membersLazy = lazy { mapOf(testUser2 to ChannelRole.MEMBER, testUser to ChannelRole.OWNER) }
+        )
+        testInvitedChannel = testInvitedChannel.copy(
+            owner = testUser2,
+            membersLazy = lazy { mapOf(testUser to ChannelRole.MEMBER, testUser2 to ChannelRole.OWNER) }
+        )
 
         channelRepository.save(testOwnedChannel)
         testInvitedChannel = channelRepository.save(testInvitedChannel)
@@ -260,7 +270,8 @@ open class UserRepositoryTest(
         testUser = userRepository.save(testUser)
         testUser2 = userRepository.save(testUser2)
 
-        testOwnedChannel = testOwnedChannel.copy(owner = testUser, membersLazy = lazy { mapOf(testUser2 to ChannelRole.MEMBER) })
+        testOwnedChannel =
+            testOwnedChannel.copy(owner = testUser, membersLazy = lazy { mapOf(testUser2 to ChannelRole.MEMBER) })
         testInvitedChannel = testInvitedChannel.copy(owner = testUser)
 
         channelRepository.save(testOwnedChannel)
@@ -276,7 +287,8 @@ open class UserRepositoryTest(
         testUser = userRepository.save(testUser)
         testUser2 = userRepository.save(testUser2)
 
-        testOwnedChannel = testOwnedChannel.copy(owner = testUser, membersLazy = lazy { mapOf(testUser2 to ChannelRole.MEMBER) })
+        testOwnedChannel =
+            testOwnedChannel.copy(owner = testUser, membersLazy = lazy { mapOf(testUser2 to ChannelRole.MEMBER) })
         testInvitedChannel = testInvitedChannel.copy(owner = testUser2)
 
         testOwnedChannel = channelRepository.save(testOwnedChannel)
@@ -293,7 +305,8 @@ open class UserRepositoryTest(
         testUser = userRepository.save(testUser)
         testUser2 = userRepository.save(testUser2)
 
-        testOwnedChannel = testOwnedChannel.copy(owner = testUser, membersLazy = lazy { mapOf(testUser2 to ChannelRole.MEMBER) })
+        testOwnedChannel =
+            testOwnedChannel.copy(owner = testUser, membersLazy = lazy { mapOf(testUser2 to ChannelRole.MEMBER) })
         testInvitedChannel = testInvitedChannel.copy(owner = testUser)
 
         channelRepository.save(testOwnedChannel)
@@ -309,8 +322,10 @@ open class UserRepositoryTest(
         testUser = userRepository.save(testUser)
         testUser2 = userRepository.save(testUser2)
 
-        testOwnedChannel = testOwnedChannel.copy(owner = testUser, membersLazy = lazy { mapOf(testUser2 to ChannelRole.MEMBER) })
-        testInvitedChannel = testInvitedChannel.copy(owner = testUser2, membersLazy = lazy { mapOf(testUser to ChannelRole.MEMBER) })
+        testOwnedChannel =
+            testOwnedChannel.copy(owner = testUser, membersLazy = lazy { mapOf(testUser2 to ChannelRole.MEMBER) })
+        testInvitedChannel =
+            testInvitedChannel.copy(owner = testUser2, membersLazy = lazy { mapOf(testUser to ChannelRole.MEMBER) })
 
         channelRepository.save(testOwnedChannel)
         testInvitedChannel = channelRepository.save(testInvitedChannel)
@@ -340,7 +355,7 @@ open class UserRepositoryTest(
     open fun `should not save user with duplicate name`() {
         userRepository.save(testUser)
 
-        val user2 = testUser.copy(password = "password2")
+        val user2 = testUser.copy(password = "password2".toPassword())
 
         assertThrows<DataIntegrityViolationException> {
             userRepository.save(user2)
@@ -398,7 +413,7 @@ open class UserRepositoryTest(
     @Test
     @Transactional
     open fun `should return null when user not found by name and password`() {
-        val user = userRepository.findByNameAndPassword("non-existing", "non-existing")
+        val user = userRepository.findByNameAndPassword("non-existing".toName(), "non-existing".toPassword())
         assertTrue(user == null)
     }
 
@@ -406,7 +421,10 @@ open class UserRepositoryTest(
     @Transactional
     open fun `should find user by email and password`() {
         userRepository.save(testUser)
-        val user = userRepository.findByEmailAndPassword(testUser.email, testUser.password)
+        val user = userRepository.findByEmailAndPassword(
+            testUser.email.value.toEmail(),
+            testUser.password.value.toPassword()
+        )
         assertNotNull(user)
         assertEquals(testUser.email, user.email)
         assertEquals(testUser.password, user.password)
@@ -415,7 +433,7 @@ open class UserRepositoryTest(
     @Test
     @Transactional
     open fun `should return null when user not found by email and password`() {
-        val user = userRepository.findByEmailAndPassword("non-existing", "non-existing")
+        val user = userRepository.findByEmailAndPassword("non-existing@isel.pt".toEmail(), "non-existing".toPassword())
         assertTrue(user == null)
     }
 
@@ -460,7 +478,7 @@ open class UserRepositoryTest(
     @Transactional
     open fun `exists by id should return true`() {
         val savedUser = userRepository.save(testUser)
-        assertTrue(userRepository.existsById(savedUser.id))
+        assertTrue(userRepository.existsById(savedUser.id.value))
     }
 
     @Test

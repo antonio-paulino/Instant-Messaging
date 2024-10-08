@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ContextConfiguration
 import im.user.User
+import im.wrappers.toName
 import java.time.LocalDateTime
 import kotlin.test.Test
 
@@ -28,7 +29,7 @@ open class ChannelRepositoryTest(
     @Autowired private val userRepository: UserRepositoryImpl,
     @Autowired private val channelRepository: ChannelRepositoryImpl,
     @Autowired private val channelInvitationRepository: ChannelInvitationRepositoryImpl,
-    @Autowired private val messageRepository: MessageRepositoryImpl
+    @Autowired private val messageRepository: MessageRepositoryImpl,
 ) {
     private lateinit var testChannel1: Channel
     private lateinit var testChannel2: Channel
@@ -107,7 +108,7 @@ open class ChannelRepositoryTest(
     @Transactional
     open fun `should find channel by id`() {
         val savedChannel = channelRepository.save(testChannel1)
-        val foundChannel = channelRepository.findById(savedChannel.id)
+        val foundChannel = channelRepository.findById(savedChannel.id.value)
         assertNotNull(foundChannel)
         assertEquals(savedChannel.id, foundChannel?.id)
     }
@@ -116,9 +117,9 @@ open class ChannelRepositoryTest(
     @Transactional
     open fun `should find channel by name`() {
         channelRepository.save(testChannel1)
-        val foundChannel = channelRepository.findByName("General", false)
+        val foundChannel = channelRepository.findByName("General".toName(), false)
         assertNotNull(foundChannel)
-        assertEquals("General", foundChannel.first().name)
+        assertEquals("General", foundChannel!!.name.value)
     }
 
     @Test
@@ -147,8 +148,8 @@ open class ChannelRepositoryTest(
     @Test
     @Transactional
     open fun `should return empty for non-existent channel name`() {
-        val foundChannel = channelRepository.findByName("NonExistentChannel", false)
-        assertTrue(foundChannel.isEmpty())
+        val foundChannel = channelRepository.findByName("NonExistentChannel".toName(), false)
+        assertNull(foundChannel)
     }
 
     @Test
@@ -156,7 +157,7 @@ open class ChannelRepositoryTest(
     open fun `should find channels by partial name`() {
         channelRepository.save(testChannel1)
         channelRepository.save(testChannel2)
-        val (foundChannels) = channelRepository.findByPartialName("Gen", false, PaginationRequest(1, 10))
+        val (foundChannels) = channelRepository.findByPartialName("Gen".toName(), false, PaginationRequest(1, 10))
         assertEquals(1, foundChannels.count())
         assertEquals(testChannel1.name, foundChannels.first().name)
     }
@@ -214,9 +215,9 @@ open class ChannelRepositoryTest(
     @Transactional
     open fun `should update channel`() {
         val savedChannel = channelRepository.save(testChannel1)
-        val updatedChannel = savedChannel.copy(name = "UpdatedName", isPublic = false)
+        val updatedChannel = savedChannel.copy(name = "UpdatedName".toName(), isPublic = false)
         val result = channelRepository.save(updatedChannel)
-        assertEquals("UpdatedName", result.name)
+        assertEquals("UpdatedName", result.name.value)
         assertFalse(result.isPublic)
     }
 
@@ -324,7 +325,7 @@ open class ChannelRepositoryTest(
     @Transactional
     open fun `should delete channel by id`() {
         val savedChannel = channelRepository.save(testChannel1)
-        channelRepository.deleteById(savedChannel.id)
+        channelRepository.deleteById(savedChannel.id.value)
         assertEquals(0, channelRepository.count())
     }
 
@@ -333,7 +334,7 @@ open class ChannelRepositoryTest(
     open fun `should delete multiple channels by ids`() {
         val savedChannel1 = channelRepository.save(testChannel1)
         val savedChannel2 = channelRepository.save(testChannel2)
-        channelRepository.deleteAllById(listOf(savedChannel1.id, savedChannel2.id))
+        channelRepository.deleteAllById(listOf(savedChannel1.id.value, savedChannel2.id.value))
         assertEquals(0, channelRepository.count())
     }
 
@@ -358,7 +359,7 @@ open class ChannelRepositoryTest(
     @Transactional
     open fun `exists by id should return true for existing channel`() {
         val savedChannel = channelRepository.save(testChannel1)
-        assertTrue(channelRepository.existsById(savedChannel.id))
+        assertTrue(channelRepository.existsById(savedChannel.id.value))
     }
 
     @Test
