@@ -7,12 +7,9 @@ import im.messages.Message
 import im.repositories.messages.MessageRepository
 import im.model.message.MessageDTO
 import im.pagination.PaginationRequest
-import org.springframework.data.jpa.repository.JpaRepository
+import im.repositories.jpa.MessageRepositoryJpa
+import im.wrappers.Identifier
 import org.springframework.stereotype.Component
-import org.springframework.stereotype.Repository
-
-@Repository
-interface MessageRepositoryJpa : JpaRepository<MessageDTO, Long>
 
 @Component
 class MessageRepositoryImpl(
@@ -22,34 +19,13 @@ class MessageRepositoryImpl(
 ) : MessageRepository {
 
     override fun findByChannel(channel: Channel): List<Message> {
-        val query = entityManager.createQuery(
-            "SELECT m FROM MessageDTO m WHERE m.channel.id = :channelId",
-            MessageDTO::class.java
-        )
-        query.setParameter("channelId", channel.id.value)
-        return query.resultList.map { it.toDomain() }
+        return messageRepositoryJpa.findByChannel(channel.id.value).map { it.toDomain() }
     }
 
     override fun findByChannel(channel: Channel, paginationRequest: PaginationRequest): Pagination<Message> {
-        val totalMessagesQuery = entityManager.createQuery(
-            "SELECT COUNT(m) FROM MessageDTO m WHERE m.channel.id = :channelId",
-            Long::class.java
-        )
-        totalMessagesQuery.setParameter("channelId", channel.id.value)
-        val totalMessages = totalMessagesQuery.singleResult
-
-        val query = entityManager.createQuery(
-            "SELECT m FROM MessageDTO m WHERE m.channel.id = :channelId ORDER BY m.createdAt ${paginationRequest.sort}",
-            MessageDTO::class.java
-        )
-        query.setParameter("channelId", channel.id.value)
-        query.firstResult = (paginationRequest.page - 1) * paginationRequest.size
-        query.maxResults = paginationRequest.size
-        val res = query.resultList
-
-        return utils.calculatePagination(res.map { it.toDomain() }, totalMessages, paginationRequest)
+        val res = messageRepositoryJpa.findByChannelId(channel.id.value, utils.toPageRequest(paginationRequest, "createdAt"))
+        return Pagination(res.content.map { it.toDomain() }, utils.getPaginationInfo(res))
     }
-
 
     override fun save(entity: Message): Message {
         return messageRepositoryJpa.save(MessageDTO.fromDomain(entity)).toDomain()
@@ -59,8 +35,8 @@ class MessageRepositoryImpl(
         return messageRepositoryJpa.saveAll(entities.map { MessageDTO.fromDomain(it) }).map { it.toDomain() }
     }
 
-    override fun findById(id: Long): Message? {
-        return messageRepositoryJpa.findById(id).map { it.toDomain() }.orElse(null)
+    override fun findById(id: Identifier): Message? {
+        return messageRepositoryJpa.findById(id.value).map { it.toDomain() }.orElse(null)
     }
 
     override fun findAll(): List<Message> {
@@ -72,16 +48,16 @@ class MessageRepositoryImpl(
         return Pagination(res.content.map { it.toDomain() }, utils.getPaginationInfo(res))
     }
 
-    override fun findAllById(ids: Iterable<Long>): List<Message> {
-        return messageRepositoryJpa.findAllById(ids).map { it.toDomain() }
+    override fun findAllById(ids: Iterable<Identifier>): List<Message> {
+        return messageRepositoryJpa.findAllById(ids.map { it.value }).map { it.toDomain() }
     }
 
-    override fun deleteById(id: Long) {
-        messageRepositoryJpa.deleteById(id)
+    override fun deleteById(id: Identifier) {
+        messageRepositoryJpa.deleteById(id.value)
     }
 
-    override fun existsById(id: Long): Boolean {
-        return messageRepositoryJpa.existsById(id)
+    override fun existsById(id: Identifier): Boolean {
+        return messageRepositoryJpa.existsById(id.value)
     }
 
     override fun count(): Long {
@@ -100,8 +76,8 @@ class MessageRepositoryImpl(
         messageRepositoryJpa.delete(MessageDTO.fromDomain(entity))
     }
 
-    override fun deleteAllById(ids: Iterable<Long>) {
-        messageRepositoryJpa.deleteAllById(ids)
+    override fun deleteAllById(ids: Iterable<Identifier>) {
+        messageRepositoryJpa.deleteAllById(ids.map { it.value })
     }
 
     override fun flush() {

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 
 /**
- * Handles exceptions thrown by the application.
+ * Overrides the default exception handling done by Spring.
  */
 @ControllerAdvice
 class ExceptionHandler {
@@ -26,6 +26,9 @@ class ExceptionHandler {
         )
     }
 
+    /**
+     * Handles exceptions thrown when the request body is not readable.
+     */
     @ExceptionHandler(HttpMessageNotReadableException::class)
     fun notReadable(err: HttpMessageNotReadableException, request: HttpServletRequest?): ResponseEntity<*> {
         return InputValidationProblem.InvalidInput.response(

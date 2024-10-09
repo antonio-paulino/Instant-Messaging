@@ -15,6 +15,7 @@ import im.sessions.Session
 import im.tokens.AccessToken
 import im.tokens.RefreshToken
 import im.user.User
+import im.wrappers.toIdentifier
 import java.time.LocalDateTime
 import java.util.*
 import kotlin.test.assertEquals
@@ -76,7 +77,7 @@ open class SessionRepositoryTest(
                 expiresAt = LocalDateTime.now().plusDays(SESSION_DURATION_DAYS),
             )
         )
-        val foundSession = sessionRepository.findById(session.id.value)
+        val foundSession = sessionRepository.findById(session.id)
         assertNotNull(foundSession)
         assertEquals(session.user, foundSession!!.user)
         assertEquals(session.expiresAt, foundSession.expiresAt)
@@ -85,7 +86,7 @@ open class SessionRepositoryTest(
     @Test
     @Transactional
     open fun `should not find by id`() {
-        val foundSession = sessionRepository.findById(9999)
+        val foundSession = sessionRepository.findById((9999L).toIdentifier())
         assertNull(foundSession)
     }
 
@@ -149,7 +150,7 @@ open class SessionRepositoryTest(
     open fun `find all by ids should return 2 sessions`() {
         val session = sessionRepository.save(testSession)
         val session2 = sessionRepository.save(testSession2)
-        val sessions = sessionRepository.findAllById(listOf(session.id.value, session2.id.value))
+        val sessions = sessionRepository.findAllById(listOf(session.id, session2.id))
         assertEquals(2, sessions.count())
     }
 
@@ -195,7 +196,7 @@ open class SessionRepositoryTest(
             expiresAt = LocalDateTime.now().plusDays(SESSION_DURATION_DAYS + 1)
         )
         sessionRepository.save(updatedSession)
-        val foundSession = sessionRepository.findById(session.id.value)
+        val foundSession = sessionRepository.findById(session.id)
         assertEquals(updatedSession.expiresAt, foundSession!!.expiresAt)
     }
 
@@ -203,7 +204,7 @@ open class SessionRepositoryTest(
     @Transactional
     open fun `should delete session by id`() {
         val session = sessionRepository.save(testSession)
-        sessionRepository.deleteById(session.id.value)
+        sessionRepository.deleteById(session.id)
         assertEquals(0, sessionRepository.count())
     }
 
@@ -221,7 +222,7 @@ open class SessionRepositoryTest(
     open fun `should delete all sessions by ids`() {
         val session = sessionRepository.save(testSession)
         val session2 = sessionRepository.save(testSession2)
-        sessionRepository.deleteAllById(listOf(session.id.value, session2.id.value))
+        sessionRepository.deleteAllById(listOf(session.id, session2.id))
         assertEquals(0, sessionRepository.count())
     }
 
@@ -246,13 +247,13 @@ open class SessionRepositoryTest(
     @Transactional
     open fun `exists by id should return true`() {
         val session = sessionRepository.save(testSession)
-        assertEquals(true, sessionRepository.existsById(session.id.value))
+        assertEquals(true, sessionRepository.existsById(session.id))
     }
 
     @Test
     @Transactional
     open fun `exists by id should return false`() {
-        assertEquals(false, sessionRepository.existsById(9999))
+        assertEquals(false, sessionRepository.existsById((9999).toIdentifier()))
     }
 
     @Test

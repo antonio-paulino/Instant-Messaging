@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ContextConfiguration
 import im.user.User
+import im.wrappers.toIdentifier
 import im.wrappers.toName
 import java.time.LocalDateTime
 import kotlin.test.Test
@@ -108,7 +109,7 @@ open class ChannelRepositoryTest(
     @Transactional
     open fun `should find channel by id`() {
         val savedChannel = channelRepository.save(testChannel1)
-        val foundChannel = channelRepository.findById(savedChannel.id.value)
+        val foundChannel = channelRepository.findById(savedChannel.id)
         assertNotNull(foundChannel)
         assertEquals(savedChannel.id, foundChannel?.id)
     }
@@ -157,7 +158,7 @@ open class ChannelRepositoryTest(
     open fun `should find channels by partial name`() {
         channelRepository.save(testChannel1)
         channelRepository.save(testChannel2)
-        val (foundChannels) = channelRepository.findByPartialName("Gen".toName(), false, PaginationRequest(1, 10))
+        val (foundChannels) = channelRepository.findByPartialName("Gen", false, PaginationRequest(1, 10))
         assertEquals(1, foundChannels.count())
         assertEquals(testChannel1.name, foundChannels.first().name)
     }
@@ -245,28 +246,6 @@ open class ChannelRepositoryTest(
 
     @Test
     @Transactional
-    open fun `get messages should be empty`() {
-        val savedChannel = channelRepository.save(testChannel1)
-        val messages = channelRepository
-            .getMessages(savedChannel)
-            .toList()
-        assertTrue(messages.isEmpty())
-    }
-
-    @Test
-    @Transactional
-    open fun `get messages should return one message`() {
-        val savedChannel = channelRepository.save(testChannel1)
-        testMessage = testMessage.copy(channel = savedChannel)
-        messageRepository.save(testMessage)
-        val messages = channelRepository
-            .getMessages(savedChannel)
-            .toList()
-        assertEquals(1, messages.size)
-    }
-
-    @Test
-    @Transactional
     open fun `get member should return empty`() {
         val savedChannel = channelRepository.save(testChannel1)
         val member = channelRepository.getMember(savedChannel, testMember)
@@ -325,7 +304,7 @@ open class ChannelRepositoryTest(
     @Transactional
     open fun `should delete channel by id`() {
         val savedChannel = channelRepository.save(testChannel1)
-        channelRepository.deleteById(savedChannel.id.value)
+        channelRepository.deleteById(savedChannel.id)
         assertEquals(0, channelRepository.count())
     }
 
@@ -334,7 +313,7 @@ open class ChannelRepositoryTest(
     open fun `should delete multiple channels by ids`() {
         val savedChannel1 = channelRepository.save(testChannel1)
         val savedChannel2 = channelRepository.save(testChannel2)
-        channelRepository.deleteAllById(listOf(savedChannel1.id.value, savedChannel2.id.value))
+        channelRepository.deleteAllById(listOf(savedChannel1.id, savedChannel2.id))
         assertEquals(0, channelRepository.count())
     }
 
@@ -359,13 +338,13 @@ open class ChannelRepositoryTest(
     @Transactional
     open fun `exists by id should return true for existing channel`() {
         val savedChannel = channelRepository.save(testChannel1)
-        assertTrue(channelRepository.existsById(savedChannel.id.value))
+        assertTrue(channelRepository.existsById(savedChannel.id))
     }
 
     @Test
     @Transactional
     open fun `exists by id should return false for non-existing channel`() {
-        assertFalse(channelRepository.existsById(999L))
+        assertFalse(channelRepository.existsById((999L).toIdentifier()))
     }
 
     @Test

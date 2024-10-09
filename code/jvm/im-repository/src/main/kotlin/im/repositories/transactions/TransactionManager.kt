@@ -16,5 +16,5 @@ interface TransactionManager {
      * @param isolation The isolation level of the transaction
      * @return The result of the block.
      */
-    fun <T> run(block: Transaction.() -> T, isolation: TransactionIsolation = TransactionIsolation.READ_COMMITTED): T
+    fun <T> run(block: Transaction.() -> T, isolation: TransactionIsolation = TransactionIsolation.DEFAULT): T
 }

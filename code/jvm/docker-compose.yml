@@ -2,11 +2,11 @@ services:
   postgres:
     container_name: DAW-IM2
     build:
-        context: .
-        dockerfile: ./Dockerfile
+      context: .
+      dockerfile: ./Dockerfile
     environment:
       - POSTGRES_PASSWORD=isel
       - POSTGRES_USER=isel
       - POSTGRES_DB=iseldawdev
     ports:
-        - "5432:5432"
+      - "5432:5432"

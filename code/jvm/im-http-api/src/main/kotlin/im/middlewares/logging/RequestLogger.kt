@@ -8,12 +8,9 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.core.Ordered
-import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
 
 @Component
-@Order(Ordered.HIGHEST_PRECEDENCE)
 class RequestLogger : HttpFilter() {
 
     override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {

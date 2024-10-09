@@ -3,16 +3,12 @@ package im.repositories
 import im.pagination.Pagination
 import im.model.token.RefreshTokenDTO
 import im.pagination.PaginationRequest
+import im.repositories.jpa.RefreshTokenRepositoryJpa
 import jakarta.persistence.EntityManager
-import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Component
-import org.springframework.stereotype.Repository
 import im.tokens.RefreshToken
 import im.repositories.tokens.RefreshTokenRepository
 import java.util.*
-
-@Repository
-interface RefreshTokenRepositoryJpa : JpaRepository<RefreshTokenDTO, UUID>
 
 @Component
 class RefreshTokenRepositoryImpl(

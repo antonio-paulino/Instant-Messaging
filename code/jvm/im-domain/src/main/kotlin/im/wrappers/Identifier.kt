@@ -11,3 +11,4 @@ data class Identifier(
 }
 
 fun Long.toIdentifier(): Identifier = Identifier(this)
+fun Int.toIdentifier(): Identifier = Identifier(this.toLong())

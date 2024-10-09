@@ -13,6 +13,10 @@ import java.time.LocalDateTime
 
 @Entity
 @Table(name = "channel_invitation")
+@NamedQuery(
+    name = "ChannelInvitationDTO.findByChannel",
+    query = "SELECT i FROM ChannelInvitationDTO i WHERE i.channel.id = :channelId and i.status = :status"
+)
 open class ChannelInvitationDTO(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

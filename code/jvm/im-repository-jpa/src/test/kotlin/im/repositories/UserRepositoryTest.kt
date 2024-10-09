@@ -19,6 +19,7 @@ import org.springframework.test.context.ContextConfiguration
 import im.sessions.Session
 import im.user.User
 import im.wrappers.toEmail
+import im.wrappers.toIdentifier
 import im.wrappers.toName
 import im.wrappers.toPassword
 import java.time.LocalDateTime
@@ -109,7 +110,7 @@ open class UserRepositoryTest(
     @Transactional
     open fun `should find user by id`() {
         val savedUser = userRepository.save(testUser)
-        val user = userRepository.findById(savedUser.id.value)
+        val user = userRepository.findById(savedUser.id)
         assertNotNull(user)
         assertEquals(savedUser.id, user.id)
     }
@@ -117,14 +118,14 @@ open class UserRepositoryTest(
     @Test
     @Transactional
     open fun `should return empty when user not found by name`() {
-        val user = userRepository.findByPartialName("non-existing")
-        assertTrue(user.isEmpty())
+        val user = userRepository.findByPartialName("non-existing", PaginationRequest(1, 1))
+        assertTrue(user.items.isEmpty())
     }
 
     @Test
     @Transactional
     open fun `should return null when user not found by id`() {
-        val user = userRepository.findById(9999L)
+        val user = userRepository.findById((9999L).toIdentifier())
         assertNull(user)
     }
 
@@ -135,7 +136,7 @@ open class UserRepositoryTest(
         val updatedUser = savedUser.copy(name = "updatedName".toName(), password = "updatedPassword".toPassword())
         userRepository.save(updatedUser)
 
-        val user = userRepository.findById(savedUser.id.value)
+        val user = userRepository.findById(savedUser.id)
         assertNotNull(user)
         assertEquals("updatedName".toName(), user.name)
         assertEquals("updatedPassword".toPassword(), user.password)
@@ -148,9 +149,9 @@ open class UserRepositoryTest(
 
         assertEquals(testUser.name, savedUser.name)
 
-        userRepository.deleteById(savedUser.id.value)
+        userRepository.deleteById(savedUser.id)
 
-        val user = userRepository.findById(savedUser.id.value)
+        val user = userRepository.findById(savedUser.id)
         assertNull(user)
     }
 
@@ -163,7 +164,7 @@ open class UserRepositoryTest(
 
         userRepository.delete(savedUser)
 
-        val user = userRepository.findById(savedUser.id.value)
+        val user = userRepository.findById(savedUser.id)
         assertNull(user)
     }
 
@@ -184,7 +185,7 @@ open class UserRepositoryTest(
         userRepository.save(testUser2)
 
         val users = userRepository.findAll().toList()
-        val ids = users.map { it.id.value }
+        val ids = users.map { it.id }
 
         userRepository.deleteAllById(ids)
         assertEquals(0L, userRepository.count())
@@ -375,10 +376,25 @@ open class UserRepositoryTest(
             password = "password2",
             email = "user2@daw.isel.pt"
         )
+        val user3 = User(
+            name = "bea.smith",
+            password = "password3",
+            email = "user3@daw.isel.pt"
+        )
+        val user4 = User(
+            name = "jane.smith",
+            password = "password4",
+            email = "user4@daw.isel.pt"
+        )
         userRepository.save(user1)
         userRepository.save(user2)
-        val users = userRepository.findByPartialName("j")
-        assertEquals(2, users.size)
+        userRepository.save(user3)
+        userRepository.save(user4)
+        val users = userRepository.findByPartialName("j", PaginationRequest(1, 2))
+        assertEquals(2, users.items.size)
+        assertEquals(user1.name, users.items[0].name)
+        assertEquals(user2.name, users.items[1].name)
+        assertEquals(3, users.info.total)
     }
 
     @Test
@@ -396,8 +412,8 @@ open class UserRepositoryTest(
         )
         userRepository.save(user1)
         userRepository.save(user2)
-        val users = userRepository.findByPartialName("doe")
-        assertTrue(users.none())
+        val users = userRepository.findByPartialName("doe", PaginationRequest(1, 1))
+        assertTrue(users.items.isEmpty())
     }
 
     @Test
@@ -478,14 +494,14 @@ open class UserRepositoryTest(
     @Transactional
     open fun `exists by id should return true`() {
         val savedUser = userRepository.save(testUser)
-        assertTrue(userRepository.existsById(savedUser.id.value))
+        assertTrue(userRepository.existsById(savedUser.id))
     }
 
     @Test
     @Transactional
     open fun `exists by id should return false`() {
         userRepository.save(testUser)
-        assertFalse(userRepository.existsById(9999L))
+        assertFalse(userRepository.existsById((9999L).toIdentifier()))
     }
 
     @Test

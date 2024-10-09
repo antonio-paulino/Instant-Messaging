@@ -5,14 +5,10 @@ import im.invitations.ImInvitation
 import im.repositories.invitations.ImInvitationRepository
 import im.model.invitation.ImInvitationDTO
 import im.pagination.PaginationRequest
+import im.repositories.jpa.ImInvitationRepositoryJpa
 import jakarta.persistence.EntityManager
-import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Component
-import org.springframework.stereotype.Repository
 import java.util.*
-
-@Repository
-interface ImInvitationRepositoryJpa : JpaRepository<ImInvitationDTO, UUID>
 
 @Component
 class ImInvitationRepositoryImpl(

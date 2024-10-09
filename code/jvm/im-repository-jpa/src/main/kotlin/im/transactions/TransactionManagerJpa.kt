@@ -3,6 +3,7 @@ package im.transactions
 import im.repositories.channel.ChannelRepository
 import im.repositories.invitations.ChannelInvitationRepository
 import im.repositories.invitations.ImInvitationRepository
+import im.repositories.messages.MessageRepository
 import im.repositories.transactions.Transaction
 import im.repositories.transactions.TransactionIsolation
 import im.repositories.transactions.TransactionManager
@@ -16,6 +17,7 @@ import im.repositories.sessions.SessionRepository
 import im.repositories.tokens.AccessTokenRepository
 import im.repositories.tokens.RefreshTokenRepository
 import im.repositories.user.UserRepository
+import org.slf4j.LoggerFactory
 
 private const val MAX_SERIALIZABLE_RETRIES = 3
 
@@ -24,6 +26,7 @@ class TransactionManagerJpa(
     private val channelRepository: ChannelRepository,
     private val userRepository: UserRepository,
     private val sessionRepository: SessionRepository,
+    private val messageRepository: MessageRepository,
     private val accessTokenRepository: AccessTokenRepository,
     private val refreshTokenRepository: RefreshTokenRepository,
     private val imInvitationRepository: ImInvitationRepository,
@@ -37,9 +40,11 @@ class TransactionManagerJpa(
         var tries = 1
         while (true) {
             val transaction = manager.getTransaction(definition)
+            logger.debug("Starting transaction with isolation {}", isolation)
             try {
                 val result = newTransaction(transaction).block()
                 manager.commit(transaction)
+                logger.debug("Transaction succeeded")
                 return result
             } catch (e: Exception) {
                 manager.rollback(transaction)
@@ -50,6 +55,7 @@ class TransactionManagerJpa(
                     tries++
                     continue
                 }
+                logger.error("Transaction failed:", e)
                 throw e
             }
         }
@@ -75,7 +81,12 @@ class TransactionManagerJpa(
             accessTokenRepository,
             refreshTokenRepository,
             imInvitationRepository,
-            channelInvitationRepository
+            channelInvitationRepository,
+            messageRepository
         )
+    }
+
+    companion object {
+        private val logger = LoggerFactory.getLogger(TransactionManagerJpa::class.java)
     }
 }

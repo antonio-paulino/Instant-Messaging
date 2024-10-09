@@ -20,9 +20,6 @@ import im.services.Success
 import im.services.auth.AuthError
 import im.services.auth.AuthService
 import im.utils.RequestHelper
-import im.wrappers.toEmail
-import im.wrappers.toName
-import im.wrappers.toPassword
 import jakarta.servlet.http.HttpServletResponse
 import java.net.URI
 import java.util.UUID
@@ -42,9 +39,9 @@ class AuthController(
     ): ResponseEntity<Any> {
         val (username, password, email, invitation) = userCredentials
         return when (val res = authService.register(
-            username.toName(),
-            password.toPassword(),
-            email.toEmail(),
+            username.toDomain(),
+            password.toDomain(),
+            email.toDomain(),
             UUID.fromString(invitation)
         )) {
             is Failure -> handleAuthFailure(res.value)
@@ -64,7 +61,11 @@ class AuthController(
         response: HttpServletResponse,
     ): ResponseEntity<Any> {
         val (username, password, email) = userAuth
-        return when (val res = authService.login(username?.toName(), password.toPassword(), email?.toEmail())) {
+        return when (val res = authService.login(
+            username?.toDomain(),
+            password.toDomain(),
+            email?.toDomain()
+        )) {
             is Failure -> handleAuthFailure(res.value)
             is Success -> {
                 val (accessToken, refreshToken) = res.value

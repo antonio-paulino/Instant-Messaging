@@ -2,20 +2,15 @@ package im.repositories
 
 import im.pagination.Pagination
 import im.model.session.SessionDTO
-import im.model.token.AccessTokenDTO
-import im.model.token.RefreshTokenDTO
 import im.pagination.PaginationRequest
+import im.repositories.jpa.SessionRepositoryJpa
 import jakarta.persistence.EntityManager
-import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Component
-import org.springframework.stereotype.Repository
 import im.sessions.Session
 import im.repositories.sessions.SessionRepository
 import im.tokens.AccessToken
 import im.tokens.RefreshToken
-
-@Repository
-interface SessionRepositoryJpa : JpaRepository<SessionDTO, Long>
+import im.wrappers.Identifier
 
 @Component
 class SessionRepositoryImpl(
@@ -25,21 +20,11 @@ class SessionRepositoryImpl(
 ) : SessionRepository {
 
     override fun getAccessTokens(session: Session): List<AccessToken> {
-        val query = entityManager.createQuery(
-            "SELECT a FROM AccessTokenDTO a WHERE a.session.id = :sessionId",
-            AccessTokenDTO::class.java
-        )
-        query.setParameter("sessionId", session.id.value)
-        return query.resultList.map { it.toDomain() }
+        return sessionRepositoryJpa.findAccessTokensBySession(session.id.value).map { it.toDomain() }
     }
 
     override fun getRefreshTokens(session: Session): List<RefreshToken> {
-        val query = entityManager.createQuery(
-            "SELECT r FROM RefreshTokenDTO r WHERE r.session.id = :sessionId",
-            RefreshTokenDTO::class.java
-        )
-        query.setParameter("sessionId", session.id.value)
-        return query.resultList.map { it.toDomain() }
+        return sessionRepositoryJpa.findRefreshTokensBySession(session.id.value).map { it.toDomain() }
     }
 
     override fun save(entity: Session): Session {
@@ -50,8 +35,8 @@ class SessionRepositoryImpl(
         return sessionRepositoryJpa.saveAll(entities.map { SessionDTO.fromDomain(it) }).map { it.toDomain() }
     }
 
-    override fun findById(id: Long): Session? {
-        return sessionRepositoryJpa.findById(id).map { it.toDomain() }.orElse(null)
+    override fun findById(id: Identifier): Session? {
+        return sessionRepositoryJpa.findById(id.value).map { it.toDomain() }.orElse(null)
     }
 
     override fun findAll(): List<Session> {
@@ -63,16 +48,16 @@ class SessionRepositoryImpl(
         return Pagination(res.content.map { it.toDomain() }, utils.getPaginationInfo(res))
     }
 
-    override fun findAllById(ids: Iterable<Long>): List<Session> {
-        return sessionRepositoryJpa.findAllById(ids).map { it.toDomain() }
+    override fun findAllById(ids: Iterable<Identifier>): List<Session> {
+        return sessionRepositoryJpa.findAllById(ids.map { it.value }).map { it.toDomain() }
     }
 
-    override fun deleteById(id: Long) {
-        sessionRepositoryJpa.deleteById(id)
+    override fun deleteById(id: Identifier) {
+        sessionRepositoryJpa.deleteById(id.value)
     }
 
-    override fun existsById(id: Long): Boolean {
-        return sessionRepositoryJpa.existsById(id)
+    override fun existsById(id: Identifier): Boolean {
+        return sessionRepositoryJpa.existsById(id.value)
     }
 
     override fun count(): Long {
@@ -91,8 +76,8 @@ class SessionRepositoryImpl(
         sessionRepositoryJpa.delete(SessionDTO.fromDomain(entity))
     }
 
-    override fun deleteAllById(ids: Iterable<Long>) {
-        sessionRepositoryJpa.deleteAllById(ids)
+    override fun deleteAllById(ids: Iterable<Identifier>) {
+        sessionRepositoryJpa.deleteAllById(ids.map { it.value })
     }
 
     override fun flush() {

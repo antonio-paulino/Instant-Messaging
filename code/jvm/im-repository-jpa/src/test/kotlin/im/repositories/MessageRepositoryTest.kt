@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ContextConfiguration
 import im.user.User
+import im.wrappers.toIdentifier
 import java.time.LocalDateTime
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -63,7 +64,7 @@ open class MessageRepositoryTest(
     @Transactional
     open fun `should find message by id`() {
         val savedMessage = messageRepository.save(testMessage1)
-        val foundMessage = messageRepository.findById(savedMessage.id.value)
+        val foundMessage = messageRepository.findById(savedMessage.id)
         assertNotNull(foundMessage)
         assertEquals(savedMessage.id, foundMessage!!.id)
         assertEquals(savedMessage.content, foundMessage.content)
@@ -73,7 +74,7 @@ open class MessageRepositoryTest(
     @Test
     @Transactional
     open fun `should return null for non-existent id`() {
-        val foundMessage = messageRepository.findById(999L)
+        val foundMessage = messageRepository.findById((999L).toIdentifier())
         assertNull(foundMessage)
     }
 
@@ -210,7 +211,7 @@ open class MessageRepositoryTest(
     open fun `should find all messages by ids`() {
         val savedMessage1 = messageRepository.save(testMessage1)
         val savedMessage2 = messageRepository.save(testMessage2)
-        val messages = messageRepository.findAllById(listOf(savedMessage1.id.value, savedMessage2.id.value))
+        val messages = messageRepository.findAllById(listOf(savedMessage1.id, savedMessage2.id))
         assertEquals(2, messages.count())
     }
 
@@ -218,7 +219,7 @@ open class MessageRepositoryTest(
     @Transactional
     open fun `should delete message by id`() {
         val savedMessage = messageRepository.save(testMessage1)
-        messageRepository.deleteById(savedMessage.id.value)
+        messageRepository.deleteById(savedMessage.id)
         assertEquals(0, messageRepository.count())
     }
 
@@ -227,7 +228,7 @@ open class MessageRepositoryTest(
     open fun `should delete multiple messages by ids`() {
         val savedMessage1 = messageRepository.save(testMessage1)
         val savedMessage2 = messageRepository.save(testMessage2)
-        messageRepository.deleteAllById(listOf(savedMessage1.id.value, savedMessage2.id.value))
+        messageRepository.deleteAllById(listOf(savedMessage1.id, savedMessage2.id))
         assertEquals(0, messageRepository.count())
     }
 
@@ -266,13 +267,13 @@ open class MessageRepositoryTest(
     @Transactional
     open fun `exists by id should return true for existing message`() {
         val savedMessage = messageRepository.save(testMessage1)
-        assertTrue(messageRepository.existsById(savedMessage.id.value))
+        assertTrue(messageRepository.existsById(savedMessage.id))
     }
 
     @Test
     @Transactional
     open fun `exists by id should return false for non-existing message`() {
-        assertFalse(messageRepository.existsById(999L))
+        assertFalse(messageRepository.existsById((999L).toIdentifier()))
     }
 
     @Test

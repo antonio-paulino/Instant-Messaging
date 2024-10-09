@@ -7,6 +7,7 @@ data class Name(
         require(value.isNotBlank()) { "Name cannot be blank" }
         require(value.length in 3..30) { "Name must be between 3 and 30 characters" }
     }
+
     override fun toString(): String = value
 }
 

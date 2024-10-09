@@ -29,9 +29,13 @@ data class Channel(
         ) = Channel(id.toIdentifier(), name.toName(), owner, isPublic, createdAt, lazy { members })
     }
 
-    fun updateChannel(name: String, isPublic: Boolean) = copy(name = Name(name), isPublic = isPublic)
+    fun updateChannel(name: Name, isPublic: Boolean) = copy(name = name, isPublic = isPublic)
+
     fun addMember(user: User, role: ChannelRole) = copy(membersLazy = lazy { members + (user to role) })
+
     fun removeMember(user: User) = copy(membersLazy = lazy { members - user })
+
+    fun hasMember(user: User): Boolean = members.containsKey(user)
 
     override fun equals(other: Any?): Boolean {
         return other is Channel

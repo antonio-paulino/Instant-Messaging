@@ -5,13 +5,10 @@ import im.invitations.ChannelInvitation
 import im.repositories.invitations.ChannelInvitationRepository
 import im.model.invitation.ChannelInvitationDTO
 import im.pagination.PaginationRequest
+import im.repositories.jpa.ChannelInvitationRepositoryJpa
+import im.wrappers.Identifier
 import jakarta.persistence.EntityManager
-import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Component
-import org.springframework.stereotype.Repository
-
-@Repository
-interface ChannelInvitationRepositoryJpa : JpaRepository<ChannelInvitationDTO, Long>
 
 @Component
 class ChannelInvitationRepositoryImpl(
@@ -29,8 +26,8 @@ class ChannelInvitationRepositoryImpl(
             .map { it.toDomain() }
     }
 
-    override fun findById(id: Long): ChannelInvitation? {
-        return channelInvitationRepositoryJpa.findById(id).map { it.toDomain() }.orElse(null)
+    override fun findById(id: Identifier): ChannelInvitation? {
+        return channelInvitationRepositoryJpa.findById(id.value).map { it.toDomain() }.orElse(null)
     }
 
     override fun findAll(): List<ChannelInvitation> {
@@ -42,16 +39,16 @@ class ChannelInvitationRepositoryImpl(
         return Pagination(res.content.map { it.toDomain() }, utils.getPaginationInfo(res))
     }
 
-    override fun deleteById(id: Long) {
-        channelInvitationRepositoryJpa.deleteById(id)
+    override fun deleteById(id: Identifier) {
+        channelInvitationRepositoryJpa.deleteById(id.value)
     }
 
-    override fun findAllById(ids: Iterable<Long>): List<ChannelInvitation> {
-        return channelInvitationRepositoryJpa.findAllById(ids).map { it.toDomain() }
+    override fun findAllById(ids: Iterable<Identifier>): List<ChannelInvitation> {
+        return channelInvitationRepositoryJpa.findAllById(ids.map { it.value }).map { it.toDomain() }
     }
 
-    override fun existsById(id: Long): Boolean {
-        return channelInvitationRepositoryJpa.existsById(id)
+    override fun existsById(id: Identifier): Boolean {
+        return channelInvitationRepositoryJpa.existsById(id.value)
     }
 
     override fun count(): Long {
@@ -70,8 +67,8 @@ class ChannelInvitationRepositoryImpl(
         channelInvitationRepositoryJpa.delete(ChannelInvitationDTO.fromDomain(entity))
     }
 
-    override fun deleteAllById(ids: Iterable<Long>) {
-        channelInvitationRepositoryJpa.deleteAllById(ids)
+    override fun deleteAllById(ids: Iterable<Identifier>) {
+        channelInvitationRepositoryJpa.deleteAllById(ids.map { it.value })
     }
 
     override fun flush() {

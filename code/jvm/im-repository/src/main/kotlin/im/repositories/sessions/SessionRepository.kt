@@ -4,11 +4,12 @@ import im.repositories.Repository
 import im.sessions.Session
 import im.tokens.AccessToken
 import im.tokens.RefreshToken
+import im.wrappers.Identifier
 
 /**
  * [Repository] for [Session] entities.
  */
-interface SessionRepository : Repository<Session, Long> {
+interface SessionRepository : Repository<Session, Identifier> {
     /**
      * Finds all access tokens associated with a session.
      *

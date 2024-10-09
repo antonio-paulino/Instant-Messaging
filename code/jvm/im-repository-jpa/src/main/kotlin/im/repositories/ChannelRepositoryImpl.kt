@@ -7,24 +7,14 @@ import im.channel.ChannelRole
 import im.invitations.ChannelInvitation
 import im.invitations.ChannelInvitationStatus
 import jakarta.persistence.EntityManager
-import im.messages.Message
 import im.model.channel.ChannelDTO
-import im.model.channel.ChannelMemberDTO
-import im.model.channel.ChannelMemberId
-import im.model.invitation.ChannelInvitationDTO
-import im.model.message.MessageDTO
 import im.pagination.PaginationRequest
-import org.springframework.data.jpa.repository.JpaRepository
+import im.repositories.jpa.ChannelMemberRepositoryJpa
+import im.repositories.jpa.ChannelRepositoryJpa
 import org.springframework.stereotype.Component
-import org.springframework.stereotype.Repository
 import im.user.User
+import im.wrappers.Identifier
 import im.wrappers.Name
-
-@Repository
-interface ChannelRepositoryJpa : JpaRepository<ChannelDTO, Long>
-
-@Repository
-interface ChannelMemberRepositoryJpa : JpaRepository<ChannelMemberDTO, ChannelMemberId>
 
 @Component
 class ChannelRepositoryImpl(
@@ -35,92 +25,35 @@ class ChannelRepositoryImpl(
 ) : ChannelRepository {
 
     override fun findByName(name: Name, filterPublic: Boolean): Channel? {
-        val baseQuery = "SELECT c FROM ChannelDTO c WHERE c.name = :name"
-        val publicFilter = if (filterPublic) " AND c.isPublic = true" else ""
-        val query = entityManager.createQuery(
-            "$baseQuery$publicFilter", ChannelDTO::class.java
-        )
-        query.setParameter("name", name.value)
-        return query.resultList.firstOrNull()?.toDomain()
+        return channelRepositoryJpa.findByName(name.value, filterPublic)?.toDomain()
     }
 
     override fun findByPartialName(
-        name: Name,
+        name: String,
         filterPublic: Boolean,
         pagination: PaginationRequest
     ): Pagination<Channel> {
-        val baseQuery = "FROM ChannelDTO c WHERE c.name LIKE :name"
-        val publicFilter = if (filterPublic) " AND c.isPublic = true" else ""
-
-        val countQuery = entityManager.createQuery(
-            "SELECT COUNT(c) $baseQuery$publicFilter", Long::class.java
+        val res = channelRepositoryJpa.findByPartialName(
+            name,
+            filterPublic,
+            utils.toPageRequest(pagination, "id")
         )
-
-        countQuery.setParameter("name", "%$name%")
-
-        val count = countQuery.singleResult
-
-        val query = entityManager.createQuery(
-            "SELECT c $baseQuery$publicFilter", ChannelDTO::class.java
-        )
-
-        query.setParameter("name", "%$name%")
-        query.firstResult = (pagination.page - 1) * pagination.size
-        query.maxResults = pagination.size
-
-        return utils.calculatePagination(query.resultList.map { it.toDomain() }, count, pagination)
+        return Pagination(res.content.map { it.toDomain() }, utils.getPaginationInfo(res))
     }
 
     override fun find(pagination: PaginationRequest, filterPublic: Boolean): Pagination<Channel> {
-        val baseCountQuery = "SELECT COUNT(c) FROM ChannelDTO c"
-        val baseSelectQuery = "SELECT c FROM ChannelDTO c"
-        val publicFilter = if (filterPublic) " WHERE c.isPublic = true" else ""
-
-        val countQuery = entityManager.createQuery(
-            "$baseCountQuery$publicFilter", Long::class.java
-        )
-        val count = countQuery.singleResult
-
-        val query = entityManager.createQuery(
-            "$baseSelectQuery$publicFilter", ChannelDTO::class.java
-        )
-        query.firstResult = (pagination.page - 1) * pagination.size
-        query.maxResults = pagination.size
-
-        return utils.calculatePagination(query.resultList.map { it.toDomain() }, count, pagination)
+        val res = channelRepositoryJpa.find(filterPublic, utils.toPageRequest(pagination, "id"))
+        return Pagination(res.content.map { it.toDomain() }, utils.getPaginationInfo(res))
     }
-
 
     override fun getInvitations(channel: Channel, status: ChannelInvitationStatus): List<ChannelInvitation> {
-        val query = entityManager.createQuery(
-            "SELECT i FROM ChannelInvitationDTO i WHERE i.channel.id = :channelId AND i.status = :status",
-            ChannelInvitationDTO::class.java
-        )
-        query.setParameter("channelId", channel.id.value)
-        query.setParameter("status", status)
-        return query.resultList.map { it.toDomain() }
-    }
-
-    override fun getMessages(channel: Channel): List<Message> {
-        val query = entityManager.createQuery(
-            "SELECT m FROM MessageDTO m WHERE m.channel.id = :channelId",
-            MessageDTO::class.java
-        )
-        query.setParameter("channelId", channel.id.value)
-        return query.resultList.map { it.toDomain() }
+        return channelRepositoryJpa.findInvitationsByChannel(channel.id.value, status).map { it.toDomain() }
     }
 
     override fun getMember(channel: Channel, user: User): Pair<User, ChannelRole>? {
-        val query = entityManager.createQuery(
-            "SELECT m FROM ChannelMemberDTO m WHERE m.id.channelID = :channelId AND m.id.userID = :userId",
-            ChannelMemberDTO::class.java
-        )
-        query.setParameter("channelId", channel.id.value)
-        query.setParameter("userId", user.id.value)
-        val result = query.resultList.firstOrNull()
-        return if (result != null) {
-            Pair(result.user.toDomain(), result.role.toDomain())
-        } else null
+        return channelMemberRepositoryJpa.findMemberByChannel(channel.id.value, user.id.value)?.let {
+            it.user.toDomain() to it.role.toDomain()
+        }
     }
 
     override fun save(entity: Channel): Channel {
@@ -131,8 +64,8 @@ class ChannelRepositoryImpl(
         return channelRepositoryJpa.saveAll(entities.map { ChannelDTO.fromDomain(it) }).map { it.toDomain() }
     }
 
-    override fun findById(id: Long): Channel? {
-        return channelRepositoryJpa.findById(id).map { it.toDomain() }.orElse(null)
+    override fun findById(id: Identifier): Channel? {
+        return channelRepositoryJpa.findById(id.value).map { it.toDomain() }.orElse(null)
     }
 
     override fun findAll(): List<Channel> {
@@ -144,16 +77,16 @@ class ChannelRepositoryImpl(
         return Pagination(res.content.map { it.toDomain() }, utils.getPaginationInfo(res))
     }
 
-    override fun findAllById(ids: Iterable<Long>): List<Channel> {
-        return channelRepositoryJpa.findAllById(ids).map { it.toDomain() }
+    override fun findAllById(ids: Iterable<Identifier>): List<Channel> {
+        return channelRepositoryJpa.findAllById(ids.map { it.value }).map { it.toDomain() }
     }
 
-    override fun deleteById(id: Long) {
-        channelRepositoryJpa.deleteById(id)
+    override fun deleteById(id: Identifier) {
+        channelRepositoryJpa.deleteById(id.value)
     }
 
-    override fun existsById(id: Long): Boolean {
-        return channelRepositoryJpa.existsById(id)
+    override fun existsById(id: Identifier): Boolean {
+        return channelRepositoryJpa.existsById(id.value)
     }
 
     override fun count(): Long {
@@ -172,13 +105,12 @@ class ChannelRepositoryImpl(
         channelRepositoryJpa.delete(ChannelDTO.fromDomain(entity))
     }
 
-    override fun deleteAllById(ids: Iterable<Long>) {
-        channelRepositoryJpa.deleteAllById(ids)
+    override fun deleteAllById(ids: Iterable<Identifier>) {
+        channelRepositoryJpa.deleteAllById(ids.map { it.value })
     }
 
     override fun flush() {
         entityManager.flush()
         channelRepositoryJpa.flush()
-        channelMemberRepositoryJpa.flush()
     }
 }

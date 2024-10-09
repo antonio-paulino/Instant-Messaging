@@ -57,7 +57,7 @@ class TransactionManagerTest(
                 throw Exception()
             }
         }
-        val user = userRepository.findById(testUser.id.value)
+        val user = userRepository.findById(testUser.id)
         assertNull(user)
     }
 
@@ -74,7 +74,7 @@ class TransactionManagerTest(
                 }
             }, TransactionIsolation.SERIALIZABLE)
         }
-        val user = userRepository.findById(testUser.id.value)
+        val user = userRepository.findById(testUser.id)
         assertEquals(testUser, user)
     }
 
@@ -96,7 +96,7 @@ class TransactionManagerTest(
         testChannel = testChannel.copy(owner = testUser, membersLazy = lazy { mapOf(testUser to ChannelRole.OWNER) })
         testChannel = channelRepository.save(testChannel)
         transactionManager.run({
-            testChannel = channelRepository.findById(testChannel.id.value)!!
+            testChannel = channelRepository.findById(testChannel.id)!!
             testChannel.members
         })
         assertTrue(Hibernate.isInitialized(testChannel.members))
@@ -108,7 +108,7 @@ class TransactionManagerTest(
         testChannel = testChannel.copy(owner = testUser, membersLazy = lazy { mapOf(testUser to ChannelRole.OWNER) })
         testChannel = channelRepository.save(testChannel)
         transactionManager.run({
-            testChannel = channelRepository.findById(testChannel.id.value)!!
+            testChannel = channelRepository.findById(testChannel.id)!!
         })
         assertThrows<Exception> {
             testChannel.members
@@ -121,7 +121,7 @@ class TransactionManagerTest(
         testChannel = testChannel.copy(owner = testUser, membersLazy = lazy { mapOf(testUser to ChannelRole.OWNER) })
         testChannel = channelRepository.save(testChannel)
         transactionManager.run({
-            testChannel = channelRepository.findById(testChannel.id.value)!!
+            testChannel = channelRepository.findById(testChannel.id)!!
             testChannel.members
         })
         transactionManager.run({

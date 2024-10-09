@@ -1,12 +1,12 @@
 package im.model.input.body
 
-import jakarta.validation.constraints.NotBlank
+import im.wrappers.Name
+import jakarta.validation.Valid
 
-// TODO: Add all the necessary validations
 data class ChannelInputModel(
-    @field:NotBlank
-    val name: String,
+    @Valid
+    val name: Name,
 
-    @field:NotBlank
-    val isPublic: Boolean
+    @Valid
+    val isPublic: Boolean,
 )

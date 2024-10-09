@@ -7,7 +7,7 @@ import im.wrappers.toIdentifier
 import java.time.LocalDateTime
 
 data class Message(
-    val id: Identifier,
+    val id: Identifier = Identifier(0),
     val channel: Channel,
     val user: User,
     val content: String,

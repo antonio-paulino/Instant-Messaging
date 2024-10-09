@@ -3,6 +3,7 @@ package im.transactions
 import im.repositories.channel.ChannelRepository
 import im.repositories.invitations.ChannelInvitationRepository
 import im.repositories.invitations.ImInvitationRepository
+import im.repositories.messages.MessageRepository
 import im.repositories.transactions.Transaction
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.TransactionStatus
@@ -21,6 +22,7 @@ class TransactionJpa(
     override val refreshTokenRepository: RefreshTokenRepository,
     override val imInvitationRepository: ImInvitationRepository,
     override val channelInvitationRepository: ChannelInvitationRepository,
+    override val messageRepository: MessageRepository,
 ) : Transaction {
 
     override fun rollback() {

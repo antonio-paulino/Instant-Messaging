@@ -5,16 +5,16 @@ import im.channel.Channel
 import im.channel.ChannelRole
 import im.invitations.ChannelInvitation
 import im.invitations.ChannelInvitationStatus
-import im.messages.Message
 import im.pagination.Pagination
 import im.pagination.PaginationRequest
 import im.user.User
+import im.wrappers.Identifier
 import im.wrappers.Name
 
 /**
  * [Repository] for [Channel] entities.
  */
-interface ChannelRepository : Repository<Channel, Long> {
+interface ChannelRepository : Repository<Channel, Identifier> {
 
     /**
      * Finds a list of channels by name.
@@ -30,7 +30,7 @@ interface ChannelRepository : Repository<Channel, Long> {
      * @param name the partial name of the channels
      * @return the channels whose name contains the given string
      */
-    fun findByPartialName(name: Name, filterPublic: Boolean, pagination: PaginationRequest): Pagination<Channel>
+    fun findByPartialName(name: String, filterPublic: Boolean, pagination: PaginationRequest): Pagination<Channel>
 
 
     /**
@@ -50,14 +50,6 @@ interface ChannelRepository : Repository<Channel, Long> {
      * @return the invitations to the channel with the given status
      */
     fun getInvitations(channel: Channel, status: ChannelInvitationStatus): List<ChannelInvitation>
-
-    /**
-     * Finds all messages in a channel.
-     *
-     * @param channel the channel
-     * @return the messages in the channel
-     */
-    fun getMessages(channel: Channel): List<Message>
 
     /**
      * Finds the role of a user in a channel.

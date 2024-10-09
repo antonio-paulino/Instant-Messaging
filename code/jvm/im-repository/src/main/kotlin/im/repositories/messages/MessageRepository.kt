@@ -5,11 +5,12 @@ import im.repositories.Repository
 import im.channel.Channel
 import im.messages.Message
 import im.pagination.PaginationRequest
+import im.wrappers.Identifier
 
 /**
  * [Repository] for [Message] entities.
  */
-interface MessageRepository : Repository<Message, Long> {
+interface MessageRepository : Repository<Message, Identifier> {
 
     /**
      * Finds all messages in a channel.

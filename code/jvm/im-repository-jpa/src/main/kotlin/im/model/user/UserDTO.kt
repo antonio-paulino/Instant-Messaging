@@ -8,9 +8,11 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
 import im.user.User
+import org.springframework.stereotype.Component
 
 @Entity
 @Table(name = "users")
+@Component
 open class UserDTO(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

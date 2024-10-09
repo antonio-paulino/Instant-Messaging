@@ -3,16 +3,12 @@ package im.repositories
 import im.pagination.Pagination
 import im.model.token.AccessTokenDTO
 import im.pagination.PaginationRequest
+import im.repositories.jpa.AccessTokenRepositoryJpa
 import jakarta.persistence.EntityManager
-import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Component
-import org.springframework.stereotype.Repository
 import im.tokens.AccessToken
 import im.repositories.tokens.AccessTokenRepository
 import java.util.*
-
-@Repository
-interface AccessTokenRepositoryJpa : JpaRepository<AccessTokenDTO, UUID>
 
 @Component
 class AccessTokenRepositoryImpl(
