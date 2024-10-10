@@ -1,16 +1,9 @@
 package im.services.auth
 
 import im.invitations.ImInvitation
-import im.invitations.ImInvitationStatus
 import im.services.Either
-import im.services.failure
-import im.services.success
-import jakarta.inject.Named
-import im.sessions.Session
 import im.tokens.AccessToken
 import im.tokens.RefreshToken
-import im.repositories.transactions.Transaction
-import im.repositories.transactions.TransactionManager
 import im.user.User
 import im.wrappers.Email
 import im.wrappers.Name
@@ -18,176 +11,75 @@ import im.wrappers.Password
 import java.time.LocalDateTime
 import java.util.*
 
-private const val ACCESS_TOKEN_EXPIRATION_DAYS = 1L
-private const val SESSION_EXPIRATION_DAYS = 30L
+/**
+ * Service that handles authentication business logic.
+ */
+interface AuthService {
 
-private const val MIN_INVITATION_EXPIRATION_MINUTES = 30L
-private const val DEFAULT_INVITATION_EXPIRATION_DAYS = 1L
-private const val MAX_INVITATION_EXPIRATION_DAYS = 7L
-
-@Named
-class AuthService(
-    private val transactionManager: TransactionManager,
-    private val passwordEncoder: PasswordEncoder
-) {
+    /**
+     * Registers a new user.
+     *
+     * - The username must be unique.
+     * - The email must be unique.
+     * - The invitation code must be valid.
+     *
+     * When a user is registered, the invitation code should be marked as used and no longer valid.
+     *
+     * @param username the username
+     * @param password the password
+     * @param email the email
+     * @param invitationCode the invitation code
+     * @return a pair of access and refresh tokens if the registration is successful, or an [AuthError] otherwise
+     */
     fun register(
         username: Name,
         password: Password,
         email: Email,
         invitationCode: UUID
-    ): Either<AuthError, Pair<AccessToken, RefreshToken>> =
-        transactionManager.run({
+    ): Either<AuthError, Pair<AccessToken, RefreshToken>>
 
-            val imInvitation = imInvitationRepository.findById(invitationCode)
-                ?: return@run failure(AuthError.InvalidInvitationCode)
+    /**
+     * Logs in a user.
+     *
+     * @param username the username
+     * @param password the password
+     * @param email the email
+     * @return a pair of access and refresh tokens if the login is successful, or an [AuthError] otherwise
+     */
+    fun login(username: Name?, password: Password, email: Email?): Either<AuthError, Pair<AccessToken, RefreshToken>>
 
-            if (imInvitation.status == ImInvitationStatus.USED) {
-                return@run failure(AuthError.InvitationAlreadyUsed)
-            }
+    /**
+     * Refreshes the session. This method is used to extend the session expiration time,
+     * and should generate a new access and refresh token pair.
+     *
+     * @param refreshToken the refresh token
+     * @return a pair of access and refresh tokens if the session is refreshed, or an [AuthError] otherwise
+     */
+    fun refreshSession(refreshToken: UUID): Either<AuthError, Pair<AccessToken, RefreshToken>>
 
-            if (imInvitation.expired) {
-                return@run failure(AuthError.InvitationExpired)
-            }
+    /**
+     * Authenticates a user.
+     *
+     * @param token the token
+     * @return the user if the token is valid, or an [AuthError] otherwise
+     */
+    fun authenticate(token: UUID): Either<AuthError, User>
 
-            if (userRepository.findByName(username) != null) {
-                return@run failure(AuthError.UserAlreadyExists("username"))
-            }
+    /**
+     * Logs out a user.
+     *
+     * This method should invalidate the session that the provided access token belongs to.
+     *
+     * @param token the token
+     * @return [Unit] if the logout is successful, or an [AuthError] otherwise
+     */
+    fun logout(token: UUID): Either<AuthError, Unit>
 
-            if (userRepository.findByEmail(email) != null) {
-                return@run failure(AuthError.UserAlreadyExists("email"))
-            }
-
-            val user = userRepository.save(
-                User(name = username, password = passwordEncoder.encode(password), email = email)
-            )
-
-            val usedInvitation = imInvitation.use()
-
-            imInvitationRepository.save(usedInvitation)
-
-            val (accessToken, refreshToken) = createSession(user)
-
-            success(accessToken to refreshToken)
-        })
-
-
-    fun login(username: Name?, password: Password, email: Email?): Either<AuthError, Pair<AccessToken, RefreshToken>> =
-        transactionManager.run({
-
-            val user = when {
-                username != null -> userRepository.findByName(username)
-                email != null -> userRepository.findByEmail(email)
-                else -> null
-            }
-
-            if (user == null) {
-                return@run failure(AuthError.InvalidCredentials)
-            }
-
-            if (!passwordEncoder.verify(password, user.password)) {
-                return@run failure(AuthError.InvalidCredentials)
-            }
-
-            val (accessToken, refreshToken) = createSession(user)
-
-            success(accessToken to refreshToken)
-        })
-
-    fun refreshSession(refreshToken: UUID): Either<AuthError, Pair<AccessToken, RefreshToken>> =
-        transactionManager.run({
-
-            val oldToken = refreshTokenRepository.findById(refreshToken)
-                ?: return@run failure(AuthError.InvalidCredentials)
-
-            val session = oldToken.session
-
-            if (session.expired) {
-                return@run failure(AuthError.SessionExpired)
-            }
-
-            val newSession = session.refresh(LocalDateTime.now().plusDays(SESSION_EXPIRATION_DAYS))
-
-            val newAccessToken = accessTokenRepository.save(
-                AccessToken(session = newSession, expiresAt = newSession.expiresAt)
-            )
-
-            val newRefreshToken = refreshTokenRepository.save(
-                RefreshToken(session = newSession)
-            )
-
-            refreshTokenRepository.delete(oldToken)
-
-            success(newAccessToken to newRefreshToken)
-        })
-
-    fun authenticate(token: UUID): Either<AuthError, User> =
-        transactionManager.run({
-
-            val accessToken = accessTokenRepository.findById(token)
-                ?: return@run failure(AuthError.InvalidToken)
-
-            if (accessToken.expired) {
-                return@run failure(AuthError.TokenExpired)
-            }
-
-            success(accessToken.session.user)
-        })
-
-    fun logout(token: UUID): Either<AuthError, Unit> =
-        transactionManager.run({
-
-            val accessToken = accessTokenRepository.findById(token)
-                ?: return@run failure(AuthError.InvalidToken)
-
-            sessionRepository.delete(accessToken.session)
-
-            success(Unit)
-        })
-
-    fun createInvitation(expiration: LocalDateTime?): Either<AuthError, ImInvitation> =
-        transactionManager.run({
-
-            val expires = expiration ?: LocalDateTime.now().plusDays(DEFAULT_INVITATION_EXPIRATION_DAYS)
-
-            if (expires.isBefore(LocalDateTime.now().plusMinutes(MIN_INVITATION_EXPIRATION_MINUTES))) {
-                return@run failure(
-                    AuthError.InvalidInvitationExpiration(
-                        "Minimum expiration time is $MIN_INVITATION_EXPIRATION_MINUTES minutes"
-                    )
-                )
-            }
-
-            if (expires.isAfter(LocalDateTime.now().plusDays(MAX_INVITATION_EXPIRATION_DAYS))) {
-                return@run failure(
-                    AuthError.InvalidInvitationExpiration(
-                        "Maximum expiration time is $MAX_INVITATION_EXPIRATION_DAYS days"
-                    )
-                )
-            }
-
-            val invitation = imInvitationRepository.save(
-                ImInvitation(expiresAt = expires)
-            )
-
-            success(invitation)
-        })
-
-    private fun Transaction.createSession(user: User): Pair<AccessToken, RefreshToken> {
-
-        val session = sessionRepository.save(
-            Session(user = user, expiresAt = LocalDateTime.now().plusDays(SESSION_EXPIRATION_DAYS))
-        )
-
-        val accessToken = accessTokenRepository.save(
-            AccessToken(session = session, expiresAt = LocalDateTime.now().plusDays(ACCESS_TOKEN_EXPIRATION_DAYS))
-        )
-
-        val refreshToken = refreshTokenRepository.save(
-            RefreshToken(session = session)
-        )
-
-        return accessToken to refreshToken
-    }
-
-
+    /**
+     * Creates an invitation.
+     *
+     * @param expiration the expiration date of the invitation
+     * @return the invitation if it is created, or an [AuthError] otherwise
+     */
+    fun createInvitation(expiration: LocalDateTime?): Either<AuthError, ImInvitation>
 }

@@ -1,5 +1,10 @@
 package im.wrappers
 
+/**
+ * Email wrapper class that enforces email validation rules.
+ *
+ * An email must not be blank, must be between 5 and 50 characters, and follow the email format.
+ */
 data class Email(
     val value: String
 ) {

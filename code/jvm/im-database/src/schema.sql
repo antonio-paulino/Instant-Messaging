@@ -13,7 +13,7 @@ create table users
 (
     id       bigserial primary key,
     name     varchar(30) unique not null,
-    password varchar(80)        not null,
+    password varchar(100)       not null,
     email    varchar(50) unique not null,
     check ( email ~* '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$' )
 );
@@ -21,7 +21,7 @@ create table users
 create table session
 (
     id         bigserial primary key,
-    user_id    bigint    not null references "users" (id) on delete cascade,
+    user_id    bigint    not null references users (id) on delete cascade,
     expires_at timestamp not null default current_timestamp + interval '90 day'
 );
 
@@ -50,7 +50,7 @@ create table channel
 (
     id         bigserial primary key,
     name       varchar(30) unique not null,
-    owner      bigint             not null references "users" (id) on delete cascade,
+    owner      bigint             not null references users (id) on delete cascade,
     is_public  boolean            not null,
     created_at timestamp          not null default current_timestamp
 );
@@ -58,7 +58,7 @@ create table channel
 create table channel_member
 (
     channel_id bigint      not null references channel (id) on delete cascade,
-    user_id    bigint      not null references "users" (id) on delete cascade,
+    user_id    bigint      not null references users (id) on delete cascade,
     role       varchar(10) not null default 'MEMBER',
     check (role in ('OWNER', 'MEMBER', 'GUEST')),
     primary key (channel_id, user_id)
@@ -68,7 +68,7 @@ create table message
 (
     id         bigserial primary key,
     channel_id bigint    not null references channel (id) on delete cascade,
-    user_id    bigint    not null references "users" (id) on delete cascade,
+    user_id    bigint    not null references users (id) on delete cascade,
     content    text      not null,
     created_at timestamp not null default current_timestamp,
     edited_at  timestamp          default null

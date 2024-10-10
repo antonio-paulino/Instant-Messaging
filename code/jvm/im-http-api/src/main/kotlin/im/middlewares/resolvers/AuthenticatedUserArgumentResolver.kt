@@ -4,10 +4,17 @@ import jakarta.servlet.http.HttpServletRequest
 import im.model.input.AuthenticatedUser
 import org.springframework.core.MethodParameter
 import org.springframework.stereotype.Component
+import org.springframework.web.bind.support.WebDataBinderFactory
 import org.springframework.web.context.request.NativeWebRequest
 import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.method.support.ModelAndViewContainer
 
+/**
+ * Resolves the [AuthenticatedUser] object from the request.
+ *
+ * Used to inject the authenticated user into the controller methods.
+ *
+ */
 @Component
 class AuthenticatedUserArgumentResolver : HandlerMethodArgumentResolver {
 
@@ -19,7 +26,7 @@ class AuthenticatedUserArgumentResolver : HandlerMethodArgumentResolver {
         parameter: MethodParameter,
         mavContainer: ModelAndViewContainer?,
         webRequest: NativeWebRequest,
-        binderFactory: org.springframework.web.bind.support.WebDataBinderFactory?
+        binderFactory: WebDataBinderFactory?
     ): Any? {
         val request = webRequest.nativeRequest as HttpServletRequest
         return request.getAttribute("user") as AuthenticatedUser?

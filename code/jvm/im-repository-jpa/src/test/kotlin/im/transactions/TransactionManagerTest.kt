@@ -3,9 +3,10 @@ package im.transactions
 import im.TestApp
 import im.channel.Channel
 import im.channel.ChannelRole
-import im.repositories.ChannelRepositoryImpl
-import im.repositories.UserRepositoryImpl
-import im.repositories.transactions.TransactionIsolation
+import im.repository.jpa.repositories.ChannelRepositoryImpl
+import im.repository.jpa.repositories.UserRepositoryImpl
+import im.repository.jpa.transactions.TransactionManagerJpa
+import im.repository.repositories.transactions.TransactionIsolation
 import org.hibernate.type.SerializationException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.assertDoesNotThrow

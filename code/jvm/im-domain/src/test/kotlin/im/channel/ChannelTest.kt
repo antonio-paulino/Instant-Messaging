@@ -1,6 +1,7 @@
 package im.channel
 
 import im.user.User
+import im.wrappers.toName
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -11,8 +12,8 @@ class ChannelTest {
     fun `should update channel`() {
         val user = User(1, "user", "password", "user1@daw.isel.pt")
         val channel = Channel(1, "im/channel", user, true)
-        val updatedChannel = channel.updateChannel("new channel", false)
-        assertEquals("new channel", updatedChannel.name)
+        val updatedChannel = channel.updateChannel("new channel".toName(), false)
+        assertEquals("new channel".toName(), updatedChannel.name)
         assertFalse(updatedChannel.isPublic)
     }
 

@@ -1,5 +1,10 @@
 package im.wrappers
 
+/**
+ * Name wrapper class that enforces name validation rules.
+ *
+ * A name must not be blank and must be between 3 and 30 characters.
+ */
 data class Name(
     val value: String
 ) {

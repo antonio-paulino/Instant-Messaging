@@ -1,5 +1,10 @@
 package im.wrappers
 
+/**
+ * Password wrapper class that enforces password validation rules.
+ *
+ * A password must not be blank and must be between 8 and 80 characters.
+ */
 data class Password(
     val value: String
 ) {

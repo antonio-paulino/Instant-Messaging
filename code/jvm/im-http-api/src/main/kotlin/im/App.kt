@@ -2,10 +2,8 @@ package im
 
 import im.middlewares.logging.LoggingInterceptor
 import im.middlewares.resolvers.AuthenticatedUserArgumentResolver
-import im.repositories.user.UserRepository
-import im.services.auth.PasswordEncoder
+import im.repository.repositories.user.UserRepository
 import im.user.User
-import im.wrappers.toPassword
 import org.slf4j.LoggerFactory
 import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -34,7 +32,6 @@ open class App : WebMvcConfigurer {
 @Configuration
 open class StartupConfig(
     private val userRepository: UserRepository,
-    private val passwordEncoder: PasswordEncoder
 ) {
     @Bean
     open fun init() = CommandLineRunner {
@@ -42,9 +39,9 @@ open class StartupConfig(
             logger.info("No users found, creating test user")
             userRepository.save(
                 User(
-                    1L,
+                    0L,
                     "testUser",
-                    passwordEncoder.encode("Iseldaw-g07".toPassword()).toString(),
+                    "dB0fnKFopK61h3ebruE1Sw==:pM85KqazkHyBn7iUW1-ndtm-EMIxBIAFpPMPnl9n7N8=",
                     "iseldaw@isel.pt"
                 )
             )

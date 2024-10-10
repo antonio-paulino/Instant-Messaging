@@ -1,5 +1,10 @@
 package im.wrappers
 
+/**
+ * Identifier wrapper class that enforces identifier validation rules.
+ *
+ * An identifier must be positive.
+ */
 data class Identifier(
     val value: Long
 ) {

@@ -4,9 +4,19 @@ import im.channel.Channel
 import im.channel.ChannelRole
 import im.user.User
 import im.wrappers.Identifier
-import im.wrappers.toIdentifier
 import java.time.LocalDateTime
 
+/**
+ * Represents an invitation to a channel.
+ *
+ * @property id The unique identifier of the invitation.
+ * @property channel The channel to which the user is invited.
+ * @property inviter The user that sent the invitation.
+ * @property invitee The user that received the invitation.
+ * @property status The status of the invitation.
+ * @property role The role that the user will have in the channel.
+ * @property expiresAt The date and time when the invitation expires.
+ */
 data class ChannelInvitation(
     val id: Identifier,
     val channel: Channel,
@@ -16,34 +26,46 @@ data class ChannelInvitation(
     val role: ChannelRole,
     val expiresAt: LocalDateTime
 ) {
-    companion object {
-        operator fun invoke(
-            id: Long = 0,
-            channel: Channel,
-            inviter: User,
-            invitee: User,
-            status: ChannelInvitationStatus = ChannelInvitationStatus.PENDING,
-            role: ChannelRole,
-            expiresAt: LocalDateTime
-        ): ChannelInvitation {
-            return ChannelInvitation(
-                id = id.toIdentifier(),
-                channel = channel,
-                inviter = inviter,
-                invitee = invitee,
-                status = status,
-                role = role,
-                expiresAt = expiresAt
-            )
-        }
-    }
+
+    constructor(
+        id: Long = 0,
+        channel: Channel,
+        inviter: User,
+        invitee: User,
+        status: ChannelInvitationStatus = ChannelInvitationStatus.PENDING,
+        role: ChannelRole,
+        expiresAt: LocalDateTime
+    ) : this(
+        id = Identifier(id),
+        channel = channel,
+        inviter = inviter,
+        invitee = invitee,
+        status = status,
+        role = role,
+        expiresAt = expiresAt
+    )
 
     init {
         require(channel.members.keys.contains(inviter)) { "Inviter must be a member of the channel" }
     }
 
+    /**
+     * Accepts the invitation.
+     *
+     * @return a new invitation with the status set to accepted
+     */
     fun accept(): ChannelInvitation = copy(status = ChannelInvitationStatus.ACCEPTED)
+
+    /**
+     * Rejects the invitation.
+     *
+     * @return a new invitation with the status set to rejected
+     */
     fun reject(): ChannelInvitation = copy(status = ChannelInvitationStatus.REJECTED)
+
+    /**
+     * Updates the role and expiration date of the invitation.
+     */
     fun update(role: ChannelRole, expiresAt: LocalDateTime): ChannelInvitation =
         copy(role = role, expiresAt = expiresAt)
 }
