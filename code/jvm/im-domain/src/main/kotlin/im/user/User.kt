@@ -29,5 +29,4 @@ data class User(
         password = password.toPassword(),
         email = email.toEmail()
     )
-
 }

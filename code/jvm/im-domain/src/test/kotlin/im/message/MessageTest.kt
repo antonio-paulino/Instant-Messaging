@@ -6,6 +6,7 @@ import im.user.User
 import java.time.LocalDateTime
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 class MessageTest {
 
@@ -58,4 +59,53 @@ class MessageTest {
         val editedMessage = message.edit("Edited message")
         assertEquals("Edited message", editedMessage.content)
     }
-}
+
+    @Test
+    fun `test create message blank content`() {
+        val user = User(
+            id = 1L,
+            name = "user",
+            password = "password",
+            email = "user1@daw.isel.pt"
+        )
+        val channel = Channel(
+            id = 1L,
+            name = "im/channel",
+            owner = user,
+            isPublic = true
+        )
+        assertFailsWith<IllegalArgumentException> {
+            Message(
+                id = 1L,
+                channel = channel,
+                user = user,
+                content = "",
+                createdAt = LocalDateTime.now()
+            )
+        }
+    }
+
+    @Test
+    fun `test create message too long`() {
+        val user = User(
+            id = 1L,
+            name = "user",
+            password = "password",
+            email = "user1@daw.isel.pt"
+        )
+        val channel = Channel(
+            id = 1L,
+            name = "im/channel",
+            owner = user,
+            isPublic = true
+        )
+        assertFailsWith<IllegalArgumentException> {
+            Message(
+                id = 1L,
+                channel = channel,
+                user = user,
+                content = "a".repeat(301),
+                createdAt = LocalDateTime.now()
+            )
+        }
+    }}

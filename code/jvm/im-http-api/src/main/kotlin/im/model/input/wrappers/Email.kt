@@ -12,7 +12,7 @@ import jakarta.validation.constraints.Size
 data class Email(
     @field:Email(message = "Email must be a valid email address")
     @field:NotNull(message = "Email is required")
-    @field:Size(min = 5, max = 50, message = "Email must be between 5 and 50 characters")
+    @field:Size(min = 8, max = 50, message = "Email must be between 5 and 50 characters")
     val value: String
 ) {
     fun toDomain() = im.wrappers.Email(value)

@@ -5,6 +5,7 @@ import im.wrappers.toName
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class ChannelTest {
 
@@ -25,6 +26,7 @@ class ChannelTest {
         val updatedChannel = channel.addMember(user2, ChannelRole.MEMBER)
         assertEquals(2, updatedChannel.members.size)
         assertEquals(ChannelRole.MEMBER, updatedChannel.members[user2])
+        assertTrue { channel.hasMember(user) }
     }
 
     @Test
