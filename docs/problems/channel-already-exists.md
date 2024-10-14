@@ -1,0 +1,13 @@
+# Channel already exists
+
+----
+
+## Description
+
+You are unable to create a new channel because a channel with the same name already exists.
+
+## Solution
+
+To solve this issue, you can:
+
+- Choose a different name for the new channel.
