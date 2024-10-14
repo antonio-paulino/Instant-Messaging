@@ -4,6 +4,7 @@ plugins {
 
 rootProject.name = "daw-2024-im-g07"
 
+include("im-host")
 include("im-http-api")
 include("im-services")
 include("im-domain")

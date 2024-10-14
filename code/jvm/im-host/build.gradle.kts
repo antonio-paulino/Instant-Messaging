@@ -44,6 +44,7 @@ tasks.withType<Jar> {
     dependsOn(":im-repository-jpa:dbTestsWait")
     dependsOn(":im-repository-jpa:dbTestsDown")
     finalizedBy("deploy")
+    destinationDirectory.set(rootProject.layout.projectDirectory.dir("build/libs"))
 }
 
 task<Exec>("dbUp") {
