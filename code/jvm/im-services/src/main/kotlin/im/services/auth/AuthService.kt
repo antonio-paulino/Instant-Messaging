@@ -1,21 +1,20 @@
 package im.services.auth
 
-import im.invitations.ImInvitation
+import im.domain.invitations.ImInvitation
+import im.domain.tokens.AccessToken
+import im.domain.tokens.RefreshToken
+import im.domain.user.User
+import im.domain.wrappers.Email
+import im.domain.wrappers.Name
+import im.domain.wrappers.Password
 import im.services.Either
-import im.tokens.AccessToken
-import im.tokens.RefreshToken
-import im.user.User
-import im.wrappers.Email
-import im.wrappers.Name
-import im.wrappers.Password
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 /**
  * Service that handles authentication business logic.
  */
 interface AuthService {
-
     /**
      * Registers a new user.
      *
@@ -35,7 +34,7 @@ interface AuthService {
         username: Name,
         password: Password,
         email: Email,
-        invitationCode: UUID
+        invitationCode: UUID,
     ): Either<AuthError, Pair<AccessToken, RefreshToken>>
 
     /**
@@ -46,7 +45,11 @@ interface AuthService {
      * @param email the email
      * @return a pair of access and refresh tokens if the login is successful, or an [AuthError] otherwise
      */
-    fun login(username: Name?, password: Password, email: Email?): Either<AuthError, Pair<AccessToken, RefreshToken>>
+    fun login(
+        username: Name?,
+        password: Password,
+        email: Email?,
+    ): Either<AuthError, Pair<AccessToken, RefreshToken>>
 
     /**
      * Refreshes the session. This method is used to extend the session expiration time,
