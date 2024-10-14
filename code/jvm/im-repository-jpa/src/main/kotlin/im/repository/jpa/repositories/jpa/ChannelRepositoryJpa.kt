@@ -51,7 +51,7 @@ interface ChannelRepositoryJpa : JpaRepository<ChannelDTO, Long> {
     ): Page<ChannelDTO>
 
     @Query(
-        value = "SELECT c FROM ChannelDTO c JOIN FETCH c.members WHERE c.isPublic or NOT :filterPublic = true",
+        value = "SELECT c FROM ChannelDTO c WHERE c.isPublic or NOT :filterPublic = true",
     )
     fun findBy(
         page: Pageable,
