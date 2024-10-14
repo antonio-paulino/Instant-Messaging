@@ -3,7 +3,7 @@ info:
   title: Instant Messaging API
   description: API for managing messaging channels
   version: 1.0.0
-  # António Paulino - 50512
+  # Antonio Paulino - 50512
   # Bernardo Pereira - 50493
 tags:
   - name: Authentication
@@ -14,100 +14,311 @@ tags:
 
 components:
   schemas:
-    User:
+    UserCreationInputModel:
       type: object
       properties:
-        userId:
+        username:
           type: string
-          format: integer
+        password:
+          type: string
+        email:
+          type: string
+        invitation:
+          type: string
+          format: uuid
+      required:
+        - username
+        - password
+        - email
+        - invitation
+    AuthenticationInputModel:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        email:
+          type: string
+      oneOf:
+        - required: [ username ]
+        - required: [ email ]
+    CredentialsOutputModel:
+      type: object
+      properties:
+        sessionID:
+          type: integer
+        user:
+          $ref: '#/components/schemas/UserOutputModel'
+        accessToken:
+          $ref: '#/components/schemas/AccessTokenOutputModel'
+        refreshToken:
+          $ref: '#/components/schemas/RefreshTokenOutputModel'
+    ImInvitationCreationInputModel:
+      type: object
+      properties:
+        expiresAt:
+          type: string
+          format: date-time
+    ImInvitationOutputModel:
+      type: object
+      properties:
+        token:
+          type: string
+          format: uuid
+    UserOutputModel:
+      type: object
+      properties:
+        id:
+          type: integer
         username:
           type: string
         email:
           type: string
-          format: email
-    Channel:
+    AccessTokenOutputModel:
       type: object
       properties:
-        channelID:
-          type: string
-          format: integer
-        channelName:
-          type: string
-        isPublic:
-          type: boolean
-        members:
-          type: array
-          items:
-            $ref: '#/components/schemas/User'
-    Message:
-      type: object
-      properties:
-        messageID:
-          type: integer
-        senderID:
-          type: integer
-        channelID:
-          type: integer
-        content:
-          type: string
-        timestamp:
-          type: string
-    ChannelInvitation:
-      type: object
-      properties:
-        inviteID:
-          type: string
-          format: integer
-        channelID:
-          type: string
-          format: integer
-        expirationDate:
-          type: string
-          format: date-time
-        role:
-          type: string
-          enum: [ owner, member, guest ]
-          description: User role in the channel
-        status:
-          type: string
-          enum: [ pending, accepted, declined, expired ]
-          description: Invitation status
-    InstantMessagingInvitation:
-      type: object
-      properties:
-        creatorID:
-          type: string
-          format: integer
-        expirationDate:
-          type: string
-          format: date-time
-        status:
-          type: string
-          enum: [ available, used, expired ]
-          description: Invitation status
         token:
           type: string
           format: uuid
-    ErrorResponse:
+        expiresAt:
+          type: string
+          format: date-time
+    RefreshTokenOutputModel:
       type: object
       properties:
-        errorCode:
+        token:
           type: string
-        message:
+          format: uuid
+        expiresAt:
           type: string
-        details:
+          format: date-time
+    UsersPaginatedOutputModel:
+      type: object
+      properties:
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserOutputModel'
+        pagination:
+          $ref: '#/components/schemas/PaginationOutputModel'
+    ChannelsOutputModel:
+      type: object
+      properties:
+        channels:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChannelOutputModel'
+    PaginationOutputModel:
+      type: object
+      properties:
+        current:
+          type: integer
+        next:
+          type: integer
+        previous:
+          type: integer
+        totalPages:
+          type: integer
+        total:
+          type: integer
+    ChannelCreationInputModel:
+      type: object
+      properties:
+        name:
           type: string
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-    http:
-      type: http
-      scheme: basic
-
+        isPublic:
+          type: boolean
+      required:
+        - name
+        - isPublic
+    ChannelOutputModel:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        isPublic:
+          type: boolean
+        owner:
+          $ref: '#/components/schemas/UserOutputModel'
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChannelMemberOutputModel'
+        createdAt:
+          type: string
+          format: date-time
+    ChannelMemberOutputModel:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        role:
+          type: string
+          enum: [ owner, member, guest ]
+    ChannelsPaginatedOutputModel:
+      type: object
+      properties:
+        channels:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChannelOutputModel'
+        pagination:
+          $ref: '#/components/schemas/PaginationOutputModel'
+    MessageCreationInputModel:
+      type: object
+      properties:
+        content:
+          type: string
+      required:
+        - content
+    MessageOutputModel:
+      type: object
+      properties:
+        id:
+          type: integer
+        content:
+          type: string
+        author:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        editedAt:
+          type: string
+          format: date-time
+    MessageUpdateOutputModel:
+      type: object
+      properties:
+        editedAt:
+          type: string
+          format: date-time
+    MessagesPaginatedOutputModel:
+      type: object
+      properties:
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageOutputModel'
+        pagination:
+          $ref: '#/components/schemas/PaginationOutputModel'
+    ChannelInvitationCreationInputModel:
+      type: object
+      properties:
+        invitee:
+          type: integer
+        role:
+          type: string
+          enum: [ owner, member, guest ]
+        expiresAt:
+          type: string
+          format: date-time
+      required:
+        - expiresAt
+        - role
+    ChannelInvitationUpdateInputModel:
+      type: object
+      properties:
+        role:
+          type: string
+          enum: [ owner, member, guest ]
+        expiresAt:
+          type: string
+          format: date-time
+    ChannelInvitationsOutputModel:
+      type: object
+      properties:
+        invitations:
+          type: array
+          items:
+            $ref: '#/components/schemas/InvitationOutputModel'
+    InvitationOutputModel:
+      type: object
+      properties:
+        invitationID:
+          type: integer
+        role:
+          type: string
+          enum: [ owner, member, guest ]
+        expirationDate:
+          type: string
+          format: date-time
+    InvitationAcceptInputModel:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [ accepted, rejected ]
+      required:
+        - status
+    Problem:
+      type: object
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+          format: uri
+        status:
+          type: integer
+        detail:
+          type: string
+    InputValidationProblem:
+      type: object
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+          format: uri
+        status:
+          type: integer
+        detail:
+          type: string
+        errors:
+          type: array
+          items:
+            type: string
+    ChannelUpdateInputModel:
+      type: object
+      properties:
+        name:
+          type: string
+        isPublic:
+          type: boolean
+      required:
+        - name
+        - isPublic
+    ChannelCreationOutputModel:
+      type: object
+      properties:
+        id:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+    MessageCreationOutputModel:
+      type: object
+      properties:
+        id:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        editedAt:
+          type: string
+          format: date-time
+    ChannelInvitationCreationOutputModel:
+      type: object
+      properties:
+        id:
+          type: integer
 paths:
-  /auth/register:
+  /api/auth/register:
     post:
       tags:
         - Authentication
@@ -118,578 +329,527 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                username:
-                  type: string
-                  description: Unique username for the user
-                password:
-                  type: string
-                  format: password
-                  description: Strong password for account security
-                email:
-                  type: string
-                  format: email
-                  description: Valid email address
-              required:
-                - username
-                - password
-                - email
+              $ref: '#/components/schemas/UserCreationInputModel'
       responses:
         '201':
-          description: User successfully registered
+          description: User registered successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/CredentialsOutputModel'
         '400':
           description: Bad request, possibly due to invalid input or missing fields
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/InputValidationProblem'
+        '409':
+          description: Conflict, user already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
 
-  /auth/login:
+  /api/auth/login:
     post:
       tags:
         - Authentication
-      summary: Login a user and retrieve access tokens
+      summary: Login a user
       requestBody:
         description: User login credentials
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                username:
-                  type: string
-                  description: Username or email used for login
-                password:
-                  type: string
-                  format: password
-              required:
-                - username
-                - password
+              $ref: '#/components/schemas/AuthenticationInputModel'
       responses:
         '200':
           description: Successful login
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  accessToken:
-                    type: string
-                  expiresIn:
-                    type: integer
-                    description: Access token expiration time in seconds
-                  refreshToken:
-                    type: string
-        '401':
-          description: Invalid username or password
+                $ref: '#/components/schemas/CredentialsOutputModel'
+        '400':
+          description: Invalid input
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-  /auth/logout:
+                $ref: '#/components/schemas/InputValidationProblem'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /api/auth/refresh:
     post:
       tags:
         - Authentication
-      summary: Logout a user
-      security:
-        - bearerAuth: [ ]
+      summary: Refresh the access token
       responses:
         '200':
-          description: User successfully logged out
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CredentialsOutputModel'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-  /auth/refresh-token:
+                $ref: '#/components/schemas/Problem'
+
+  /api/auth/logout:
     post:
       tags:
         - Authentication
-      summary: Refresh the access token
-      parameters:
-        - name: refreshToken
-          in: header
-          required: true
-          schema:
-            type: string
-            description: Refresh token issued during login
+      summary: Logout a user
       responses:
         '200':
-          description: New access and refresh tokens issued
+          description: User logged out successfully
+        '401':
+          description: Unauthorized
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  access:
-                    type: object
-                    properties:
-                      accessToken:
-                        type: string
-                      expiresIn:
-                        type: integer
-                        description: Access token expiration time in seconds
-                  refreshToken:
-                    type: string
-        '400':
-          description: Invalid or expired refresh token
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-  /auth/invitations:
+                $ref: '#/components/schemas/Problem'
+  /api/auth/invitations:
     post:
       tags:
         - Authentication
-      summary: Create an instant messaging invitation
-      security:
-        - bearerAuth: [ ]
+      summary: Create an invitation
+      requestBody:
+        description: Invitation details
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImInvitationCreationInputModel'
       responses:
         '201':
           description: Invitation created successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/InstantMessagingInvitation'
-        '401':
-          description: Unauthorized
+                $ref: '#/components/schemas/ImInvitationOutputModel'
+        '400':
+          description: Invalid invitation details
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-  /users:
+                $ref: '#/components/schemas/InputValidationProblem'
+  /api/users:
     get:
       tags:
         - Users
       summary: Get a list of all users
-      security:
-        - bearerAuth: [ ]
       parameters:
-        - name: name
-          in: query
-          required: false
-          schema:
-            type: string
-            description: Filter users by name
         - name: page
           in: query
           required: false
           schema:
             type: integer
             default: 1
-          description: Page number for pagination
-        - name: pageSize
+            minimum: 1
+        - name: size
           in: query
           required: false
           schema:
             type: integer
-            default: 10
-          description: Number of users per page
+            default: 50
+            maximum: 100
+            minimum: 1
+        - name: name
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: getCount
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: sort
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [ asc, desc ]
+            default: asc
+        - name: sortBy
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [ id, name, email ]
+            default: name
       responses:
         '200':
-          description: List of all users
+          description: Users retrieved successfully
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/UsersPaginatedOutputModel'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-  /users/{userID}:
+                $ref: '#/components/schemas/Problem'
+  /api/users/{userID}:
     get:
       tags:
         - Users
-      summary: Get details of a specific user
-      security:
-        - bearerAuth: [ ]
+      summary: Get details of a specific user by ID
       parameters:
         - name: userID
           in: path
           required: true
           schema:
-            type: string
-            format: integer
+            type: number
       responses:
         '200':
-          description: User details
+          description: User retrieved successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/UserOutputModel'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/Problem'
         '404':
           description: User not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-  /users/{userID}/channels:
+                $ref: '#/components/schemas/Problem'
+  /api/users/{userID}/channels:
     get:
       tags:
         - Users
       summary: Get a list of all channels a user is a member of
-      security:
-        - bearerAuth: [ ]
       parameters:
         - name: userID
           in: path
           required: true
           schema:
+            type: number
+        - name: sort
+          in: query
+          required: false
+          schema:
             type: string
-            format: integer
+            enum: [ asc, desc ]
+            default: asc
+        - name: sortBy
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [ id, name, createdAt ]
+            default: name
       responses:
         '200':
           description: List of channels
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Channel'
+                $ref: '#/components/schemas/ChannelsOutputModel'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/Problem'
         '403':
           description: Forbidden, user does not have access to this information
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/Problem'
         '404':
           description: User not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-  /channels:
+                $ref: '#/components/schemas/Problem'
+  /api/channels:
     post:
       tags:
         - Channels
       summary: Create a new channel
-      security:
-        - bearerAuth: [ ]
       requestBody:
         description: Details to create a new channel, either public or private
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                channelName:
-                  type: string
-                  description: Name of the channel
-                isPublic:
-                  type: boolean
-                  description: Whether this is a public channel
+              $ref: '#/components/schemas/ChannelCreationInputModel'
       responses:
         '201':
           description: Channel created successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Channel'
+                $ref: '#/components/schemas/ChannelCreationOutputModel'
         '400':
           description: Invalid input
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/InputValidationProblem'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /channels/{channelID}:
+                $ref: '#/components/schemas/Problem'
+  /api/channels/{channelID}:
     get:
       tags:
         - Channels
-      summary: Get details of a specific channel
-      security:
-        - bearerAuth: [ ]
+      summary: Get channel details by ID
       parameters:
         - name: channelID
           in: path
           required: true
           schema:
-            type: string
+            type: number
       responses:
         '200':
           description: Details of the channel
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Channel'
+                $ref: '#/components/schemas/ChannelOutputModel'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/Problem'
         '403':
           description: User is not a member of the channel
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/Problem'
         '404':
           description: Channel not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
+                $ref: '#/components/schemas/Problem'
     patch:
       tags:
         - Channels
-      summary: Update the channel's details # Not required
-      security:
-        - bearerAuth: [ ]
+      summary: Update the channel's details
+      parameters:
+        - name: channelID
+          in: path
+          required: true
+          schema:
+            type: number
       requestBody:
         description: New channel details
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                channelName:
-                  type: string
-                isPublic:
-                  type: boolean
+              $ref: '#/components/schemas/ChannelUpdateInputModel'
       responses:
         '204':
           description: Channel updated successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Channel'
         '400':
           description: Invalid input
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/InputValidationProblem'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/Problem'
         '403':
           description: Forbidden, only owner can update
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/Problem'
         '404':
-          description: Channel not found
+          description: Channel not found / Invite not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
+                $ref: '#/components/schemas/Problem'
     delete:
       tags:
         - Channels
-      summary: Delete a channel # Not required
-      security:
-        - bearerAuth: [ ]
+      summary: Delete a channel
       parameters:
         - name: channelID
           in: path
           required: true
           schema:
-            type: string
+            type: number
       responses:
-        '200':
+        '204':
           description: Channel deleted successfully
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/Problem'
         '403':
           description: Forbidden, only owner can delete
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/Problem'
         '404':
           description: Channel not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-  /channels/{channelID}/members/:
-    get:
-      tags:
-        - Channels
-      summary: Get a list of all members in a channel
-      security:
-        - bearerAuth: [ ]
-      parameters:
-        - name: channelID
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: List of members
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/User'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
-          description: Forbidden, user does not have access to this information
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          description: Channel not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /channels/{channelID}/members/{userID}:
-    post:
+                $ref: '#/components/schemas/Problem'
+  /api/channels/{channelID}/members/{userID}:
+    put:
       tags:
         - Channels
       summary: Join a public channel
-      security:
-        - bearerAuth: [ ]
       parameters:
         - name: channelID
           in: path
           required: true
           schema:
-            type: string
+            type: number
         - name: userID
           in: path
           required: true
           schema:
-            type: string
+            type: number
       responses:
         '201':
           description: User added successfully
         '400':
-          description: Channel is private
+          description: Channel is private / User is already a member
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/InputValidationProblem'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: User cannot join the channel
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
         '404':
           description: Channel or user not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/Problem'
     delete:
       tags:
         - Channels
-      summary: Leave a channel or kick a member
-      security:
-        - bearerAuth: [ ]
+      summary: Remove a user from a channel
       parameters:
         - name: channelID
           in: path
           required: true
           schema:
-            type: string
+            type: number
         - name: userID
           in: query
           required: true
           schema:
-            type: string
+            type: number
       responses:
-        '200':
+        '204':
           description: User left successfully
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/Problem'
         '403':
-          description: Forbidden
+          description: Forbidden, user does not have permission to remove user
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/Problem'
         '404':
           description: Channel or user not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/Problem'
 
-  /channels/{channelID}/messages:
+  /api/channels/{channelID}/messages:
     get:
       tags:
         - Messaging
       summary: Get messages from a channel
-      security:
-        - bearerAuth: [ ]
       parameters:
         - name: channelID
           in: path
           required: true
           schema:
-            type: string
+            type: number
         - name: page
           in: query
           required: false
           schema:
             type: integer
+            minimum: 1
             default: 1
           description: Page number for pagination
-        - name: pageSize
+        - name: size
           in: query
           required: false
           schema:
             type: integer
-            default: 10
+            minimum: 1
+            default: 50
+            maximum: 100
           description: Number of messages per page
+        - name: getCount
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: sort
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [ asc, desc ]
+            default: asc
+          description: Sort order for messages
+        - name: sortBy
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [ id, createdAt, editedAt ]
+            default: createdAt
+          description: Sort by field
       responses:
         '200':
           description: List of messages
@@ -698,274 +858,317 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Message'
+                  $ref: '#/components/schemas/MessagesPaginatedOutputModel'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/Problem'
         '403':
           description: Forbidden, user does not have access to this information
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/Problem'
         '404':
           description: Channel not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/Problem'
 
     post:
       tags:
         - Messaging
-      summary: Send a message to a channel
-      security:
-        - bearerAuth: [ ]
+      summary: Create a message in a channel
       parameters:
         - name: channelID
           in: path
           required: true
           schema:
-            type: string
+            type: number
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              properties:
-                content:
-                  type: string
+              $ref: '#/components/schemas/MessageCreationInputModel'
       responses:
         '201':
           description: Message sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageCreationOutputModel'
         '400':
-          description: Bad request
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InputValidationProblem'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/Problem'
         '404':
           description: Channel not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-  /channels/{channelID}/messages/{messageID}:
-    put:
+                $ref: '#/components/schemas/Problem'
+  /api/channels/{channelID}/messages/{messageID}:
+    get:
       tags:
         - Messaging
-      summary: Edit a message in a channel # Not required
-      security:
-        - bearerAuth: [ ]
+      summary: Get a message from a channel
       parameters:
         - name: channelID
           in: path
           required: true
           schema:
-            type: string
+            type: number
         - name: messageID
-          in: query
+          in: path
           required: true
           schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              properties:
-                content:
-                  type: string
+            type: number
       responses:
         '200':
-          description: Message edited successfully
-        '400':
-          description: Bad request
+          description: Message retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageOutputModel'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: Forbidden, user does not have access to this information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Channel or message not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+    put:
+      tags:
+        - Messaging
+      summary: Edit a message in a channel
+      parameters:
+        - name: channelID
+          in: path
+          required: true
+          schema:
+            type: number
+        - name: messageID
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageCreationInputModel'
+      responses:
+        '200':
+          description: Message edited successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageUpdateOutputModel'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InputValidationProblem'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
         '403':
           description: Forbidden, user does not own the message
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/Problem'
         '404':
           description: Channel or message not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/Problem'
     delete:
       tags:
         - Messaging
-      summary: Delete a message from a channel # Not required
-      security:
-        - bearerAuth: [ ]
+      summary: Delete a message from a channel
+      parameters:
+        - name: channelID
+          in: path
+          required: true
+          schema:
+            type: number
+        - name: messageID
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        '204':
+          description: Message deleted successfully
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InputValidationProblem'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: Forbidden, user does not have permission to delete the message
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Channel or message not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /api/channels/{channelID}/invitations:
+    get:
+      tags:
+        - Invitations
+      summary: Get a list of all channel invitations for a channel
+      parameters:
+        - name: channelID
+          in: path
+          required: true
+          schema:
+            type: number
+        - name: sort
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [ asc, desc ]
+            default: asc
+        - name: sortBy
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [ id, expiresAt, role ]
+            default: expiresAt
+      responses:
+        '200':
+          description: List of channel invitations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChannelInvitationsOutputModel'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: Forbidden, user does not have access to this information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Channel not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+    post:
+      tags:
+        - Invitations
+      summary: Create a channel invitation
       parameters:
         - name: channelID
           in: path
           required: true
           schema:
             type: string
-        - name: messageID
-          in: query
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Message deleted successfully
-        '400':
-          description: Bad request
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
-          description: Forbidden, user does not have permission to delete the message
-        '404':
-          description: Channel or message not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-  /channels/{channelID}/invitations:
-    post:
-      tags:
-        - Invitations
-      summary: Create a channel invitation
-      security:
-        - bearerAuth: [ ]
       requestBody:
         description: Details to create a channel invitation
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                userID:
-                  type: string
-                  format: integer
-                  description: User to invite
-                expirationDate:
-                  type: string
-                  format: date-time
-                  description: Date and time when the invitation expires
-                role:
-                  type: string
-                  enum: [ owner, member, guest ]
-                  description: User role in the group channel
+              $ref: '#/components/schemas/ChannelInvitationCreationInputModel'
       responses:
         '201':
           description: Invitation created successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ChannelInvitation'
+                $ref: '#/components/schemas/ChannelInvitationCreationOutputModel'
         '400':
           description: Invalid input
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/InputValidationProblem'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/Problem'
         '403':
           description: Forbidden, user does not have permission to create an invitation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-    get:
-      tags:
-        - Invitations
-      summary: Get a list of all channel invitations for a channel # Not required
-      security:
-        - bearerAuth: [ ]
-      parameters:
-        - name: channelID
-          in: path
-          required: true
-          schema:
-            type: string
-            format: integer
-      responses:
-        '200':
-          description: List of channel invitations
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ChannelInvitation'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
-          description: Forbidden, user does not have access to this information
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          description: Channel not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-  /channels/{channelID}/invitations/{inviteID}:
+                $ref: '#/components/schemas/Problem'
+  /api/channels/{channelID}/invitations/{invitationID}:
     patch:
       tags:
         - Invitations
-      summary: Update invite permissions and expiration date # Not required
-      security:
-        - bearerAuth: [ ]
+      summary: Update invite permissions and expiration date
       parameters:
         - name: channelID
           in: path
           required: true
           schema:
-            type: string
-            format: integer
-        - name: inviteID
+            type: number
+        - name: invitationID
           in: path
           required: true
           schema:
-            type: string
-            format: integer
+            type: number
       requestBody:
         description: Invitation status
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                expirationDate:
-                  type: string
-                  format: date-time
-                role:
-                  type: string
-                  enum: [ owner, member, guest ]
+              $ref: '#/components/schemas/ChannelInvitationUpdateInputModel'
       responses:
         '204':
           description: Invitation status updated successfully
@@ -974,79 +1177,86 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/InputValidationProblem'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/Problem'
         '403':
           description: Forbidden, user does not have access to this information
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/Problem'
         '404':
           description: Channel or invitation not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/Problem'
     delete:
       tags:
         - Invitations
-      summary: Delete a channel invitation # Not required
-      security:
-        - bearerAuth: [ ]
+      summary: Delete a channel invitation
       parameters:
         - name: channelID
           in: path
           required: true
           schema:
-            type: string
-            format: integer
-        - name: inviteID
+            type: number
+        - name: invitationID
           in: path
           required: true
           schema:
-            type: string
-            format: integer
+            type: number
       responses:
-        '200':
+        '204':
           description: Invitation deleted successfully
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/Problem'
         '403':
           description: Forbidden, user does not have permission to delete the invitation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/Problem'
         '404':
           description: Channel or invitation not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-  /users/{userID}/channelInvitations:
+                $ref: '#/components/schemas/Problem'
+  /api/users/{userID}/invitations:
     get:
       tags:
         - Invitations
       summary: Get a list of all channel invitations for a user
-      security:
-        - bearerAuth: [ ]
       parameters:
         - name: userID
           in: path
           required: true
           schema:
             type: string
-            format: integer
+        - name: sort
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [ asc, desc ]
+            default: asc
+        - name: sortBy
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [ id, expiresAt ]
+            default: expiresAt
       responses:
         '200':
           description: List of channel invitations
@@ -1055,56 +1265,48 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ChannelInvitation'
+                  $ref: '#/components/schemas/ChannelInvitationsOutputModel'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/Problem'
         '403':
           description: Forbidden, user does not have access to this information
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/Problem'
         '404':
           description: User not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-  /users/{userID}/channelInvitations:/{inviteID}:
+                $ref: '#/components/schemas/Problem'
+  /api/users/{userID}/invitations/{invitationID}:
     patch:
       tags:
         - Invitations
       summary: Accept or decline a channel invitation
-      security:
-        - bearerAuth: [ ]
       parameters:
         - name: userID
           in: path
           required: true
           schema:
             type: string
-            format: integer
-        - name: inviteID
+        - name: invitationID
           in: path
           required: true
           schema:
             type: string
-            format: integer
       requestBody:
         description: Invitation status
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                status:
-                  type: string
-                  enum: [ accept, decline ]
+              $ref: '#/components/schemas/InvitationAcceptInputModel'
       responses:
         '204':
           description: Invitation status updated successfully
@@ -1113,24 +1315,22 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/InputValidationProblem'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/Problem'
         '403':
           description: Forbidden, user does not have access to this invitation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/Problem'
         '404':
           description: User or invitation not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-    
+                $ref: '#/components/schemas/Problem'
