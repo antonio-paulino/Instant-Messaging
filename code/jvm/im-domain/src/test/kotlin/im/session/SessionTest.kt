@@ -1,19 +1,17 @@
 package im.session
 
-import im.sessions.Session
-import im.user.User
+import im.domain.sessions.Session
+import im.domain.user.User
 import java.time.LocalDateTime
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class SessionTest {
-
     @Test
     fun `should create a session`() {
         val user = User(1, "user", "password", "user1@daw.isel.pt")
         val session = Session(1, user, LocalDateTime.now().plusDays(1))
         assertEquals(user, session.user)
-
     }
 
     @Test

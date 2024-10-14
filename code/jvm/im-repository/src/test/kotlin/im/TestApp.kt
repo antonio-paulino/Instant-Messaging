@@ -1,8 +1,6 @@
 package im
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.boot.autoconfigure.domain.EntityScan
 
-@SpringBootApplication(scanBasePackages = ["im"])
-@EntityScan("im")
+@SpringBootApplication
 open class TestApp

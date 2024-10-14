@@ -1,85 +1,99 @@
 package im.repository.jpa.repositories
 
-
+import im.domain.user.User
+import im.domain.wrappers.Email
+import im.domain.wrappers.Identifier
+import im.domain.wrappers.Name
+import im.domain.wrappers.Password
 import im.repository.jpa.model.user.UserDTO
 import im.repository.jpa.repositories.jpa.UserRepositoryJpa
 import im.repository.pagination.Pagination
 import im.repository.pagination.PaginationRequest
-import jakarta.persistence.EntityManager
-import org.springframework.stereotype.Component
-import im.user.User
+import im.repository.pagination.SortRequest
 import im.repository.repositories.user.UserRepository
-import im.wrappers.Email
-import im.wrappers.Identifier
-import im.wrappers.Name
-import im.wrappers.Password
+import jakarta.persistence.EntityManager
 import org.springframework.context.annotation.Primary
+import org.springframework.stereotype.Component
 
 @Component
 @Primary
 class UserRepositoryImpl(
     private val userRepositoryJpa: UserRepositoryJpa,
     private val entityManager: EntityManager,
-    private val utils: JpaRepositoryUtils
+    private val utils: JpaRepositoryUtils,
 ) : UserRepository {
+    override fun findByName(name: Name): User? = userRepositoryJpa.findByName(name.value).firstOrNull()?.toDomain()
 
-    override fun findByName(name: Name): User? {
-        return userRepositoryJpa.findByName(name.value).firstOrNull()?.toDomain()
-    }
+    override fun findByEmail(email: Email): User? = userRepositoryJpa.findByEmail(email.value).firstOrNull()?.toDomain()
 
-    override fun findByEmail(email: Email): User? {
-        return userRepositoryJpa.findByEmail(email.value).firstOrNull()?.toDomain()
-    }
-
-    override fun findByPartialName(name: String, pagination: PaginationRequest): Pagination<User> {
-        val res = userRepositoryJpa.findByPartialName(name, utils.toPageRequest(pagination, "id"))
+    override fun findByPartialName(
+        name: String,
+        pagination: PaginationRequest,
+        sortRequest: SortRequest,
+    ): Pagination<User> {
+        val pageable = utils.toPageRequest(pagination, sortRequest)
+        val res =
+            if (pagination.getCount) {
+                userRepositoryJpa.findByPartialName(name, pageable)
+            } else {
+                userRepositoryJpa.findByPartialNameSliced(name, pageable)
+            }
         return Pagination(res.content.map { it.toDomain() }, utils.getPaginationInfo(res))
     }
 
-    override fun findByNameAndPassword(name: Name, password: Password): User? {
-        return userRepositoryJpa.findByNameAndPassword(name.value, password.value).firstOrNull()?.toDomain()
-    }
+    override fun findByNameAndPassword(
+        name: Name,
+        password: Password,
+    ): User? = userRepositoryJpa.findByNameAndPassword(name.value, password.value).firstOrNull()?.toDomain()
 
-    override fun findByEmailAndPassword(email: Email, password: Password): User? {
-        return userRepositoryJpa.findByEmailAndPassword(email.value, password.value).firstOrNull()?.toDomain()
-    }
+    override fun findByEmailAndPassword(
+        email: Email,
+        password: Password,
+    ): User? = userRepositoryJpa.findByEmailAndPassword(email.value, password.value).firstOrNull()?.toDomain()
 
-    override fun save(entity: User): User {
-        return userRepositoryJpa.save(UserDTO.fromDomain(entity)).toDomain()
-    }
+    override fun save(entity: User): User = userRepositoryJpa.save(UserDTO.fromDomain(entity)).toDomain()
 
-    override fun saveAll(entities: Iterable<User>): List<User> {
-        return userRepositoryJpa.saveAll(entities.map { UserDTO.fromDomain(it) }).map { it.toDomain() }
-    }
+    override fun saveAll(entities: Iterable<User>): List<User> =
+        userRepositoryJpa
+            .saveAll(
+                entities.map {
+                    UserDTO.fromDomain(it)
+                },
+            ).map { it.toDomain() }
 
-    override fun findById(id: Identifier): User? {
-        return userRepositoryJpa.findById(id.value).map { it.toDomain() }.orElse(null)
-    }
+    override fun findById(id: Identifier): User? = userRepositoryJpa.findById(id.value).map { it.toDomain() }.orElse(null)
 
-    override fun findAll(): List<User> {
-        return userRepositoryJpa.findAll().map { it.toDomain() }
-    }
+    override fun findAll(): List<User> = userRepositoryJpa.findAll().map { it.toDomain() }
 
-    override fun find(pagination: PaginationRequest): Pagination<User> {
-        val res = userRepositoryJpa.findAll(utils.toPageRequest(pagination, "id"))
+    override fun find(
+        pagination: PaginationRequest,
+        sortRequest: SortRequest,
+    ): Pagination<User> {
+        val pageable = utils.toPageRequest(pagination, sortRequest)
+        val res =
+            if (pagination.getCount) {
+                userRepositoryJpa.findAll(pageable)
+            } else {
+                userRepositoryJpa.findBy(pageable)
+            }
         return Pagination(res.content.map { it.toDomain() }, utils.getPaginationInfo(res))
     }
 
-    override fun findAllById(ids: Iterable<Identifier>): List<User> {
-        return userRepositoryJpa.findAllById(ids.map { it.value }).map { it.toDomain() }
-    }
+    override fun findAllById(ids: Iterable<im.domain.wrappers.Identifier>): List<User> =
+        userRepositoryJpa
+            .findAllById(
+                ids.map {
+                    it.value
+                },
+            ).map { it.toDomain() }
 
     override fun deleteById(id: Identifier) {
         userRepositoryJpa.deleteById(id.value)
     }
 
-    override fun existsById(id: Identifier): Boolean {
-        return userRepositoryJpa.existsById(id.value)
-    }
+    override fun existsById(id: Identifier): Boolean = userRepositoryJpa.existsById(id.value)
 
-    override fun count(): Long {
-        return userRepositoryJpa.count()
-    }
+    override fun count(): Long = userRepositoryJpa.count()
 
     override fun deleteAll() {
         userRepositoryJpa.deleteAll()
@@ -93,13 +107,11 @@ class UserRepositoryImpl(
         userRepositoryJpa.delete(UserDTO.fromDomain(entity))
     }
 
-    override fun deleteAllById(ids: Iterable<Identifier>) {
+    override fun deleteAllById(ids: Iterable<im.domain.wrappers.Identifier>) {
         userRepositoryJpa.deleteAllById(ids.map { it.value })
     }
 
     override fun flush() {
-        entityManager.flush()
         userRepositoryJpa.flush()
     }
-
 }

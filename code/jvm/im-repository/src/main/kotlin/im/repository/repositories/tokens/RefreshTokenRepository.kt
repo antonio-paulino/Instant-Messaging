@@ -1,8 +1,8 @@
 package im.repository.repositories.tokens
 
+import im.domain.sessions.Session
+import im.domain.tokens.RefreshToken
 import im.repository.repositories.Repository
-import im.sessions.Session
-import im.tokens.RefreshToken
 import java.util.UUID
 
 /**

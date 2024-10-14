@@ -8,5 +8,5 @@ package im.repository.pagination
  */
 data class Pagination<T>(
     val items: List<T>,
-    val info: PaginationInfo
+    val info: PaginationInfo?,
 )

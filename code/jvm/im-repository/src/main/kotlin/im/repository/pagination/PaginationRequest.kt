@@ -7,10 +7,10 @@ package im.repository.pagination
  *
  * @param page the page number
  * @param size the page size
- * @param sort the sorting order
+ * @param getCount whether to count the total number of elements
  */
 data class PaginationRequest(
     val page: Int,
     val size: Int,
-    val sort: Sort = Sort.ASC
+    val getCount: Boolean = true,
 )

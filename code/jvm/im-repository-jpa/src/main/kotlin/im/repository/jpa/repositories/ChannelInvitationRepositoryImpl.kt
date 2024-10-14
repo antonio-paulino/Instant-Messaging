@@ -1,16 +1,17 @@
 package im.repository.jpa.repositories
 
-import im.channel.Channel
-import im.repository.pagination.Pagination
-import im.invitations.ChannelInvitation
-import im.invitations.ChannelInvitationStatus
+import im.domain.channel.Channel
+import im.domain.invitations.ChannelInvitation
+import im.domain.invitations.ChannelInvitationStatus
+import im.domain.user.User
+import im.domain.wrappers.Identifier
 import im.repository.jpa.model.invitation.ChannelInvitationDTO
+import im.repository.jpa.model.invitation.ChannelInvitationStatusDTO
 import im.repository.jpa.repositories.jpa.ChannelInvitationRepositoryJpa
-import im.repository.repositories.invitations.ChannelInvitationRepository
+import im.repository.pagination.Pagination
 import im.repository.pagination.PaginationRequest
-import im.user.User
-import im.wrappers.Identifier
-import jakarta.persistence.EntityManager
+import im.repository.pagination.SortRequest
+import im.repository.repositories.invitations.ChannelInvitationRepository
 import org.springframework.context.annotation.Primary
 import org.springframework.stereotype.Component
 
@@ -18,37 +19,65 @@ import org.springframework.stereotype.Component
 @Primary
 class ChannelInvitationRepositoryImpl(
     private val channelInvitationRepositoryJpa: ChannelInvitationRepositoryJpa,
-    private val entityManager: EntityManager,
-    private val utils: JpaRepositoryUtils
+    private val utils: JpaRepositoryUtils,
 ) : ChannelInvitationRepository {
+    override fun findByChannel(
+        channel: Channel,
+        status: ChannelInvitationStatus,
+        sortRequest: SortRequest,
+    ): List<ChannelInvitation> =
+        channelInvitationRepositoryJpa
+            .findByChannelIdAndStatus(
+                channel.id.value,
+                ChannelInvitationStatusDTO.valueOf(status.name),
+                utils.toSort(sortRequest),
+            ).map { it.toDomain() }
 
-    override fun findByChannel(channel: Channel, status: ChannelInvitationStatus): List<ChannelInvitation> {
-        return channelInvitationRepositoryJpa.findByChannel(channel.id.value, status).map { it.toDomain() }
-    }
-
-    override fun findByInvitee(user: User): List<ChannelInvitation> {
-        return channelInvitationRepositoryJpa.findByInvitee(user.id.value).map { it.toDomain() }
-    }
-
-    override fun save(entity: ChannelInvitation): ChannelInvitation {
-        return channelInvitationRepositoryJpa.save(ChannelInvitationDTO.fromDomain(entity)).toDomain()
-    }
-
-    override fun saveAll(entities: Iterable<ChannelInvitation>): List<ChannelInvitation> {
-        return channelInvitationRepositoryJpa.saveAll(entities.map { ChannelInvitationDTO.fromDomain(it) })
+    override fun findByInvitee(
+        user: User,
+        sortRequest: SortRequest,
+    ): List<ChannelInvitation> =
+        channelInvitationRepositoryJpa
+            .findByInviteeId(user.id.value, utils.toSort(sortRequest))
             .map { it.toDomain() }
+
+    override fun findByInviteeAndChannel(
+        user: User,
+        channel: Channel,
+    ): ChannelInvitation? = channelInvitationRepositoryJpa.findByInviteeIdAndChannelId(user.id.value, channel.id.value)?.toDomain()
+
+    override fun deleteExpired() {
+        channelInvitationRepositoryJpa.deleteAllByExpiresAtIsBeforeOrStatusIn()
     }
 
-    override fun findById(id: Identifier): ChannelInvitation? {
-        return channelInvitationRepositoryJpa.findById(id.value).map { it.toDomain() }.orElse(null)
-    }
+    override fun save(entity: ChannelInvitation): ChannelInvitation =
+        channelInvitationRepositoryJpa.save(ChannelInvitationDTO.fromDomain(entity)).toDomain()
 
-    override fun findAll(): List<ChannelInvitation> {
-        return channelInvitationRepositoryJpa.findAll().map { it.toDomain() }
-    }
+    override fun saveAll(entities: Iterable<ChannelInvitation>): List<ChannelInvitation> =
+        channelInvitationRepositoryJpa
+            .saveAll(entities.map { ChannelInvitationDTO.fromDomain(it) })
+            .map { it.toDomain() }
 
-    override fun find(pagination: PaginationRequest): Pagination<ChannelInvitation> {
-        val res = channelInvitationRepositoryJpa.findAll(utils.toPageRequest(pagination, "id"))
+    override fun findById(id: Identifier): ChannelInvitation? =
+        channelInvitationRepositoryJpa
+            .findById(id.value)
+            .map {
+                it.toDomain()
+            }.orElse(null)
+
+    override fun findAll(): List<ChannelInvitation> = channelInvitationRepositoryJpa.findAll().map { it.toDomain() }
+
+    override fun find(
+        pagination: PaginationRequest,
+        sortRequest: SortRequest,
+    ): Pagination<ChannelInvitation> {
+        val pageable = utils.toPageRequest(pagination, sortRequest)
+        val res =
+            if (pagination.getCount) {
+                channelInvitationRepositoryJpa.findAll(pageable)
+            } else {
+                channelInvitationRepositoryJpa.findBy(pageable)
+            }
         return Pagination(res.content.map { it.toDomain() }, utils.getPaginationInfo(res))
     }
 
@@ -56,17 +85,17 @@ class ChannelInvitationRepositoryImpl(
         channelInvitationRepositoryJpa.deleteById(id.value)
     }
 
-    override fun findAllById(ids: Iterable<Identifier>): List<ChannelInvitation> {
-        return channelInvitationRepositoryJpa.findAllById(ids.map { it.value }).map { it.toDomain() }
-    }
+    override fun findAllById(ids: Iterable<Identifier>): List<ChannelInvitation> =
+        channelInvitationRepositoryJpa
+            .findAllById(
+                ids.map {
+                    it.value
+                },
+            ).map { it.toDomain() }
 
-    override fun existsById(id: Identifier): Boolean {
-        return channelInvitationRepositoryJpa.existsById(id.value)
-    }
+    override fun existsById(id: Identifier): Boolean = channelInvitationRepositoryJpa.existsById(id.value)
 
-    override fun count(): Long {
-        return channelInvitationRepositoryJpa.count()
-    }
+    override fun count(): Long = channelInvitationRepositoryJpa.count()
 
     override fun deleteAll() {
         channelInvitationRepositoryJpa.deleteAll()
@@ -86,6 +115,5 @@ class ChannelInvitationRepositoryImpl(
 
     override fun flush() {
         channelInvitationRepositoryJpa.flush()
-        entityManager.flush()
     }
 }

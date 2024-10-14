@@ -1,17 +1,18 @@
 package im.repository.mem.repositories
 
-import im.invitations.ImInvitation
+import im.domain.invitations.ImInvitation
+import im.repository.mem.model.invitation.ImInvitationDTO
 import im.repository.pagination.Pagination
 import im.repository.pagination.PaginationRequest
+import im.repository.pagination.SortRequest
 import im.repository.repositories.invitations.ImInvitationRepository
-import im.repository.mem.model.invitation.ImInvitationDTO
-import java.util.*
+import java.time.LocalDateTime
+import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
 class MemImInvitationRepositoryImpl(
-    private val utils: MemRepoUtils
+    private val utils: MemRepoUtils,
 ) : ImInvitationRepository {
-
     private val invitations = ConcurrentHashMap<UUID, ImInvitationDTO>()
 
     override fun save(entity: ImInvitation): ImInvitation {
@@ -28,27 +29,28 @@ class MemImInvitationRepositoryImpl(
         }
     }
 
+    override fun deleteExpired() {
+        invitations.values.filter { it.expiresAt.isBefore(LocalDateTime.now()) }.forEach { delete(it.toDomain()) }
+    }
+
     override fun saveAll(entities: Iterable<ImInvitation>): List<ImInvitation> {
         val newEntities = entities.map { save(it) }
         return newEntities.toList()
     }
 
-    override fun findById(id: UUID): ImInvitation? {
-        return invitations[id]?.toDomain()
-    }
+    override fun findById(id: UUID): ImInvitation? = invitations[id]?.toDomain()
 
-    override fun findAll(): List<ImInvitation> {
-        return invitations.values.map { it.toDomain() }
-    }
+    override fun findAll(): List<ImInvitation> = invitations.values.map { it.toDomain() }
 
-    override fun find(pagination: PaginationRequest): Pagination<ImInvitation> {
-        val page = utils.paginate(invitations.values.toList(), pagination, "expiresAt")
+    override fun find(
+        pagination: PaginationRequest,
+        sortRequest: SortRequest,
+    ): Pagination<ImInvitation> {
+        val page = utils.paginate(invitations.values.toList(), pagination, sortRequest, pagination.getCount)
         return Pagination(page.items.map { it.toDomain() }, page.info)
     }
 
-    override fun findAllById(ids: Iterable<UUID>): List<ImInvitation> {
-        return invitations.values.filter { it.token in ids }.map { it.toDomain() }
-    }
+    override fun findAllById(ids: Iterable<UUID>): List<ImInvitation> = invitations.values.filter { it.token in ids }.map { it.toDomain() }
 
     override fun deleteById(id: UUID) {
         if (invitations.containsKey(id)) {
@@ -56,13 +58,9 @@ class MemImInvitationRepositoryImpl(
         }
     }
 
-    override fun existsById(id: UUID): Boolean {
-        return invitations.containsKey(id)
-    }
+    override fun existsById(id: UUID): Boolean = invitations.containsKey(id)
 
-    override fun count(): Long {
-        return invitations.size.toLong()
-    }
+    override fun count(): Long = invitations.size.toLong()
 
     override fun deleteAll() {
         invitations.forEach { delete(it.value.toDomain()) }
@@ -83,6 +81,4 @@ class MemImInvitationRepositoryImpl(
     override fun flush() {
         // No-op
     }
-
-
 }

@@ -18,10 +18,8 @@ class MemTransaction(
     override val accessTokenRepository: AccessTokenRepository,
     override val refreshTokenRepository: RefreshTokenRepository,
     override val imInvitationRepository: ImInvitationRepository,
-    override val channelInvitationRepository: ChannelInvitationRepository
+    override val channelInvitationRepository: ChannelInvitationRepository,
 ) : Transaction {
-
-
     override fun rollback() {
         // no-op
     }

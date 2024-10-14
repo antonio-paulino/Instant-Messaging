@@ -1,8 +1,8 @@
 package im.repository.repositories.tokens
 
+import im.domain.sessions.Session
+import im.domain.tokens.AccessToken
 import im.repository.repositories.Repository
-import im.sessions.Session
-import im.tokens.AccessToken
 import java.util.UUID
 
 /**
@@ -16,4 +16,9 @@ interface AccessTokenRepository : Repository<AccessToken, UUID> {
      * @return the access tokens for the session
      */
     fun findBySession(session: Session): List<AccessToken>
+
+    /**
+     * Deletes all expired access tokens.
+     */
+    fun deleteExpired()
 }

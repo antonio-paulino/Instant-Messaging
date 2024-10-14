@@ -2,7 +2,7 @@ package im.repository.repositories
 
 import im.repository.pagination.Pagination
 import im.repository.pagination.PaginationRequest
-import java.util.*
+import im.repository.pagination.SortRequest
 
 /**
  * Repository interface for CRUD operations, used to abstract data access layer from the business logic.
@@ -13,7 +13,6 @@ import java.util.*
  * If the changes should be persisted immediately, the [flush] method should be called.
  */
 interface Repository<T, ID> {
-
     /**
      * Saves the entity to the database.
      *
@@ -51,10 +50,13 @@ interface Repository<T, ID> {
      * Use this method to implement pagination.
      *
      * @param pagination the pagination request
+     * @param sortRequest the sort request
      * @return the entities and the pagination information.
      */
-    fun find(pagination: PaginationRequest): Pagination<T>
-
+    fun find(
+        pagination: PaginationRequest,
+        sortRequest: SortRequest,
+    ): Pagination<T>
 
     /**
      * Finds all entities by their IDs.

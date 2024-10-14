@@ -1,20 +1,21 @@
 package im.repository.mem.repositories
 
-import im.channel.Channel
-import im.invitations.ChannelInvitation
-import im.invitations.ChannelInvitationStatus
+import im.domain.channel.Channel
+import im.domain.invitations.ChannelInvitation
+import im.domain.invitations.ChannelInvitationStatus
+import im.domain.user.User
+import im.domain.wrappers.Identifier
+import im.repository.mem.model.invitation.ChannelInvitationDTO
 import im.repository.pagination.Pagination
 import im.repository.pagination.PaginationRequest
+import im.repository.pagination.SortRequest
 import im.repository.repositories.invitations.ChannelInvitationRepository
-import im.repository.mem.model.invitation.ChannelInvitationDTO
-import im.user.User
-import im.wrappers.Identifier
+import java.time.LocalDateTime
 import java.util.concurrent.ConcurrentHashMap
 
 class MemChannelInvitationRepositoryImpl(
-    private val utils: MemRepoUtils
+    private val utils: MemRepoUtils,
 ) : ChannelInvitationRepository {
-
     private val invitations = ConcurrentHashMap<Identifier, ChannelInvitationDTO>()
 
     private var id = 999L // Start from 1000 to avoid conflicts with invitations created in tests
@@ -32,13 +33,39 @@ class MemChannelInvitationRepositoryImpl(
         }
     }
 
-    override fun findByChannel(channel: Channel, status: ChannelInvitationStatus): List<ChannelInvitation> {
-        return invitations.values.filter { it.channel.id == channel.id.value && it.status == status }
-            .map { it.toDomain() }
-    }
+    override fun findByChannel(
+        channel: Channel,
+        status: ChannelInvitationStatus,
+        sortRequest: SortRequest,
+    ): List<ChannelInvitation> =
+        utils.handleSort(
+            invitations.values
+                .filter { it.channel.id == channel.id.value && it.status == status }
+                .map { it.toDomain() },
+            sortRequest,
+        )
 
-    override fun findByInvitee(user: User): List<ChannelInvitation> {
-        return invitations.values.filter { it.invitee.id == user.id.value }.map { it.toDomain() }
+    override fun findByInvitee(
+        user: User,
+        sortRequest: SortRequest,
+    ): List<ChannelInvitation> =
+        utils.handleSort(
+            invitations.values
+                .filter { it.invitee.id == user.id.value }
+                .map { it.toDomain() },
+            sortRequest,
+        )
+
+    override fun findByInviteeAndChannel(
+        user: User,
+        channel: Channel,
+    ): ChannelInvitation? =
+        invitations.values
+            .find { it.invitee.id == user.id.value && it.channel.id == channel.id.value }
+            ?.toDomain()
+
+    override fun deleteExpired() {
+        invitations.values.filter { it.expiresAt.isBefore(LocalDateTime.now()) }.forEach { delete(it.toDomain()) }
     }
 
     override fun saveAll(entities: Iterable<ChannelInvitation>): List<ChannelInvitation> {
@@ -46,16 +73,15 @@ class MemChannelInvitationRepositoryImpl(
         return newEntities.toList()
     }
 
-    override fun findById(id: Identifier): ChannelInvitation? {
-        return invitations[id]?.toDomain()
-    }
+    override fun findById(id: Identifier): ChannelInvitation? = invitations[id]?.toDomain()
 
-    override fun findAll(): List<ChannelInvitation> {
-        return invitations.values.map { it.toDomain() }
-    }
+    override fun findAll(): List<ChannelInvitation> = invitations.values.map { it.toDomain() }
 
-    override fun find(pagination: PaginationRequest): Pagination<ChannelInvitation> {
-        val page = utils.paginate(invitations.values.toList(), pagination, "id")
+    override fun find(
+        pagination: PaginationRequest,
+        sortRequest: SortRequest,
+    ): Pagination<ChannelInvitation> {
+        val page = utils.paginate(invitations.values.toList(), pagination, sortRequest, pagination.getCount)
         return Pagination(page.items.map { it.toDomain() }, page.info)
     }
 
@@ -70,13 +96,9 @@ class MemChannelInvitationRepositoryImpl(
         }
     }
 
-    override fun existsById(id: Identifier): Boolean {
-        return invitations.containsKey(id)
-    }
+    override fun existsById(id: Identifier): Boolean = invitations.containsKey(id)
 
-    override fun count(): Long {
-        return invitations.size.toLong()
-    }
+    override fun count(): Long = invitations.size.toLong()
 
     override fun deleteAll() {
         invitations.forEach { delete(it.value.toDomain()) }

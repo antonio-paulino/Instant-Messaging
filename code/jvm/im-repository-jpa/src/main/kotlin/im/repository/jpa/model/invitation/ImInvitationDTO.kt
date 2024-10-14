@@ -1,8 +1,12 @@
 package im.repository.jpa.model.invitation
 
-import im.invitations.ImInvitation
-import im.invitations.ImInvitationStatus
-import jakarta.persistence.*
+import im.domain.invitations.ImInvitation
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
+import jakarta.persistence.Id
+import jakarta.persistence.Table
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -23,22 +27,26 @@ open class ImInvitationDTO(
     @Id
     @Column(nullable = false, length = 32)
     open val token: UUID = UUID.randomUUID(),
-
     @Column(name = "expires_at", nullable = false)
     open val expiresAt: LocalDateTime = LocalDateTime.now().plusDays(7),
-
     @Column(nullable = false, length = 10)
     @Enumerated(EnumType.STRING)
-    open val status: ImInvitationStatus = ImInvitationStatus.PENDING
+    open val status: ImInvitationStatus = ImInvitationStatus.PENDING,
 ) {
     companion object {
-        fun fromDomain(invitation: ImInvitation) = ImInvitationDTO(
-            token = invitation.token,
-            expiresAt = invitation.expiresAt,
-            status = invitation.status
-        )
+        fun fromDomain(invitation: ImInvitation) =
+            ImInvitationDTO(
+                token = invitation.token,
+                expiresAt = invitation.expiresAt,
+                status = ImInvitationStatus.valueOf(invitation.status.name),
+            )
     }
 
-    fun toDomain() = ImInvitation(token, status, expiresAt)
+    fun toDomain() =
+        ImInvitation(
+            token,
+            im.domain.invitations.ImInvitationStatus
+                .valueOf(status.name),
+            expiresAt,
+        )
 }
-

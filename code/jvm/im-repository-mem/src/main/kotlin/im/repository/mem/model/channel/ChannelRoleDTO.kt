@@ -1,11 +1,12 @@
 package im.repository.mem.model.channel
 
-import im.channel.ChannelRole
+import im.domain.channel.ChannelRole
 
 enum class ChannelRoleDTO {
     OWNER,
     MEMBER,
-    GUEST;
+    GUEST,
+    ;
 
     companion object {
         fun fromDomain(role: ChannelRole): ChannelRoleDTO {
@@ -17,11 +18,10 @@ enum class ChannelRoleDTO {
         }
     }
 
-    fun toDomain(): ChannelRole {
-        return when (this) {
+    fun toDomain(): ChannelRole =
+        when (this) {
             OWNER -> ChannelRole.OWNER
             MEMBER -> ChannelRole.MEMBER
             GUEST -> ChannelRole.GUEST
         }
-    }
 }

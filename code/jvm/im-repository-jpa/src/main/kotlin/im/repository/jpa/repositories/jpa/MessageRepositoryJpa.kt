@@ -3,6 +3,7 @@ package im.repository.jpa.repositories.jpa
 import im.repository.jpa.model.message.MessageDTO
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Slice
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
@@ -10,11 +11,25 @@ import org.springframework.stereotype.Repository
 @Repository
 interface MessageRepositoryJpa : JpaRepository<MessageDTO, Long> {
     @Query(
-        countQuery = "SELECT COUNT(m) FROM MessageDTO m WHERE m.channel.id = :channelId",
-        value = "SELECT m FROM MessageDTO m WHERE m.channel.id = :channelId"
+        value = "SELECT m FROM MessageDTO m JOIN FETCH m.user where m.channel.id = :channelId",
     )
-    fun findByChannelId(channelId: Long, page: Pageable): Page<MessageDTO>
+    fun findByChannelId(
+        channelId: Long,
+        page: Pageable,
+    ): Page<MessageDTO>
 
-    @Query("SELECT m FROM MessageDTO m WHERE m.channel.id = :channelId")
-    fun findByChannel(channelId: Long): List<MessageDTO>
+    @Query(
+        value = "SELECT m FROM MessageDTO m JOIN FETCH m.user WHERE m.channel.id = :channelId",
+    )
+    fun findByChannelIdSliced(
+        channelId: Long,
+        page: Pageable,
+    ): Slice<MessageDTO>
+
+    fun findByChannelIdAndId(
+        channelId: Long,
+        id: Long,
+    ): MessageDTO?
+
+    fun findBy(pageable: Pageable): Slice<MessageDTO>
 }

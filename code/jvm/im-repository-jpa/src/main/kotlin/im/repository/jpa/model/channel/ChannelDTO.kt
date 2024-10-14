@@ -1,11 +1,21 @@
 package im.repository.jpa.model.channel
 
-import im.channel.Channel
+import im.domain.channel.Channel
+import im.domain.wrappers.toIdentifier
+import im.domain.wrappers.toName
 import im.repository.jpa.model.user.UserDTO
-import im.wrappers.toIdentifier
-import im.wrappers.toName
+import jakarta.persistence.CollectionTable
+import jakarta.persistence.Column
+import jakarta.persistence.ElementCollection
 import jakarta.persistence.Entity
-import jakarta.persistence.*
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToOne
+import jakarta.persistence.MapKeyJoinColumn
+import jakarta.persistence.NamedQuery
+import jakarta.persistence.Table
 import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction
 import java.time.LocalDateTime
@@ -25,27 +35,26 @@ import java.time.LocalDateTime
  * @property createdAt The date and time when the channel was created.
  * @property members The members of the channel and their roles.
  */
+@NamedQuery(
+    name = "ChannelDTO.findAllPaginated",
+    query = "SELECT c FROM ChannelDTO c ",
+)
 @Entity
 @Table(name = "channel")
 open class ChannelDTO(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     open val id: Long = 0,
-
     @Column(nullable = false, length = 30)
     open val name: String = "",
-
     @ManyToOne
     @JoinColumn(name = "owner", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     open val owner: UserDTO? = null,
-
     @Column(name = "is_public", nullable = false)
     open val isPublic: Boolean = true,
-
     @Column(name = "created_at", nullable = false)
     open val createdAt: LocalDateTime = LocalDateTime.now(),
-
     @ElementCollection
     @CollectionTable(
         name = "channel_member",
@@ -56,28 +65,32 @@ open class ChannelDTO(
     open val members: Map<UserDTO, ChannelRoleDTO> = hashMapOf(),
 ) {
     companion object {
-        fun fromDomain(channel: Channel): ChannelDTO = ChannelDTO(
-            id = channel.id.value,
-            name = channel.name.value,
-            owner = UserDTO.fromDomain(channel.owner),
-            isPublic = channel.isPublic,
-            createdAt = channel.createdAt,
-            members = channel.members
-                .mapKeys { UserDTO.fromDomain(it.key) }
-                .mapValues { ChannelRoleDTO.valueOf(it.value.name) },
-        )
+        fun fromDomain(channel: Channel): ChannelDTO =
+            ChannelDTO(
+                id = channel.id.value,
+                name = channel.name.value,
+                owner = UserDTO.fromDomain(channel.owner),
+                isPublic = channel.isPublic,
+                createdAt = channel.createdAt,
+                members =
+                    channel.members
+                        .mapKeys { UserDTO.fromDomain(it.key) }
+                        .mapValues { ChannelRoleDTO.valueOf(it.value.name) },
+            )
     }
 
-    fun toDomain(): Channel = Channel(
-        id = id.toIdentifier(),
-        name = name.toName(),
-        owner = owner!!.toDomain(),
-        isPublic = isPublic,
-        createdAt = createdAt,
-        membersLazy = lazy {
-            members
-                .mapKeys { it.key.toDomain() }
-                .mapValues { it.value.toDomain() }
-        }
-    )
+    fun toDomain(): Channel =
+        Channel(
+            id = id.toIdentifier(),
+            name = name.toName(),
+            owner = owner!!.toDomain(),
+            isPublic = isPublic,
+            createdAt = createdAt,
+            membersLazy =
+                lazy {
+                    members
+                        .mapKeys { it.key.toDomain() }
+                        .mapValues { it.value.toDomain() }
+                },
+        )
 }

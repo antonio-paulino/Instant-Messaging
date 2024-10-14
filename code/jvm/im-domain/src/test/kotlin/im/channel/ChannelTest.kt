@@ -1,14 +1,16 @@
 package im.channel
 
-import im.user.User
-import im.wrappers.toName
+import im.domain.channel.Channel
+import im.domain.channel.ChannelRole
+import im.domain.user.User
+import im.domain.wrappers.toName
+import java.time.LocalDateTime
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class ChannelTest {
-
     @Test
     fun `should update channel`() {
         val user = User(1, "user", "password", "user1@daw.isel.pt")
@@ -48,5 +50,15 @@ class ChannelTest {
         val updatedChannel2 = updatedChannel.addMember(user2, ChannelRole.OWNER)
         assertEquals(2, updatedChannel2.members.size)
         assertEquals(ChannelRole.OWNER, updatedChannel2.members[user2])
+    }
+
+    @Test
+    fun `test equal channels`() {
+        val user = User(1, "user", "password", "user1@daw.isel.pt")
+        val creation = LocalDateTime.now()
+        val channel = Channel(1, "im/channel", user, true, createdAt = creation)
+        val channel2 = Channel(1, "im/channel", user, true, createdAt = creation)
+        assertEquals(channel, channel2)
+        assertEquals(channel.hashCode(), channel2.hashCode())
     }
 }

@@ -4,48 +4,64 @@ import im.repository.pagination.Pagination
 import im.repository.pagination.PaginationInfo
 import im.repository.pagination.PaginationRequest
 import im.repository.pagination.Sort
+import im.repository.pagination.SortRequest
+import java.awt.SystemColor.info
 
 class MemRepoUtils {
-
     @Suppress("UNCHECKED_CAST")
     inline fun <reified T> paginate(
         items: List<T>,
         pagination: PaginationRequest,
-        sortBy: String = "id"
+        sortRequest: SortRequest,
+        getCount: Boolean = true,
     ): Pagination<T> {
-
         if (items.isEmpty()) {
             return Pagination(
                 emptyList(),
-                PaginationInfo(0, 1, 1, null, null)
+                PaginationInfo(0, 1, 0, null, null),
             )
         }
 
-        val sortedChannels = items.sortedBy { channel ->
-            val sortField = T::class.java.getDeclaredField(sortBy)
-            sortField.isAccessible = true
-            sortField.get(channel) as Comparable<Any>
-        }
+        val sortedChannels = handleSort(items, sortRequest)
 
         val total = items.size
         val currentPage = pagination.page
-        val totalPages = ((total + pagination.size - 1) / pagination.size)
+        val totalPages = if (total == 0) 0 else ((total + pagination.size - 1) / pagination.size)
         val nextPage = if (pagination.page < totalPages) pagination.page + 1 else null
         val prevPage = if (pagination.page > 1) pagination.page - 1 else null
 
         val fromIndex = (pagination.page - 1) * pagination.size
         val toIndex = (fromIndex + pagination.size).coerceAtMost(total)
 
-        val paginatedChannels = if (pagination.sort == Sort.ASC) {
-            sortedChannels.subList(fromIndex, toIndex)
-        } else {
-            sortedChannels.reversed().subList(fromIndex, toIndex)
-        }
+        val paginatedChannels = sortedChannels.subList(fromIndex, toIndex)
 
-        return Pagination(
-            paginatedChannels,
-            PaginationInfo(total.toLong(), currentPage, totalPages, nextPage, prevPage)
-        )
+        val info =
+            PaginationInfo(
+                total.toLong(),
+                currentPage,
+                totalPages,
+                nextPage,
+                prevPage,
+            )
+
+        return if (getCount) {
+            Pagination(paginatedChannels, info)
+        } else {
+            Pagination(paginatedChannels, info.copy(total = null, totalPages = null))
+        }
     }
 
+    @Suppress("UNCHECKED_CAST")
+    inline fun <reified T> handleSort(
+        items: List<T>,
+        sortRequest: SortRequest,
+    ): List<T> {
+        val sort = sortRequest.sortBy ?: "id"
+        val sortField = T::class.java.getDeclaredField(sort).apply { isAccessible = true }
+        return if (sortRequest.direction == Sort.ASC) {
+            items.sortedBy { sortField.get(it) as Comparable<Any> }
+        } else {
+            items.sortedByDescending { sortField.get(it) as Comparable<Any> }
+        }
+    }
 }

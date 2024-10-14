@@ -1,6 +1,5 @@
 package im.repository.repositories.transactions
 
-
 /**
  * Represents the transaction isolation levels.
  *
@@ -16,5 +15,5 @@ enum class TransactionIsolation {
     READ_UNCOMMITTED,
     READ_COMMITTED,
     REPEATABLE_READ,
-    SERIALIZABLE
+    SERIALIZABLE,
 }

@@ -1,23 +1,25 @@
 package im.repository.mem.repositories
 
+import im.domain.sessions.Session
+import im.domain.tokens.RefreshToken
+import im.repository.mem.model.token.RefreshTokenDTO
 import im.repository.pagination.Pagination
 import im.repository.pagination.PaginationRequest
+import im.repository.pagination.SortRequest
 import im.repository.repositories.tokens.RefreshTokenRepository
-import im.repository.mem.model.token.RefreshTokenDTO
-import im.sessions.Session
-import im.tokens.RefreshToken
-import java.util.*
+import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
 class MemRefreshTokenRepositoryImpl(
-    private val utils: MemRepoUtils
+    private val utils: MemRepoUtils,
 ) : RefreshTokenRepository {
-
     private val refreshTokens = ConcurrentHashMap<UUID, RefreshTokenDTO>()
 
-    override fun findBySession(session: Session): List<RefreshToken> {
-        return refreshTokens.values.filter { it.session.toDomain() == session }.map { it.toDomain() }
-    }
+    override fun findBySession(session: Session): List<RefreshToken> =
+        refreshTokens.values
+            .filter {
+                it.session.toDomain() == session
+            }.map { it.toDomain() }
 
     override fun save(entity: RefreshToken): RefreshToken {
         val conflict = refreshTokens.values.find { it.token == entity.token }
@@ -35,22 +37,23 @@ class MemRefreshTokenRepositoryImpl(
         return newEntities.toList()
     }
 
-    override fun findById(id: UUID): RefreshToken? {
-        return refreshTokens[id]?.toDomain()
-    }
+    override fun findById(id: UUID): RefreshToken? = refreshTokens[id]?.toDomain()
 
-    override fun findAll(): List<RefreshToken> {
-        return refreshTokens.values.map { it.toDomain() }
-    }
+    override fun findAll(): List<RefreshToken> = refreshTokens.values.map { it.toDomain() }
 
-    override fun find(pagination: PaginationRequest): Pagination<RefreshToken> {
-        val page = utils.paginate(refreshTokens.values.toList(), pagination, "token")
+    override fun find(
+        pagination: PaginationRequest,
+        sortRequest: SortRequest,
+    ): Pagination<RefreshToken> {
+        val page = utils.paginate(refreshTokens.values.toList(), pagination, sortRequest, pagination.getCount)
         return Pagination(page.items.map { it.toDomain() }, page.info)
     }
 
-    override fun findAllById(ids: Iterable<UUID>): List<RefreshToken> {
-        return refreshTokens.values.filter { it.token in ids }.map { it.toDomain() }
-    }
+    override fun findAllById(ids: Iterable<UUID>): List<RefreshToken> =
+        refreshTokens.values
+            .filter {
+                it.token in ids
+            }.map { it.toDomain() }
 
     override fun deleteById(id: UUID) {
         if (refreshTokens.containsKey(id)) {
@@ -58,13 +61,9 @@ class MemRefreshTokenRepositoryImpl(
         }
     }
 
-    override fun existsById(id: UUID): Boolean {
-        return refreshTokens.containsKey(id)
-    }
+    override fun existsById(id: UUID): Boolean = refreshTokens.containsKey(id)
 
-    override fun count(): Long {
-        return refreshTokens.size.toLong()
-    }
+    override fun count(): Long = refreshTokens.size.toLong()
 
     override fun deleteAll() {
         refreshTokens.forEach { delete(it.value.toDomain()) }

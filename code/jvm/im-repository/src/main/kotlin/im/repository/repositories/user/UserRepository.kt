@@ -1,13 +1,14 @@
 package im.repository.repositories.user
 
-import im.repository.repositories.Repository
+import im.domain.user.User
+import im.domain.wrappers.Email
+import im.domain.wrappers.Identifier
+import im.domain.wrappers.Name
+import im.domain.wrappers.Password
 import im.repository.pagination.Pagination
 import im.repository.pagination.PaginationRequest
-import im.user.User
-import im.wrappers.Email
-import im.wrappers.Identifier
-import im.wrappers.Name
-import im.wrappers.Password
+import im.repository.pagination.SortRequest
+import im.repository.repositories.Repository
 
 /**
  * [Repository] for [User] entities.
@@ -35,7 +36,11 @@ interface UserRepository : Repository<User, Identifier> {
      * @param name the partial name of the users
      * @return the users whose name contains the given string
      */
-    fun findByPartialName(name: String, pagination: PaginationRequest): Pagination<User>
+    fun findByPartialName(
+        name: String,
+        pagination: PaginationRequest,
+        sortRequest: SortRequest,
+    ): Pagination<User>
 
     /**
      * Finds a user by their name and password.
@@ -44,7 +49,10 @@ interface UserRepository : Repository<User, Identifier> {
      * @param password the password of the user
      * @return the user with the given name and password, or `null` if no such user exists
      */
-    fun findByNameAndPassword(name: Name, password: Password): User?
+    fun findByNameAndPassword(
+        name: Name,
+        password: Password,
+    ): User?
 
     /**
      * Finds a user by their email and password.
@@ -53,5 +61,8 @@ interface UserRepository : Repository<User, Identifier> {
      * @param password the password of the user
      * @return the user with the given email and password, or `null` if no such user exists
      */
-    fun findByEmailAndPassword(email: Email, password: Password): User?
+    fun findByEmailAndPassword(
+        email: Email,
+        password: Password,
+    ): User?
 }

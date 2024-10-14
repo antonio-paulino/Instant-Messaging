@@ -1,30 +1,45 @@
 package im.repository.jpa.repositories.jpa
 
-
 import im.repository.jpa.model.user.UserDTO
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Slice
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
 
 @Repository
 interface UserRepositoryJpa : JpaRepository<UserDTO, Long> {
-    @Query("SELECT u FROM UserDTO u WHERE u.name = :name")
     fun findByName(name: String): List<UserDTO>
 
-    @Query("SELECT u FROM UserDTO u WHERE u.email = :email")
     fun findByEmail(email: String): List<UserDTO>
 
     @Query(
-        countQuery = "SELECT COUNT(u) FROM UserDTO u WHERE u.name LIKE CONCAT(:name, '%')",
-        value = "SELECT u FROM UserDTO u WHERE u.name LIKE CONCAT(:name, '%')"
+        countQuery = "SELECT COUNT(u) FROM UserDTO u WHERE lower(u.name) LIKE CONCAT(lower(:name), '%')",
+        value = "SELECT u FROM UserDTO u WHERE lower(u.name) LIKE CONCAT(lower(:name), '%')",
     )
-    fun findByPartialName(name: String, page: Pageable): Page<UserDTO>
+    fun findByPartialName(
+        name: String,
+        page: Pageable,
+    ): Page<UserDTO>
 
-    @Query("SELECT u FROM UserDTO u WHERE u.name = :name AND u.password = :password")
-    fun findByNameAndPassword(name: String, password: String): List<UserDTO>
+    @Query(
+        value = "SELECT u FROM UserDTO u WHERE lower(u.name) LIKE CONCAT(lower(:name), '%')",
+    )
+    fun findByPartialNameSliced(
+        name: String,
+        page: Pageable,
+    ): Slice<UserDTO>
 
-    @Query("SELECT u FROM UserDTO u WHERE u.email = :email AND u.password = :password")
-    fun findByEmailAndPassword(email: String, password: String): List<UserDTO>
+    fun findByNameAndPassword(
+        name: String,
+        password: String,
+    ): List<UserDTO>
+
+    fun findByEmailAndPassword(
+        email: String,
+        password: String,
+    ): List<UserDTO>
+
+    fun findBy(pageable: Pageable): Slice<UserDTO>
 }

@@ -1,10 +1,12 @@
 package im.repository.jpa.repositories
 
-import im.repository.pagination.Pagination
 import im.repository.pagination.PaginationInfo
 import im.repository.pagination.PaginationRequest
+import im.repository.pagination.SortRequest
+import jakarta.persistence.TypedQuery
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Slice
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Component
 
@@ -13,60 +15,54 @@ import org.springframework.stereotype.Component
  */
 @Component
 class JpaRepositoryUtils {
-
-    /**
-     * Converts a Spring [Page] object to a [PaginationInfo] object.
-     */
-    fun <T> getPaginationInfo(page: Page<T>): PaginationInfo {
-        val currentPage = page.pageable.pageNumber + 1
-        val nextPage = if (page.hasNext()) currentPage + 1 else null
-        val prevPage = if (page.hasPrevious()) currentPage - 1 else null
+    fun <T> getPaginationInfo(slice: Slice<T>): PaginationInfo {
+        val currentPage = slice.pageable.pageNumber + 1
+        val nextPage = if (slice.hasNext()) currentPage + 1 else null
+        val prevPage = if (slice.hasPrevious()) currentPage - 1 else null
+        val (total, totalPages) =
+            if (slice is Page<T>) {
+                slice.totalElements to slice.totalPages
+            } else {
+                null to null
+            }
         return PaginationInfo(
-            page.totalElements,
+            total,
             currentPage,
-            page.totalPages,
+            totalPages,
             nextPage,
-            prevPage
+            prevPage,
         )
+    }
+
+    fun <T> handleQueryPagination(
+        query: TypedQuery<T>,
+        pagination: PaginationRequest,
+    ): Pair<List<T>, PaginationInfo> {
+        query.firstResult = (pagination.page - 1) * pagination.size
+        query.maxResults = pagination.size + 1 // +1 to check if there is a next page
+        val res = query.resultList
+        val next = if (res.size <= pagination.size) null else pagination.page + 1
+        val prev = if (pagination.page == 1) null else pagination.page - 1
+        if (next != null) res.removeLast()
+        return Pair(res, PaginationInfo(nextPage = next, prevPage = prev, currentPage = pagination.page))
     }
 
     /**
      * Converts a [PaginationRequest] object to a Spring [PageRequest] object.
      */
-    fun toPageRequest(request: PaginationRequest, property: String): PageRequest {
-        return PageRequest.of(request.page - 1, request.size, toSpringSort(request.sort), property)
-    }
+    fun toPageRequest(
+        request: PaginationRequest,
+        sort: SortRequest,
+    ): PageRequest = PageRequest.of(request.page - 1, request.size, sort.direction.toSpringSortDirection(), sort.sortBy)
 
-    /**
-     * Calculates the pagination information based on the total number of elements and the pagination request.
-     */
-    fun <T> calculatePagination(res: List<T>, total: Long, pagination: PaginationRequest): Pagination<T> {
-        val remainder = if (total % pagination.size == 0L) 0 else 1
-        val totalPages = (total / pagination.size).toInt() + remainder
-        val currentPage = pagination.page
-        val nextPage = if (currentPage + 1 < totalPages) currentPage + 1 else null
-        val prevPage = if (currentPage > 1) currentPage - 1 else null
-
-        return Pagination(
-            res,
-            PaginationInfo(
-                total,
-                totalPages,
-                currentPage,
-                nextPage,
-                prevPage
-            )
-        )
-    }
+    fun toSort(sort: SortRequest): Sort = Sort.by(sort.direction.toSpringSortDirection(), sort.sortBy)
 
     /**
      * Converts a [im.repository.pagination.Sort] object to a Spring [Sort.Direction] object.
      */
-    private fun toSpringSort(sort: im.repository.pagination.Sort): Sort.Direction {
-        return when (sort) {
+    private fun im.repository.pagination.Sort.toSpringSortDirection(): Sort.Direction =
+        when (this) {
             im.repository.pagination.Sort.ASC -> Sort.Direction.ASC
             im.repository.pagination.Sort.DESC -> Sort.Direction.DESC
         }
-    }
-
 }

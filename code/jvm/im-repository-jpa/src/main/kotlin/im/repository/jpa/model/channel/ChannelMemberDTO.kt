@@ -23,17 +23,14 @@ import jakarta.persistence.Table
 open class ChannelMemberDTO(
     @EmbeddedId
     open val id: ChannelMemberId? = null,
-
     @ManyToOne
     @MapsId("channelID")
     @JoinColumn(name = "channel_id", nullable = false)
     open val channel: ChannelDTO = ChannelDTO(),
-
     @ManyToOne
     @MapsId("userID")
     @JoinColumn(name = "user_id", nullable = false)
     open val user: UserDTO = UserDTO(),
-
     @Column(name = "role")
-    open val role: ChannelRoleDTO = ChannelRoleDTO.MEMBER
+    open val role: ChannelRoleDTO = ChannelRoleDTO.MEMBER,
 )

@@ -1,9 +1,9 @@
 package im.repository.repositories.sessions
 
+import im.domain.sessions.Session
+import im.domain.user.User
+import im.domain.wrappers.Identifier
 import im.repository.repositories.Repository
-import im.sessions.Session
-import im.user.User
-import im.wrappers.Identifier
 
 /**
  * [Repository] for [Session] entities.
@@ -16,4 +16,9 @@ interface SessionRepository : Repository<Session, Identifier> {
      * @return the sessions for the user
      */
     fun findByUser(user: User): List<Session>
+
+    /**
+     * Deletes all expired sessions.
+     */
+    fun deleteExpired()
 }

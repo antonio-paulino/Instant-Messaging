@@ -9,7 +9,7 @@ open class ChannelMemberId(
     @Column(name = "channel_id")
     open val channelID: Long = 0,
     @Column(name = "user_id")
-    open val userID: Long = 0
+    open val userID: Long = 0,
 ) : Serializable {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

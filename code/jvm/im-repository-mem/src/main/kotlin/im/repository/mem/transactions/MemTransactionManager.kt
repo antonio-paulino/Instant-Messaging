@@ -14,7 +14,6 @@ import im.repository.repositories.transactions.TransactionIsolation
 import im.repository.repositories.transactions.TransactionManager
 
 class MemTransactionManager : TransactionManager {
-
     private val utils = MemRepoUtils()
 
     private val messageRepository = MemMessageRepositoryImpl(utils)
@@ -24,20 +23,22 @@ class MemTransactionManager : TransactionManager {
     private val channelInvitationRepository = MemChannelInvitationRepositoryImpl(utils)
     private val sessionRepository = MemSessionRepositoryImpl(utils, accessTokenRepository, refreshTokenRepository)
     private val channelRepository = MemChannelRepositoryImpl(utils, messageRepository, channelInvitationRepository)
-    private val userRepository = MemUserRepositoryImpl(
-        utils,
-        channelInvitationRepository,
-        channelRepository,
-        messageRepository,
-        sessionRepository
-    )
+    private val userRepository =
+        MemUserRepositoryImpl(
+            utils,
+            channelInvitationRepository,
+            channelRepository,
+            messageRepository,
+            sessionRepository,
+        )
 
-    override fun <T> run(block: Transaction.() -> T, isolation: TransactionIsolation): T {
-        return newTransaction().block()
-    }
+    override fun <T> run(
+        isolation: TransactionIsolation,
+        block: Transaction.() -> T,
+    ): T = newTransaction().block()
 
-    private fun newTransaction(): Transaction {
-        return MemTransaction(
+    private fun newTransaction(): Transaction =
+        MemTransaction(
             channelRepository,
             userRepository,
             sessionRepository,
@@ -45,7 +46,6 @@ class MemTransactionManager : TransactionManager {
             accessTokenRepository,
             refreshTokenRepository,
             imInvitationRepository,
-            channelInvitationRepository
+            channelInvitationRepository,
         )
-    }
 }

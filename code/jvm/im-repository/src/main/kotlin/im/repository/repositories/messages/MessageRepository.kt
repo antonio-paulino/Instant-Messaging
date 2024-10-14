@@ -1,25 +1,17 @@
 package im.repository.repositories.messages
 
+import im.domain.channel.Channel
+import im.domain.messages.Message
+import im.domain.wrappers.Identifier
 import im.repository.pagination.Pagination
-import im.repository.repositories.Repository
-import im.channel.Channel
-import im.messages.Message
 import im.repository.pagination.PaginationRequest
-import im.wrappers.Identifier
+import im.repository.pagination.SortRequest
+import im.repository.repositories.Repository
 
 /**
  * [Repository] for [Message] entities.
  */
 interface MessageRepository : Repository<Message, Identifier> {
-
-    /**
-     * Finds all messages in a channel.
-     *
-     * @param channel the channel
-     * @return the messages in the channel
-     */
-    fun findByChannel(channel: Channel): List<Message>
-
     /**
      * Finds the messages in a channel with pagination.
      *
@@ -27,5 +19,20 @@ interface MessageRepository : Repository<Message, Identifier> {
      * @param paginationRequest the pagination request
      * @return the latest messages in the channel
      */
-    fun findByChannel(channel: Channel, paginationRequest: PaginationRequest): Pagination<Message>
+    fun findByChannel(
+        channel: Channel,
+        paginationRequest: PaginationRequest,
+        sortRequest: SortRequest,
+    ): Pagination<Message>
+
+    /**
+     * Finds a message by its identifier.
+     *
+     * @param id the identifier of the message
+     * @return the message with the given identifier, or null if not found
+     */
+    fun findByChannelAndId(
+        channel: Channel,
+        id: Identifier,
+    ): Message?
 }

@@ -1,9 +1,10 @@
 package im.repository.jpa.repositories.jpa
 
 import im.repository.jpa.model.channel.ChannelDTO
-import im.repository.jpa.model.channel.ChannelMemberDTO
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Slice
+import org.springframework.data.domain.Sort
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
@@ -12,33 +13,53 @@ import org.springframework.stereotype.Repository
 interface ChannelRepositoryJpa : JpaRepository<ChannelDTO, Long> {
     @Query(
         "SELECT c FROM ChannelDTO c WHERE c.name = :name AND " +
-                "(c.isPublic or NOT :filterPublic = true)"
+            "(c.isPublic or NOT :filterPublic = true)",
     )
-    fun findByName(name: String, filterPublic: Boolean): ChannelDTO?
+    fun findByName(
+        name: String,
+        filterPublic: Boolean,
+    ): ChannelDTO?
 
     @Query(
-        countQuery = "SELECT COUNT(c) FROM ChannelDTO c WHERE c.name LIKE CONCAT(:name, '%') AND " +
+        value =
+            "SELECT c FROM ChannelDTO c WHERE lower(c.name) LIKE CONCAT(lower(:name), '%') AND " +
                 "(c.isPublic or NOT :filterPublic = true)",
-        value = "SELECT c FROM ChannelDTO c WHERE c.name LIKE CONCAT(:name, '%') AND " +
-                "(c.isPublic or NOT :filterPublic = true)"
     )
-    fun findByPartialName(name: String, filterPublic: Boolean, page: Pageable): Page<ChannelDTO>
+    fun findByPartialName(
+        name: String,
+        filterPublic: Boolean,
+        page: Pageable,
+    ): Page<ChannelDTO>
 
     @Query(
-        countQuery = "SELECT COUNT(c) FROM ChannelDTO c WHERE " +
+        value =
+            "SELECT c FROM ChannelDTO c WHERE lower(c.name) LIKE CONCAT(lower(:name), '%') AND " +
                 "(c.isPublic or NOT :filterPublic = true)",
-        value = "SELECT c FROM ChannelDTO c WHERE " +
-                "(c.isPublic or NOT :filterPublic = true)"
     )
-    fun find(filterPublic: Boolean, page: Pageable): Page<ChannelDTO>
+    fun findByPartialNameSliced(
+        name: String,
+        filterPublic: Boolean,
+        page: Pageable,
+    ): Slice<ChannelDTO>
 
     @Query(
-        "SELECT c FROM ChannelDTO as c where c.owner.id = :ownerId"
+        value = "SELECT c FROM ChannelDTO c WHERE c.isPublic or NOT :filterPublic = true",
     )
-    fun findByOwner(ownerId: Long): List<ChannelDTO>
+    fun findAll(
+        page: Pageable,
+        filterPublic: Boolean,
+    ): Page<ChannelDTO>
 
     @Query(
-        "SELECT m FROM ChannelMemberDTO as m where m.user.id = :userId"
+        value = "SELECT c FROM ChannelDTO c JOIN FETCH c.members WHERE c.isPublic or NOT :filterPublic = true",
     )
-    fun findByMember(userId: Long): List<ChannelMemberDTO>
+    fun findBy(
+        page: Pageable,
+        filterPublic: Boolean,
+    ): Slice<ChannelDTO>
+
+    fun findByOwnerId(
+        ownerId: Long,
+        sort: Sort,
+    ): List<ChannelDTO>
 }

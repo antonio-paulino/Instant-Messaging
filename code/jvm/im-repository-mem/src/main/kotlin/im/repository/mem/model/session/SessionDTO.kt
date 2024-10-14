@@ -1,7 +1,7 @@
 package im.repository.mem.model.session
 
+import im.domain.sessions.Session
 import im.repository.mem.model.user.UserDTO
-import im.sessions.Session
 import java.time.LocalDateTime
 
 data class SessionDTO(
@@ -10,16 +10,18 @@ data class SessionDTO(
     val expiresAt: LocalDateTime = LocalDateTime.now().plusDays(90),
 ) {
     companion object {
-        fun fromDomain(session: Session) = SessionDTO(
-            id = session.id.value,
-            user = UserDTO.fromDomain(session.user),
-            expiresAt = session.expiresAt,
-        )
+        fun fromDomain(session: Session) =
+            SessionDTO(
+                id = session.id.value,
+                user = UserDTO.fromDomain(session.user),
+                expiresAt = session.expiresAt,
+            )
     }
 
-    fun toDomain() = Session(
-        id = id,
-        user = user.toDomain(),
-        expiresAt = expiresAt
-    )
+    fun toDomain() =
+        Session(
+            id = id,
+            user = user.toDomain(),
+            expiresAt = expiresAt,
+        )
 }

@@ -1,13 +1,18 @@
 package im.repository.jpa.repositories.jpa
 
 import im.repository.jpa.model.token.AccessTokenDTO
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Slice
 import org.springframework.data.jpa.repository.JpaRepository
-import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
-import java.util.*
+import java.time.LocalDateTime
+import java.util.UUID
 
 @Repository
 interface AccessTokenRepositoryJpa : JpaRepository<AccessTokenDTO, UUID> {
-    @Query("SELECT a FROM AccessTokenDTO a WHERE a.session.id = :sessionId")
-    fun findBySession(sessionId: Long): List<AccessTokenDTO>
+    fun findBySessionId(sessionId: Long): List<AccessTokenDTO>
+
+    fun deleteAllByExpiresAtIsBefore(expiresAt: LocalDateTime = LocalDateTime.now())
+
+    fun findBy(pageable: Pageable): Slice<AccessTokenDTO>
 }

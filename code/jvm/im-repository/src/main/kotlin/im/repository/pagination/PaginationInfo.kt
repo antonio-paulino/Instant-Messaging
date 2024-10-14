@@ -10,9 +10,9 @@ package im.repository.pagination
  * @param prevPage the previous page number or null if there is no previous page
  */
 data class PaginationInfo(
-    val total: Long,
+    val total: Long? = null,
     val currentPage: Int,
-    val totalPages: Int,
+    val totalPages: Int? = null,
     val nextPage: Int?,
-    val prevPage: Int?
+    val prevPage: Int?,
 )

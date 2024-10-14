@@ -1,6 +1,6 @@
 package im.repository.mem.model.user
 
-import im.user.User
+import im.domain.user.User
 
 data class UserDTO(
     val id: Long = 0,
@@ -9,18 +9,20 @@ data class UserDTO(
     val email: String = "",
 ) {
     companion object {
-        fun fromDomain(user: User): UserDTO = UserDTO(
-            id = user.id.value,
-            name = user.name.value,
-            password = user.password.value,
-            email = user.email.value,
-        )
+        fun fromDomain(user: User): UserDTO =
+            UserDTO(
+                id = user.id.value,
+                name = user.name.value,
+                password = user.password.value,
+                email = user.email.value,
+            )
     }
 
-    fun toDomain(): User = User(
-        id = id,
-        name = name,
-        password = password,
-        email = email,
-    )
+    fun toDomain(): User =
+        User(
+            id = id,
+            name = name,
+            password = password,
+            email = email,
+        )
 }

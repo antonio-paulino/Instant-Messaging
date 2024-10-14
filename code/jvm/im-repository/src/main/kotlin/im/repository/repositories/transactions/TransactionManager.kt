@@ -8,7 +8,6 @@ package im.repository.repositories.transactions
  * @see TransactionIsolation
  */
 interface TransactionManager {
-
     /**
      * Executes the given [Transaction] with the specified [TransactionIsolation].
      *
@@ -16,5 +15,8 @@ interface TransactionManager {
      * @param isolation The isolation level of the transaction
      * @return The result of the block.
      */
-    fun <T> run(block: Transaction.() -> T, isolation: TransactionIsolation = TransactionIsolation.DEFAULT): T
+    fun <T> run(
+        isolation: TransactionIsolation = TransactionIsolation.DEFAULT,
+        block: Transaction.() -> T,
+    ): T
 }

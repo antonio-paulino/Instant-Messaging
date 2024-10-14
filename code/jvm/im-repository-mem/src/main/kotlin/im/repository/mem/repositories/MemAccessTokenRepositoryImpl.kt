@@ -1,19 +1,19 @@
 package im.repository.mem.repositories
 
+import im.domain.sessions.Session
+import im.domain.tokens.AccessToken
+import im.repository.mem.model.token.AccessTokenDTO
 import im.repository.pagination.Pagination
 import im.repository.pagination.PaginationRequest
+import im.repository.pagination.SortRequest
 import im.repository.repositories.tokens.AccessTokenRepository
-import im.repository.mem.model.token.AccessTokenDTO
-import im.sessions.Session
-import im.tokens.AccessToken
-import java.util.*
+import java.time.LocalDateTime
+import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
-
 class MemAccessTokenRepositoryImpl(
-    private val utils: MemRepoUtils
+    private val utils: MemRepoUtils,
 ) : AccessTokenRepository {
-
     private val accessTokens = ConcurrentHashMap<UUID, AccessTokenDTO>()
 
     override fun save(entity: AccessToken): AccessToken {
@@ -27,8 +27,14 @@ class MemAccessTokenRepositoryImpl(
         }
     }
 
-    override fun findBySession(session: Session): List<AccessToken> {
-        return accessTokens.values.filter { it.session.id == session.id.value }.map { it.toDomain() }
+    override fun findBySession(session: Session): List<AccessToken> =
+        accessTokens.values
+            .filter {
+                it.session.id == session.id.value
+            }.map { it.toDomain() }
+
+    override fun deleteExpired() {
+        accessTokens.values.filter { it.expiresAt.isBefore(LocalDateTime.now()) }.forEach { delete(it.toDomain()) }
     }
 
     override fun saveAll(entities: Iterable<AccessToken>): List<AccessToken> {
@@ -36,22 +42,19 @@ class MemAccessTokenRepositoryImpl(
         return newEntities.toList()
     }
 
-    override fun findById(id: UUID): AccessToken? {
-        return accessTokens[id]?.toDomain()
-    }
+    override fun findById(id: UUID): AccessToken? = accessTokens[id]?.toDomain()
 
-    override fun findAll(): List<AccessToken> {
-        return accessTokens.values.map { it.toDomain() }
-    }
+    override fun findAll(): List<AccessToken> = accessTokens.values.map { it.toDomain() }
 
-    override fun find(pagination: PaginationRequest): Pagination<AccessToken> {
-        val page = utils.paginate(accessTokens.values.toList(), pagination, "expiresAt")
+    override fun find(
+        pagination: PaginationRequest,
+        sortRequest: SortRequest,
+    ): Pagination<AccessToken> {
+        val page = utils.paginate(accessTokens.values.toList(), pagination, sortRequest, pagination.getCount)
         return Pagination(page.items.map { it.toDomain() }, page.info)
     }
 
-    override fun findAllById(ids: Iterable<UUID>): List<AccessToken> {
-        return accessTokens.values.filter { it.token in ids }.map { it.toDomain() }
-    }
+    override fun findAllById(ids: Iterable<UUID>): List<AccessToken> = accessTokens.values.filter { it.token in ids }.map { it.toDomain() }
 
     override fun deleteById(id: UUID) {
         if (accessTokens.containsKey(id)) {
@@ -59,13 +62,9 @@ class MemAccessTokenRepositoryImpl(
         }
     }
 
-    override fun existsById(id: UUID): Boolean {
-        return accessTokens.containsKey(id)
-    }
+    override fun existsById(id: UUID): Boolean = accessTokens.containsKey(id)
 
-    override fun count(): Long {
-        return accessTokens.size.toLong()
-    }
+    override fun count(): Long = accessTokens.size.toLong()
 
     override fun deleteAll() {
         accessTokens.forEach { delete(it.value.toDomain()) }

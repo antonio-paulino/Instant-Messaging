@@ -12,12 +12,12 @@ import im.repository.repositories.transactions.Transaction
 import im.repository.repositories.transactions.TransactionIsolation
 import im.repository.repositories.transactions.TransactionManager
 import org.hibernate.type.SerializationException
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.TransactionDefinition
 import org.springframework.transaction.TransactionStatus
 import org.springframework.transaction.support.DefaultTransactionDefinition
-import org.slf4j.LoggerFactory
 
 private const val MAX_SERIALIZABLE_RETRIES = 3
 
@@ -31,20 +31,23 @@ class TransactionManagerJpa(
     private val refreshTokenRepository: RefreshTokenRepositoryImpl,
     private val imInvitationRepository: ImInvitationRepositoryImpl,
     private val channelInvitationRepository: ChannelInvitationRepositoryImpl,
-    private val manager: PlatformTransactionManager
+    private val manager: PlatformTransactionManager,
 ) : TransactionManager {
-
-    override fun <T> run(block: Transaction.() -> T, isolation: TransactionIsolation): T {
+    override fun <T> run(
+        isolation: TransactionIsolation,
+        block: Transaction.() -> T,
+    ): T {
         val definition = DefaultTransactionDefinition()
         definition.isolationLevel = convertIsolation(isolation)
         var tries = 1
         while (true) {
+            val time = System.nanoTime()
             val transaction = manager.getTransaction(definition)
             logger.debug("Starting transaction with isolation {}", isolation)
             try {
                 val result = newTransaction(transaction).block()
                 manager.commit(transaction)
-                logger.debug("Transaction succeeded")
+                logger.debug("Transaction succeeded in {} ms", (System.nanoTime() - time) / 1_000_000)
                 return result
             } catch (e: Exception) {
                 logger.debug("Transaction failed", e)
@@ -56,7 +59,6 @@ class TransactionManagerJpa(
                     tries++
                     continue
                 }
-                logger.error("Transaction failed:", e)
                 throw e
             }
         }
@@ -83,7 +85,7 @@ class TransactionManagerJpa(
             refreshTokenRepository,
             imInvitationRepository,
             channelInvitationRepository,
-            messageRepository
+            messageRepository,
         )
     }
 
