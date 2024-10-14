@@ -79,7 +79,7 @@ class UserRepositoryImpl(
         return Pagination(res.content.map { it.toDomain() }, utils.getPaginationInfo(res))
     }
 
-    override fun findAllById(ids: Iterable<im.domain.wrappers.Identifier>): List<User> =
+    override fun findAllById(ids: Iterable<Identifier>): List<User> =
         userRepositoryJpa
             .findAllById(
                 ids.map {
@@ -107,7 +107,7 @@ class UserRepositoryImpl(
         userRepositoryJpa.delete(UserDTO.fromDomain(entity))
     }
 
-    override fun deleteAllById(ids: Iterable<im.domain.wrappers.Identifier>) {
+    override fun deleteAllById(ids: Iterable<Identifier>) {
         userRepositoryJpa.deleteAllById(ids.map { it.value })
     }
 

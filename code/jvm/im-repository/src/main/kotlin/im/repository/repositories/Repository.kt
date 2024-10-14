@@ -33,7 +33,7 @@ interface Repository<T, ID> {
      * Finds an entity by its ID.
      *
      * @param id the ID of the entity
-     * @return an [Optional] containing the entity, or an empty [Optional] if the entity is not found
+     * @return an entity with the given ID, or `null` if no entity with the given ID exists
      */
     fun findById(id: ID): T?
 

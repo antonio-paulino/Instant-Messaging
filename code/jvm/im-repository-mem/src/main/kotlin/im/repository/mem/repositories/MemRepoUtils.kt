@@ -5,10 +5,8 @@ import im.repository.pagination.PaginationInfo
 import im.repository.pagination.PaginationRequest
 import im.repository.pagination.Sort
 import im.repository.pagination.SortRequest
-import java.awt.SystemColor.info
 
 class MemRepoUtils {
-    @Suppress("UNCHECKED_CAST")
     inline fun <reified T> paginate(
         items: List<T>,
         pagination: PaginationRequest,

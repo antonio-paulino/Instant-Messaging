@@ -24,12 +24,4 @@ interface ChannelMemberRepositoryJpa : JpaRepository<ChannelMemberDTO, ChannelMe
         userId: Long,
         sort: Sort,
     ): List<ChannelMemberDTO>
-
-    @Query(
-        value =
-            "SELECT cm FROM ChannelDTO c " +
-                "JOIN ChannelMemberDTO cm ON c.id = cm.channel.id " +
-                "WHERE c.id IN :channelIds",
-    )
-    fun findByChannelIds(channelIds: List<Long>): List<ChannelMemberDTO>
 }

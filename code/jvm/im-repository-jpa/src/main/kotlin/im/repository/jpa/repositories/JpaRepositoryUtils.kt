@@ -3,7 +3,6 @@ package im.repository.jpa.repositories
 import im.repository.pagination.PaginationInfo
 import im.repository.pagination.PaginationRequest
 import im.repository.pagination.SortRequest
-import jakarta.persistence.TypedQuery
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Slice
@@ -32,19 +31,6 @@ class JpaRepositoryUtils {
             nextPage,
             prevPage,
         )
-    }
-
-    fun <T> handleQueryPagination(
-        query: TypedQuery<T>,
-        pagination: PaginationRequest,
-    ): Pair<List<T>, PaginationInfo> {
-        query.firstResult = (pagination.page - 1) * pagination.size
-        query.maxResults = pagination.size + 1 // +1 to check if there is a next page
-        val res = query.resultList
-        val next = if (res.size <= pagination.size) null else pagination.page + 1
-        val prev = if (pagination.page == 1) null else pagination.page - 1
-        if (next != null) res.removeLast()
-        return Pair(res, PaginationInfo(nextPage = next, prevPage = prev, currentPage = pagination.page))
     }
 
     /**
