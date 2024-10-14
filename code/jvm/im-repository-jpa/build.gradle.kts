@@ -20,8 +20,26 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+    dependsOn(":im-repository-jpa:dbTestsWait")
+    finalizedBy(":im-repository-jpa:dbTestsDown")
 }
 
 kotlin {
     jvmToolchain(21)
+}
+
+val composeFileDir: Directory = rootProject.layout.projectDirectory
+val dockerComposePath = composeFileDir.file("docker-compose.yml").toString()
+
+task<Exec>("dbTestsUp") {
+    commandLine("docker", "compose", "-f", dockerComposePath, "up", "-d", "--build", "--force-recreate", "db-test")
+}
+
+task<Exec>("dbTestsWait") {
+    commandLine("docker", "exec", "db-test", "/app/bin/wait-for-postgres.sh", "localhost")
+    dependsOn("dbTestsUp")
+}
+
+task<Exec>("dbTestsDown") {
+    commandLine("docker", "compose", "-f", dockerComposePath, "down", "db-test")
 }

@@ -1,6 +1,6 @@
 services:
-  postgres:
-    container_name: DAW-IM2
+  db-test:
+    container_name: db-test
     build:
       context: .
       dockerfile: ./Dockerfile
@@ -10,3 +10,14 @@ services:
       - POSTGRES_DB=iseldawdev
     ports:
       - "5432:5432"
+  production:
+    container_name: production
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    environment:
+      - POSTGRES_PASSWORD=isel
+      - POSTGRES_USER=isel
+      - POSTGRES_DB=iseldaw
+    ports:
+      - "5433:5432"
