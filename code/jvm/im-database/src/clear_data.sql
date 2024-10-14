@@ -1,0 +1,22 @@
+TRUNCATE access_token CASCADE;
+
+TRUNCATE refresh_token CASCADE;
+
+TRUNCATE im_invitation CASCADE;
+
+TRUNCATE channel_member CASCADE;
+
+TRUNCATE channel_invitation CASCADE;
+ALTER SEQUENCE channel_invitation_id_seq RESTART WITH 1;
+
+TRUNCATE message CASCADE;
+ALTER SEQUENCE message_id_seq RESTART WITH 1;
+
+TRUNCATE channel CASCADE;
+ALTER SEQUENCE channel_id_seq RESTART WITH 1;
+
+TRUNCATE session CASCADE;
+ALTER SEQUENCE session_id_seq RESTART WITH 1;
+
+TRUNCATE users CASCADE;
+ALTER SEQUENCE users_id_seq RESTART WITH 1;

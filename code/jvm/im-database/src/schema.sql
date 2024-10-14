@@ -1,112 +1,102 @@
-drop table if exists access_token cascade;
-drop table if exists refresh_token cascade;
-drop table if exists im_invitation cascade;
-drop table if exists channel_member cascade;
-drop table if exists channel_invitation cascade;
-drop table if exists message cascade;
-drop table if exists channel cascade;
-drop table if exists session cascade;
-drop table if exists users cascade;
+-- Creates the tables and constraints for the database schema.
+DROP TABLE IF EXISTS ACCESS_TOKEN CASCADE;
+DROP TABLE IF EXISTS REFRESH_TOKEN CASCADE;
+DROP TABLE IF EXISTS IM_INVITATION CASCADE;
+DROP TABLE IF EXISTS CHANNEL_MEMBER CASCADE;
+DROP TABLE IF EXISTS CHANNEL_INVITATION CASCADE;
+DROP TABLE IF EXISTS MESSAGE CASCADE;
+DROP TABLE IF EXISTS CHANNEL CASCADE;
+DROP TABLE IF EXISTS SESSION CASCADE;
+DROP TABLE IF EXISTS USERS CASCADE;
+DROP INDEX IF EXISTS IDX_MESSAGE_CREATED_AT;
+DROP INDEX IF EXISTS IDX_CHANNEL_INVITATION_CHANNEL_ID;
+DROP INDEX IF EXISTS IDX_CHANNEL_INVITATION_INVITEE;
+DROP INDEX IF EXISTS IDX_CHANNEL_MEMBER_USER_ID;
 
-
-create table users
+CREATE TABLE USERS
 (
-    id       bigserial primary key,
-    name     varchar(30) unique not null,
-    password varchar(100)       not null,
-    email    varchar(50) unique not null,
-    check ( email ~* '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$' )
+    id       BIGSERIAL PRIMARY KEY,
+    name     VARCHAR(30) UNIQUE NOT NULL,
+    password VARCHAR(100)       NOT NULL,
+    email    VARCHAR(50) UNIQUE NOT NULL,
+    CONSTRAINT valid_email CHECK (email ~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$' )
 );
 
-create table session
+CREATE TABLE SESSION
 (
-    id         bigserial primary key,
-    user_id    bigint    not null references users (id) on delete cascade,
-    expires_at timestamp not null default current_timestamp + interval '90 day'
+    id         BIGSERIAL PRIMARY KEY,
+    user_id    BIGINT    NOT NULL REFERENCES USERS (id) ON DELETE CASCADE,
+    expires_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP + INTERVAL '90 DAY'
 );
 
-create table access_token
+CREATE TABLE ACCESS_TOKEN
 (
-    token      uuid primary key,
-    session_id bigint    not null references session (id) on delete cascade,
-    expires_at timestamp not null default current_timestamp + interval '1 day'
+    token      UUID PRIMARY KEY,
+    session_id BIGINT    NOT NULL REFERENCES SESSION (ID) ON DELETE CASCADE,
+    expires_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP + INTERVAL '1 DAY'
 );
 
-create table refresh_token
+CREATE TABLE REFRESH_TOKEN
 (
-    token      uuid primary key,
-    session_id bigint not null references session (id) on delete cascade
+    token      UUID PRIMARY KEY,
+    session_id BIGINT NOT NULL REFERENCES SESSION (id) ON DELETE CASCADE
 );
 
-create table im_invitation
+CREATE TABLE IM_INVITATION
 (
-    token      uuid primary key,
-    expires_at timestamp   not null default current_timestamp + interval '7 day',
-    status     varchar(10) not null default 'PENDING'
-        CHECK (status in ('PENDING', 'USED'))
+    token      UUID PRIMARY KEY,
+    expires_at TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP + INTERVAL '7 DAY',
+    status     VARCHAR(10) NOT NULL DEFAULT 'PENDING'
+        CONSTRAINT valid_im_invitation_status CHECK (status IN ('PENDING', 'USED'))
 );
 
-create table channel
+CREATE TABLE CHANNEL
 (
-    id         bigserial primary key,
-    name       varchar(30) unique not null,
-    owner      bigint             not null references users (id) on delete cascade,
-    is_public  boolean            not null,
-    created_at timestamp          not null default current_timestamp
+    id         BIGSERIAL PRIMARY KEY,
+    name       VARCHAR(30) UNIQUE NOT NULL,
+    owner      BIGINT             NOT NULL REFERENCES USERS (id) ON DELETE CASCADE,
+    is_public  BOOLEAN            NOT NULL,
+    created_at TIMESTAMP          NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-create table channel_member
+CREATE TABLE CHANNEL_MEMBER
 (
-    channel_id bigint      not null references channel (id) on delete cascade,
-    user_id    bigint      not null references users (id) on delete cascade,
-    role       varchar(10) not null default 'MEMBER',
-    check (role in ('OWNER', 'MEMBER', 'GUEST')),
-    primary key (channel_id, user_id)
+    channel_id BIGINT      NOT NULL REFERENCES CHANNEL (id) ON DELETE CASCADE,
+    user_id    BIGINT      NOT NULL REFERENCES USERS (id) ON DELETE CASCADE,
+    role       VARCHAR(10) NOT NULL DEFAULT 'MEMBER',
+
+    PRIMARY KEY (channel_id, user_id),
+
+    CONSTRAINT valid_member_role CHECK (role IN ('OWNER', 'MEMBER', 'GUEST'))
 );
 
-create table message
+CREATE TABLE MESSAGE
 (
-    id         bigserial primary key,
-    channel_id bigint    not null references channel (id) on delete cascade,
-    user_id    bigint    not null references users (id) on delete cascade,
-    content    text      not null,
-    created_at timestamp not null default current_timestamp,
-    edited_at  timestamp          default null
+    id         BIGSERIAL,
+    channel_id BIGINT    NOT NULL REFERENCES CHANNEL (id) ON DELETE CASCADE,
+    user_id    BIGINT    NOT NULL REFERENCES USERS (id) ON DELETE CASCADE,
+    content    TEXT      NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    edited_at  TIMESTAMP          DEFAULT NULL,
+    PRIMARY KEY (channel_id, id)
 );
 
-create table channel_invitation
+CREATE TABLE CHANNEL_INVITATION
 (
-    id         bigserial primary key,
-    channel_id bigint      not null references channel (id) on delete cascade,
-    inviter    bigint      not null references users (id) on delete cascade,
-    invitee    bigint      not null references users (id) on delete cascade,
-    expires_at timestamp   not null default current_timestamp + interval '7 day',
-    role       varchar(10) not null default 'MEMBER',
-    status     varchar(10) not null default 'PENDING',
-    CHECK (status in ('PENDING', 'ACCEPTED', 'REJECTED')),
-    CHECK (role in ('MEMBER', 'GUEST'))
+    id         BIGSERIAL PRIMARY KEY,
+    channel_id BIGINT      NOT NULL REFERENCES CHANNEL (id) ON DELETE CASCADE,
+    inviter    BIGINT      NOT NULL REFERENCES USERS (id) ON DELETE CASCADE,
+    invitee    BIGINT      NOT NULL REFERENCES USERS (id) ON DELETE CASCADE,
+    expires_at TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP + INTERVAL '7 DAY',
+    role       VARCHAR(10) NOT NULL DEFAULT 'MEMBER',
+    status     VARCHAR(10) NOT NULL DEFAULT 'PENDING',
+
+    CONSTRAINT valid_channel_invitation_status CHECK (status IN ('PENDING', 'ACCEPTED', 'REJECTED')),
+    CONSTRAINT valid_channel_role CHECK (role IN ('MEMBER', 'GUEST'))
 );
 
-CREATE OR REPLACE FUNCTION prevent_reused_invitation()
-    RETURNS TRIGGER AS
-$$
-BEGIN
-    IF NEW.status = 'USED' AND OLD.status = 'USED' THEN
-        RAISE EXCEPTION 'Cannot set status to USED if it is already USED';
-    END IF;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
+CREATE INDEX IDX_MESSAGE_CREATED_AT ON MESSAGE (created_at);
+CREATE INDEX IDX_CHANNEL_INVITATION_CHANNEL_ID ON CHANNEL_INVITATION (channel_id);
+CREATE INDEX IDX_CHANNEL_INVITATION_INVITEE ON CHANNEL_INVITATION (invitee);
+CREATE INDEX IDX_CHANNEL_MEMBER_USER_ID ON CHANNEL_MEMBER (user_id);
 
-CREATE TRIGGER prevent_reused_invitation_trigger
-    BEFORE UPDATE
-    ON im_invitation
-    FOR EACH ROW
-EXECUTE FUNCTION prevent_reused_invitation();
-
-select *
-from users;
-select *
-from channel;
-select *
-from channel_member;
