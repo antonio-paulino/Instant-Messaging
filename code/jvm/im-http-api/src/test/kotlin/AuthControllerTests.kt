@@ -4,6 +4,7 @@ import im.api.model.input.body.AuthenticationInputModel
 import im.api.model.input.body.ImInvitationCreationInputModel
 import im.api.model.input.body.UserCreationInputModel
 import im.api.model.output.credentials.CredentialsOutputModel
+import im.api.model.output.users.UserCreationOutputModel
 import im.api.model.problems.ProblemOutputModel
 import im.domain.invitations.ImInvitation
 import im.domain.invitations.ImInvitationStatus
@@ -158,7 +159,7 @@ abstract class AuthControllerTests {
     }
 
     @Test
-    fun `register should create user and return tokens with 201`() {
+    fun `register should create user and it's ID with 201`() {
         val credentials =
             UserCreationInputModel(
                 "testuser2",
@@ -178,17 +179,12 @@ abstract class AuthControllerTests {
             .isCreated
             .expectHeader()
             .contentType("application/json")
-            .expectCookie()
-            .exists("access_token")
-            .expectCookie()
-            .exists("refresh_token")
             .expectHeader()
             .valueMatches("Location", "/api/users/\\d+")
-            .expectBody(CredentialsOutputModel::class.java)
+            .expectBody(UserCreationOutputModel::class.java)
             .consumeWith {
                 val res = it.responseBody!!
-                assertNotNull(res.accessToken)
-                assertNotNull(res.refreshToken)
+                assertNotNull(res.id)
             }
     }
 
@@ -486,7 +482,7 @@ abstract class AuthControllerTests {
     }
 
     @Test
-    fun `login and register should create different sessions`() {
+    fun `only login should create a session`() {
         val client = getClient()
 
         val credentials =
@@ -497,7 +493,6 @@ abstract class AuthControllerTests {
             )
 
         var sessionId1: Long? = null
-        var sessionId2: Long? = null
 
         client
             .post()
@@ -537,22 +532,13 @@ abstract class AuthControllerTests {
             .isCreated
             .expectHeader()
             .contentType("application/json")
-            .expectCookie()
-            .exists("access_token")
-            .expectCookie()
-            .exists("refresh_token")
-            .expectBody(CredentialsOutputModel::class.java)
+            .expectBody(UserCreationOutputModel::class.java)
             .consumeWith {
                 val res = it.responseBody!!
-                assertNotNull(res.accessToken)
-                assertNotNull(res.refreshToken)
-                sessionId2 = res.sessionID
+                assertNotNull(res.id)
             }
 
         assertNotNull(sessionId1)
-        assertNotNull(sessionId2)
-
-        assertNotEquals(sessionId1, sessionId2)
     }
 
     @Test

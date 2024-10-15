@@ -120,16 +120,16 @@ abstract class AuthServiceTest {
     }
 
     @Test
-    fun `register should create user and return tokens`() {
+    fun `register should create user and return ID`() {
         val username = Name("username")
         val password = Password("password")
         val email = Email("testdaw@isel.pt")
         val invitationCode = invitationCode1.token
         val result = authService.register(username, password, email, invitationCode)
-        assertIs<Success<Pair<AccessToken, RefreshToken>>>(result)
-        val (accessToken, refreshToken) = result.value
-        assertNotNull(accessToken)
-        assertNotNull(refreshToken)
+        assertIs<Success<User>>(result)
+        val user = result.value
+        assertEquals(username, user.name)
+        assertEquals(email, user.email)
     }
 
     @Test
@@ -279,7 +279,7 @@ abstract class AuthServiceTest {
     }
 
     @Test
-    fun `login and register should create different sessions`() {
+    fun `login with valid username and email should return valid tokens`() {
         val username = Name("username")
         val password = Password("password")
         val email = Email("testdaw@isel.pt")
@@ -290,16 +290,17 @@ abstract class AuthServiceTest {
 
         val session3 = authService.login(null, password, email)
 
-        assertIs<Success<Pair<AccessToken, RefreshToken>>>(session1)
+        assertIs<Success<User>>(session1)
         assertIs<Success<Pair<AccessToken, RefreshToken>>>(session2)
         assertIs<Success<Pair<AccessToken, RefreshToken>>>(session3)
 
-        val session1Value = session1.value.first.session
+        val session1Value = session1.value
+
         val session2Value = session2.value.first.session
         val session3Value = session3.value.first.session
 
-        assertNotEquals(session1Value, session2Value)
-        assertNotEquals(session1Value, session3Value)
+        assertEquals(username, session1Value.name)
+        assertEquals(email, session1Value.email)
         assertNotEquals(session2Value, session3Value)
     }
 
@@ -310,8 +311,16 @@ abstract class AuthServiceTest {
         val email = Email("testdaw@isel.pt")
         val invitationCode = invitationCode1.token
         val registerResult = authService.register(username, password, email, invitationCode)
-        assertIs<Success<Pair<AccessToken, RefreshToken>>>(registerResult)
-        val (accessToken, refreshToken) = registerResult.value
+        assertIs<Success<User>>(registerResult)
+        val resultUser = registerResult.value
+
+        assertEquals(username, resultUser.name)
+        assertEquals(email, resultUser.email)
+
+        val loginResult = authService.login(username, password, null)
+        assertIs<Success<Pair<AccessToken, RefreshToken>>>(loginResult)
+
+        val (accessToken, refreshToken) = loginResult.value
 
         val result = authService.refreshSession(refreshToken.token)
         assertIs<Success<Pair<AccessToken, RefreshToken>>>(result)
@@ -351,8 +360,18 @@ abstract class AuthServiceTest {
         val email = Email("testdaw@isel.pt")
         val invitationCode = invitationCode1.token
         val registerResult = authService.register(username, password, email, invitationCode)
-        assertIs<Success<Pair<AccessToken, RefreshToken>>>(registerResult)
-        val (accessToken, _) = registerResult.value
+        assertIs<Success<User>>(registerResult)
+
+        val resultUser = registerResult.value
+
+        assertEquals(username, resultUser.name)
+        assertEquals(email, resultUser.email)
+
+        val loginResult = authService.login(username, password, null)
+
+        assertIs<Success<Pair<AccessToken, RefreshToken>>>(loginResult)
+
+        val (accessToken, _) = loginResult.value
 
         val result = authService.authenticate(accessToken.token)
         assertIs<Success<User>>(result)
@@ -386,12 +405,20 @@ abstract class AuthServiceTest {
         val email = Email("testdaw@isel.pt")
         val invitationCode = invitationCode1.token
         val registerResult = authService.register(username, password, email, invitationCode)
-        assertIs<Success<Pair<AccessToken, RefreshToken>>>(registerResult)
+        assertIs<Success<User>>(registerResult)
 
-        val auth1 = authService.authenticate(registerResult.value.first.token)
+        val resultUser = registerResult.value
+
+        assertEquals(username, resultUser.name)
+        assertEquals(email, resultUser.email)
+
+        val loginResult = authService.login(username, password, null)
+        assertIs<Success<Pair<AccessToken, RefreshToken>>>(loginResult)
+
+        val auth1 = authService.authenticate(loginResult.value.first.token)
         assertIs<Success<User>>(auth1)
 
-        val (accessToken, _) = registerResult.value
+        val (accessToken, _) = loginResult.value
         val logoutResult = authService.logout(accessToken.token)
 
         assertIs<Success<Unit>>(logoutResult)
@@ -409,8 +436,17 @@ abstract class AuthServiceTest {
         val email = Email("testdaw@isel.pt")
         val invitationCode = invitationCode1.token
         val registerResult = authService.register(username, password, email, invitationCode)
-        assertIs<Success<Pair<AccessToken, RefreshToken>>>(registerResult)
-        val (accessToken, _) = registerResult.value
+        assertIs<Success<User>>(registerResult)
+
+        val resultUser = registerResult.value
+
+        assertEquals(username, resultUser.name)
+        assertEquals(email, resultUser.email)
+
+        val loginResult = authService.login(username, password, null)
+        assertIs<Success<Pair<AccessToken, RefreshToken>>>(loginResult)
+
+        val (accessToken, _) = loginResult.value
 
         val result = authService.logout(accessToken.token)
         assertIs<Success<Unit>>(result)
@@ -453,13 +489,18 @@ abstract class AuthServiceTest {
     }
 
     @Test
-    fun `create invitation, try to register 2 users with the same one, and then log out`() {
+    fun `create invitation, try to register 2 users with the same one`() {
         val username = Name("username")
         val password = Password("password")
         val email = Email("testdaw@isel.pt")
         val invitationCode = invitationCode1.token
-        val session1 = authService.register(username, password, email, invitationCode)
-        assertIs<Success<Pair<AccessToken, RefreshToken>>>(session1)
+        val register1 = authService.register(username, password, email, invitationCode)
+        assertIs<Success<User>>(register1)
+
+        val session1ResultUser = register1.value
+
+        assertEquals(username, session1ResultUser.name)
+        assertEquals(email, session1ResultUser.email)
 
         val expiration = LocalDateTime.now().plusDays(1)
         val invitation = authService.createInvitation(expiration)
@@ -469,8 +510,13 @@ abstract class AuthServiceTest {
         val username2 = Name("username2")
         val password2 = Password("password2")
         val email2 = Email("testdaw2@isel.pt")
-        val session2 = authService.register(username2, password2, email2, invitationCode2)
-        assertIs<Success<Pair<AccessToken, RefreshToken>>>(session2)
+        val register2 = authService.register(username2, password2, email2, invitationCode2)
+        assertIs<Success<User>>(register2)
+
+        val session2ResultUser = register2.value
+
+        assertEquals(username2, session2ResultUser.name)
+        assertEquals(email2, session2ResultUser.email)
 
         val username3 = Name("username3")
         val password3 = Password("password3")
@@ -479,11 +525,5 @@ abstract class AuthServiceTest {
         assertIs<Failure<AuthError>>(session3)
         val error = session3.value
         assertIs<AuthError.InvitationAlreadyUsed>(error)
-
-        val res = authService.logout(session1.value.first.token)
-        assertIs<Success<Unit>>(res)
-
-        val res2 = authService.logout(session2.value.first.token)
-        assertIs<Success<Unit>>(res2)
     }
 }
