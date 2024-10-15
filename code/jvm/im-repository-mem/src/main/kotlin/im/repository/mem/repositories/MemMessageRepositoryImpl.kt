@@ -23,7 +23,7 @@ class MemMessageRepositoryImpl(
         sortRequest: SortRequest,
     ): Pagination<Message> {
         val filteredMessages = messages.values.filter { (it.channel.id) == channel.id.value }
-        val page = utils.paginate(filteredMessages, paginationRequest, sortRequest, paginationRequest.getCount)
+        val page = utils.paginate(filteredMessages, paginationRequest, sortRequest)
         return Pagination(page.items.map { it.toDomain() }, page.info)
     }
 
@@ -63,7 +63,6 @@ class MemMessageRepositoryImpl(
                 messages.values.map { MessageDTO.fromDomain(it.toDomain()) },
                 pagination,
                 sortRequest,
-                pagination.getCount,
             )
         return Pagination(page.items.map { it.toDomain() }, page.info)
     }

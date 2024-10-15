@@ -37,22 +37,23 @@ class MemChannelInvitationRepositoryImpl(
         channel: Channel,
         status: ChannelInvitationStatus,
         sortRequest: SortRequest,
-    ): List<ChannelInvitation> =
-        utils.handleSort(
-            invitations.values
-                .filter { it.channel.id == channel.id.value && it.status == status }
-                .map { it.toDomain() },
+        paginationRequest: PaginationRequest,
+    ): Pagination<ChannelInvitation> =
+        utils.paginate(
+            invitations.values.filter { it.channel.id == channel.id.value && it.status == status }.map { it.toDomain() },
+            paginationRequest,
             sortRequest,
         )
 
     override fun findByInvitee(
         user: User,
+        status: ChannelInvitationStatus,
         sortRequest: SortRequest,
-    ): List<ChannelInvitation> =
-        utils.handleSort(
-            invitations.values
-                .filter { it.invitee.id == user.id.value }
-                .map { it.toDomain() },
+        paginationRequest: PaginationRequest,
+    ): Pagination<ChannelInvitation> =
+        utils.paginate(
+            invitations.values.filter { it.invitee.id == user.id.value && it.status == status }.map { it.toDomain() },
+            paginationRequest,
             sortRequest,
         )
 
@@ -81,7 +82,7 @@ class MemChannelInvitationRepositoryImpl(
         pagination: PaginationRequest,
         sortRequest: SortRequest,
     ): Pagination<ChannelInvitation> {
-        val page = utils.paginate(invitations.values.toList(), pagination, sortRequest, pagination.getCount)
+        val page = utils.paginate(invitations.values.toList(), pagination, sortRequest)
         return Pagination(page.items.map { it.toDomain() }, page.info)
     }
 

@@ -25,21 +25,45 @@ class ChannelInvitationRepositoryImpl(
         channel: Channel,
         status: ChannelInvitationStatus,
         sortRequest: SortRequest,
-    ): List<ChannelInvitation> =
-        channelInvitationRepositoryJpa
-            .findByChannelIdAndStatus(
-                channel.id.value,
-                ChannelInvitationStatusDTO.valueOf(status.name),
-                utils.toSort(sortRequest),
-            ).map { it.toDomain() }
+        paginationRequest: PaginationRequest,
+    ): Pagination<ChannelInvitation> {
+        val pagination = utils.toPageRequest(paginationRequest, sortRequest)
+        val res =
+            if (paginationRequest.getCount) {
+                channelInvitationRepositoryJpa.findByChannelIdAndStatus(
+                    channel.id.value,
+                    ChannelInvitationStatusDTO.fromDomain(status),
+                    pagination,
+                )
+            } else {
+                channelInvitationRepositoryJpa.findByChannelIdAndStatusSliced(
+                    channel.id.value,
+                    ChannelInvitationStatusDTO.fromDomain(status),
+                    pagination,
+                )
+            }
+        return Pagination(res.content.map { it.toDomain() }, utils.getPaginationInfo(res))
+    }
 
     override fun findByInvitee(
         user: User,
+        status: ChannelInvitationStatus,
         sortRequest: SortRequest,
-    ): List<ChannelInvitation> =
-        channelInvitationRepositoryJpa
-            .findByInviteeId(user.id.value, utils.toSort(sortRequest))
-            .map { it.toDomain() }
+        paginationRequest: PaginationRequest,
+    ): Pagination<ChannelInvitation> {
+        val pagination = utils.toPageRequest(paginationRequest, sortRequest)
+        val res =
+            if (paginationRequest.getCount) {
+                channelInvitationRepositoryJpa.findByInviteeId(user.id.value, ChannelInvitationStatusDTO.fromDomain(status), pagination)
+            } else {
+                channelInvitationRepositoryJpa.findByInviteeIdSliced(
+                    user.id.value,
+                    ChannelInvitationStatusDTO.fromDomain(status),
+                    pagination,
+                )
+            }
+        return Pagination(res.content.map { it.toDomain() }, utils.getPaginationInfo(res))
+    }
 
     override fun findByInviteeAndChannel(
         user: User,

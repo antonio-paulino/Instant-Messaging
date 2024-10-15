@@ -5,6 +5,8 @@ sealed class AuthError {
         val message: String,
     ) : AuthError()
 
+    data object SessionLimitReached : AuthError()
+
     data object InvalidInvitationCode : AuthError()
 
     data object InvitationAlreadyUsed : AuthError()

@@ -5,6 +5,8 @@ import im.domain.invitations.ChannelInvitation
 import im.domain.invitations.ChannelInvitationStatus
 import im.domain.user.User
 import im.domain.wrappers.Identifier
+import im.repository.pagination.Pagination
+import im.repository.pagination.PaginationRequest
 import im.repository.pagination.SortRequest
 import im.services.Either
 import java.time.LocalDateTime
@@ -54,13 +56,14 @@ interface InvitationService {
     ): Either<InvitationError, ChannelInvitation>
 
     /**
-     * Gets all the invitations for a channel
+     * Gets invitations for a channel
      *
      * - The user must be the owner of the channel to view the invitations for the channel
      *
      * @param channelId the ID of the channel to get the invitations for
      * @param user the user requesting the invitations
      * @param sortRequest the sort request
+     * @param paginationRequest the pagination request
      *
      * @return a list of invitations for the channel or an error if the user does not have permission to view the
      * invitations
@@ -69,7 +72,8 @@ interface InvitationService {
         channelId: Identifier,
         user: User,
         sortRequest: SortRequest,
-    ): Either<InvitationError, List<ChannelInvitation>>
+        paginationRequest: PaginationRequest,
+    ): Either<InvitationError, Pagination<ChannelInvitation>>
 
     /**
      * Updates an invitation for a user to join a channel
@@ -112,13 +116,14 @@ interface InvitationService {
     ): Either<InvitationError, Unit>
 
     /**
-     * Gets all the invitations for a user
+     * Gets the invitations a user has received
      *
      * - A user can only view the invitations they have received
      *
      * @param userId the ID of the user to get the invitations for
      * @param user the user requesting the invitations
      * @param sortRequest the sort request
+     * @param paginationRequest the pagination request
      *
      * @return a list of invitations for the user to accept or an error if the user does not have permission to view the
      * invitations
@@ -127,7 +132,8 @@ interface InvitationService {
         userId: Identifier,
         user: User,
         sortRequest: SortRequest,
-    ): Either<InvitationError, List<ChannelInvitation>>
+        paginationRequest: PaginationRequest,
+    ): Either<InvitationError, Pagination<ChannelInvitation>>
 
     /**
      * Accepts or rejects an invitation for a user to join a channel

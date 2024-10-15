@@ -2,10 +2,12 @@ package im.repository.jpa.repositories.jpa
 
 import im.repository.jpa.model.invitation.ChannelInvitationDTO
 import im.repository.jpa.model.invitation.ChannelInvitationStatusDTO
+import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Slice
-import org.springframework.data.domain.Sort
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
 import java.time.LocalDateTime
 
@@ -28,13 +30,53 @@ interface ChannelInvitationRepositoryJpa : JpaRepository<ChannelInvitationDTO, L
     fun findByChannelIdAndStatus(
         channelId: Long,
         status: ChannelInvitationStatusDTO,
-        sort: Sort,
-    ): List<ChannelInvitationDTO>
+        pagination: Pageable,
+    ): Page<ChannelInvitationDTO>
 
+    @Query(
+        """
+        SELECT ci
+        FROM ChannelInvitationDTO ci
+        WHERE ci.channel.id = :channelId
+        AND ci.status = :status
+        AND ci.expiresAt > CURRENT_TIMESTAMP
+        """,
+    )
+    fun findByChannelIdAndStatusSliced(
+        channelId: Long,
+        status: ChannelInvitationStatusDTO,
+        pagination: Pageable,
+    ): Slice<ChannelInvitationDTO>
+
+    @Query(
+        """
+        SELECT ci
+        FROM ChannelInvitationDTO ci
+        WHERE ci.invitee.id = :userId
+        AND ci.status = :status
+        AND ci.expiresAt > CURRENT_TIMESTAMP
+        """,
+    )
+    fun findByInviteeIdSliced(
+        userId: Long,
+        status: ChannelInvitationStatusDTO,
+        pagination: Pageable,
+    ): Slice<ChannelInvitationDTO>
+
+    @Query(
+        """
+        SELECT ci
+        FROM ChannelInvitationDTO ci
+        WHERE ci.invitee.id = :userId
+        AND ci.status = :status
+        AND ci.expiresAt > CURRENT_TIMESTAMP
+        """,
+    )
     fun findByInviteeId(
         userId: Long,
-        sort: Sort,
-    ): List<ChannelInvitationDTO>
+        status: ChannelInvitationStatusDTO,
+        pagination: Pageable,
+    ): Page<ChannelInvitationDTO>
 
     fun findBy(pageable: PageRequest): Slice<ChannelInvitationDTO>
 }

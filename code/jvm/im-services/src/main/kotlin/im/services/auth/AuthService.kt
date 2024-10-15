@@ -28,14 +28,14 @@ interface AuthService {
      * @param password the password
      * @param email the email
      * @param invitationCode the invitation code
-     * @return a pair of access and refresh tokens if the registration is successful, or an [AuthError] otherwise
+     * @return the user if the registration is successful, or an [AuthError] otherwise
      */
     fun register(
         username: Name,
         password: Password,
         email: Email,
         invitationCode: UUID,
-    ): Either<AuthError, Pair<AccessToken, RefreshToken>>
+    ): Either<AuthError, User>
 
     /**
      * Logs in a user.

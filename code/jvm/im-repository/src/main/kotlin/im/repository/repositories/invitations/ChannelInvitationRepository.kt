@@ -5,6 +5,8 @@ import im.domain.invitations.ChannelInvitation
 import im.domain.invitations.ChannelInvitationStatus
 import im.domain.user.User
 import im.domain.wrappers.Identifier
+import im.repository.pagination.Pagination
+import im.repository.pagination.PaginationRequest
 import im.repository.pagination.SortRequest
 import im.repository.repositories.Repository
 
@@ -22,7 +24,8 @@ interface ChannelInvitationRepository : Repository<ChannelInvitation, Identifier
         channel: Channel,
         status: ChannelInvitationStatus,
         sortRequest: SortRequest,
-    ): List<ChannelInvitation>
+        paginationRequest: PaginationRequest,
+    ): Pagination<ChannelInvitation>
 
     /**
      * Finds all received invitations for a user.
@@ -32,8 +35,10 @@ interface ChannelInvitationRepository : Repository<ChannelInvitation, Identifier
      */
     fun findByInvitee(
         user: User,
+        status: ChannelInvitationStatus,
         sortRequest: SortRequest,
-    ): List<ChannelInvitation>
+        paginationRequest: PaginationRequest,
+    ): Pagination<ChannelInvitation>
 
     /**
      * Finds an invitation for a user and a channel.

@@ -279,5 +279,11 @@ class ErrorHandler {
                     HttpStatus.BAD_REQUEST,
                     error.message,
                 )
+
+            AuthError.SessionLimitReached ->
+                Problem.SessionLimitReachedProblem.response(
+                    HttpStatus.UNAUTHORIZED,
+                    "Session limit reached",
+                )
         }
 }

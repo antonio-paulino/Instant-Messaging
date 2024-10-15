@@ -45,7 +45,7 @@ class MemRefreshTokenRepositoryImpl(
         pagination: PaginationRequest,
         sortRequest: SortRequest,
     ): Pagination<RefreshToken> {
-        val page = utils.paginate(refreshTokens.values.toList(), pagination, sortRequest, pagination.getCount)
+        val page = utils.paginate(refreshTokens.values.toList(), pagination, sortRequest)
         return Pagination(page.items.map { it.toDomain() }, page.info)
     }
 

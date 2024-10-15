@@ -11,7 +11,6 @@ class MemRepoUtils {
         items: List<T>,
         pagination: PaginationRequest,
         sortRequest: SortRequest,
-        getCount: Boolean = true,
     ): Pagination<T> {
         if (items.isEmpty()) {
             return Pagination(
@@ -42,7 +41,7 @@ class MemRepoUtils {
                 prevPage,
             )
 
-        return if (getCount) {
+        return if (pagination.getCount) {
             Pagination(paginatedChannels, info)
         } else {
             Pagination(paginatedChannels, info.copy(total = null, totalPages = null))

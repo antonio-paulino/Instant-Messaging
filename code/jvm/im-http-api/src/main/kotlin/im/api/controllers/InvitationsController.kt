@@ -7,10 +7,12 @@ import im.api.model.input.body.InvitationAcceptInputModel
 import im.api.model.input.path.ChannelIdentifierInputModel
 import im.api.model.input.path.InvitationIdentifierInputModel
 import im.api.model.input.path.UserIdentifierInputModel
+import im.api.model.input.query.PaginationInputModel
 import im.api.model.input.query.SortInputModel
 import im.api.model.output.invitations.ChannelInvitationCreationOutputModel
 import im.api.model.output.invitations.ChannelInvitationOutputModel
-import im.api.model.output.invitations.ChannelInvitationsOutputModel
+import im.api.model.output.invitations.ChannelInvitationsPaginatedOutputModel
+import im.domain.invitations.ChannelInvitationStatus
 import im.services.Failure
 import im.services.Success
 import im.services.invitations.InvitationService
@@ -128,17 +130,26 @@ class InvitationsController(
      * @return The response entity.
      *
      * @see ChannelIdentifierInputModel
-     * @see ChannelInvitationsOutputModel
+     * @see ChannelInvitationsPaginatedOutputModel
      *
      */
     @GetMapping("/channels/{channelId}/invitations")
     fun getChannelInvitations(
         @Valid channelId: ChannelIdentifierInputModel,
         @Valid sort: SortInputModel,
+        @Valid pagination: PaginationInputModel,
         user: AuthenticatedUser,
     ): ResponseEntity<Any> =
-        when (val res = invitationService.getChannelInvitations(channelId.toDomain(), user.user, sort.toRequest())) {
-            is Success -> ResponseEntity.ok(ChannelInvitationsOutputModel.fromDomain(res.value))
+        when (
+            val res =
+                invitationService.getChannelInvitations(
+                    channelId.toDomain(),
+                    user.user,
+                    sort.toRequest(),
+                    pagination.toRequest(),
+                )
+        ) {
+            is Success -> ResponseEntity.ok(ChannelInvitationsPaginatedOutputModel.fromDomain(res.value))
             is Failure -> handleInvitationFailure(res.value)
         }
 
@@ -233,17 +244,18 @@ class InvitationsController(
      * @return The response entity.
      *
      * @see UserIdentifierInputModel
-     * @see ChannelInvitationsOutputModel
+     * @see ChannelInvitationsPaginatedOutputModel
      *
      */
     @GetMapping("/users/{userId}/invitations")
     fun getUserInvitations(
         @Valid userId: UserIdentifierInputModel,
         @Valid sort: SortInputModel,
+        @Valid pagination: PaginationInputModel,
         user: AuthenticatedUser,
     ): ResponseEntity<Any> =
-        when (val res = invitationService.getUserInvitations(userId.toDomain(), user.user, sort.toRequest())) {
-            is Success -> ResponseEntity.ok(ChannelInvitationsOutputModel.fromDomain(res.value))
+        when (val res = invitationService.getUserInvitations(userId.toDomain(), user.user, sort.toRequest(), pagination.toRequest())) {
+            is Success -> ResponseEntity.ok(ChannelInvitationsPaginatedOutputModel.fromDomain(res.value))
             is Failure -> handleInvitationFailure(res.value)
         }
 
@@ -279,8 +291,7 @@ class InvitationsController(
                 invitationService.acceptOrRejectInvitation(
                     userId.toDomain(),
                     invitationId.toDomain(),
-                    im.domain.invitations.ChannelInvitationStatus
-                        .valueOf(accept.status.uppercase()),
+                    ChannelInvitationStatus.valueOf(accept.status.uppercase()),
                     user.user,
                 )
         ) {

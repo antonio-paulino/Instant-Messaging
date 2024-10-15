@@ -50,7 +50,7 @@ class MemAccessTokenRepositoryImpl(
         pagination: PaginationRequest,
         sortRequest: SortRequest,
     ): Pagination<AccessToken> {
-        val page = utils.paginate(accessTokens.values.toList(), pagination, sortRequest, pagination.getCount)
+        val page = utils.paginate(accessTokens.values.toList(), pagination, sortRequest)
         return Pagination(page.items.map { it.toDomain() }, page.info)
     }
 

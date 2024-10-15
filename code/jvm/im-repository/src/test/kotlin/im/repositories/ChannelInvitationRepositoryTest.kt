@@ -232,11 +232,13 @@ abstract class ChannelInvitationRepositoryTest {
     open fun `get invitations by channel should be empty`() {
         transactionManager.run {
             val invitations =
-                channelInvitationRepository.findByChannel(
-                    testChannel,
-                    ChannelInvitationStatus.PENDING,
-                    SortRequest("id"),
-                )
+                channelInvitationRepository
+                    .findByChannel(
+                        testChannel,
+                        ChannelInvitationStatus.PENDING,
+                        SortRequest("id"),
+                        PaginationRequest(1, 1),
+                    ).items
             assertTrue(invitations.isEmpty())
         }
     }
@@ -251,8 +253,9 @@ abstract class ChannelInvitationRepositoryTest {
                     testChannel,
                     ChannelInvitationStatus.PENDING,
                     SortRequest("id"),
+                    PaginationRequest(1, 1),
                 )
-            assertEquals(1, invitations.size)
+            assertEquals(1, invitations.items.size)
         }
     }
 
@@ -280,8 +283,14 @@ abstract class ChannelInvitationRepositoryTest {
         transactionManager.run {
             channelInvitationRepository.save(testInvitation1)
 
-            val channels = channelInvitationRepository.findByInvitee(testInviter, SortRequest("id"))
-            assertTrue(channels.none())
+            val channels =
+                channelInvitationRepository.findByInvitee(
+                    testInviter,
+                    ChannelInvitationStatus.PENDING,
+                    SortRequest("id"),
+                    PaginationRequest(1, 1),
+                )
+            assertTrue(channels.items.none())
         }
     }
 
@@ -290,7 +299,14 @@ abstract class ChannelInvitationRepositoryTest {
         transactionManager.run {
             channelInvitationRepository.save(testInvitation1)
 
-            val channels = channelInvitationRepository.findByInvitee(testInvitee, SortRequest("id"))
+            val channels =
+                channelInvitationRepository
+                    .findByInvitee(
+                        testInvitee,
+                        ChannelInvitationStatus.PENDING,
+                        SortRequest("id"),
+                        PaginationRequest(1, 1),
+                    ).items
             assertEquals(1, channels.size)
             assertEquals(testChannel, channels.first().channel)
             assertEquals(testInviter, channels.first().inviter)

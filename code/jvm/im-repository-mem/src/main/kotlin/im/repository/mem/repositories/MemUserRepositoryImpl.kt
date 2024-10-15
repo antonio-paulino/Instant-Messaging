@@ -30,7 +30,7 @@ class MemUserRepositoryImpl(
         pagination: PaginationRequest,
         sortRequest: SortRequest,
     ): Pagination<User> {
-        val page = utils.paginate(users.values.filter { it.name.startsWith(name) }, pagination, sortRequest, pagination.getCount)
+        val page = utils.paginate(users.values.filter { it.name.startsWith(name) }, pagination, sortRequest)
         return Pagination(page.items.map { it.toDomain() }, page.info)
     }
 
@@ -73,7 +73,7 @@ class MemUserRepositoryImpl(
         pagination: PaginationRequest,
         sortRequest: SortRequest,
     ): Pagination<User> {
-        val page = utils.paginate(users.values.toList(), pagination, sortRequest, pagination.getCount)
+        val page = utils.paginate(users.values.toList(), pagination, sortRequest)
         return Pagination(page.items.map { it.toDomain() }, page.info)
     }
 

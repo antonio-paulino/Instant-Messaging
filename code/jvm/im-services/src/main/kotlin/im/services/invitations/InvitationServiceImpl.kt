@@ -5,6 +5,8 @@ import im.domain.invitations.ChannelInvitation
 import im.domain.invitations.ChannelInvitationStatus
 import im.domain.user.User
 import im.domain.wrappers.Identifier
+import im.repository.pagination.Pagination
+import im.repository.pagination.PaginationRequest
 import im.repository.pagination.SortRequest
 import im.repository.repositories.transactions.TransactionManager
 import im.services.Either
@@ -101,7 +103,8 @@ class InvitationServiceImpl(
         channelId: Identifier,
         user: User,
         sortRequest: SortRequest,
-    ): Either<InvitationError, List<ChannelInvitation>> =
+        paginationRequest: PaginationRequest,
+    ): Either<InvitationError, Pagination<ChannelInvitation>> =
         transactionManager.run {
             val channel =
                 channelRepository.findById(channelId)
@@ -122,11 +125,10 @@ class InvitationServiceImpl(
                     channel,
                     ChannelInvitationStatus.PENDING,
                     sortRequest.copy(sortBy = sort),
+                    paginationRequest,
                 )
 
-            val validInvitations = invitations.filter { it.isValid }
-
-            success(validInvitations)
+            success(invitations)
         }
 
     override fun updateInvitation(
@@ -198,7 +200,8 @@ class InvitationServiceImpl(
         userId: Identifier,
         user: User,
         sortRequest: SortRequest,
-    ): Either<InvitationError, List<ChannelInvitation>> =
+        paginationRequest: PaginationRequest,
+    ): Either<InvitationError, Pagination<ChannelInvitation>> =
         transactionManager.run {
             if (userId != user.id) {
                 return@run Failure(InvitationError.UserCannotAccessInvitation)
@@ -210,7 +213,13 @@ class InvitationServiceImpl(
                 return@run Failure(InvitationError.InvalidSortField(sort, validSortFields.toList()))
             }
 
-            val invitations = channelInvitationRepository.findByInvitee(user, sortRequest.copy(sortBy = sort))
+            val invitations =
+                channelInvitationRepository.findByInvitee(
+                    user,
+                    ChannelInvitationStatus.PENDING,
+                    sortRequest.copy(sortBy = sort),
+                    paginationRequest,
+                )
 
             success(invitations)
         }

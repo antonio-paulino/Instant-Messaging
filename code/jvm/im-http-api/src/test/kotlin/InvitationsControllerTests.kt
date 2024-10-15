@@ -5,7 +5,7 @@ import im.api.model.input.body.ChannelInvitationUpdateInputModel
 import im.api.model.input.body.InvitationAcceptInputModel
 import im.api.model.output.invitations.ChannelInvitationCreationOutputModel
 import im.api.model.output.invitations.ChannelInvitationOutputModel
-import im.api.model.output.invitations.ChannelInvitationsOutputModel
+import im.api.model.output.invitations.ChannelInvitationsPaginatedOutputModel
 import im.api.model.problems.ProblemOutputModel
 import im.domain.channel.Channel
 import im.domain.channel.ChannelRole
@@ -473,7 +473,7 @@ abstract class InvitationsControllerTests {
             .isOk
             .expectHeader()
             .contentType("application/json")
-            .expectBody(ChannelInvitationsOutputModel::class.java)
+            .expectBody(ChannelInvitationsPaginatedOutputModel::class.java)
             .returnResult()
             .responseBody
             .also {
@@ -898,7 +898,7 @@ abstract class InvitationsControllerTests {
             .isOk
             .expectHeader()
             .contentType("application/json")
-            .expectBodyList(ChannelInvitationsOutputModel::class.java)
+            .expectBodyList(ChannelInvitationsPaginatedOutputModel::class.java)
             .returnResult()
             .responseBody
             .also {
@@ -921,7 +921,7 @@ abstract class InvitationsControllerTests {
             .isOk
             .expectHeader()
             .contentType("application/json")
-            .expectBody(ChannelInvitationsOutputModel::class.java)
+            .expectBody(ChannelInvitationsPaginatedOutputModel::class.java)
             .returnResult()
             .responseBody
             .also {

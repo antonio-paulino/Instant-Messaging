@@ -100,4 +100,7 @@ sealed class Problem(
 
     data object InvalidSortProblem :
         Problem(URI.create("${PROBLEMS_URI}/invalid-sort"))
+
+    data object SessionLimitReachedProblem :
+        Problem(URI.create("${PROBLEMS_URI}/session-limit-reached"))
 }

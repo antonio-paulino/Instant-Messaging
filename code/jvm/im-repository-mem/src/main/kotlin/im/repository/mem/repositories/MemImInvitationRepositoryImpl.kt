@@ -46,7 +46,7 @@ class MemImInvitationRepositoryImpl(
         pagination: PaginationRequest,
         sortRequest: SortRequest,
     ): Pagination<ImInvitation> {
-        val page = utils.paginate(invitations.values.toList(), pagination, sortRequest, pagination.getCount)
+        val page = utils.paginate(invitations.values.toList(), pagination, sortRequest)
         return Pagination(page.items.map { it.toDomain() }, page.info)
     }
 

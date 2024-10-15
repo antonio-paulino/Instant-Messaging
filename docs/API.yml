@@ -31,6 +31,11 @@ components:
         - password
         - email
         - invitation
+    UserCreationOutputModel:
+      type: object
+      properties:
+          id:
+            type: integer
     AuthenticationInputModel:
       type: object
       properties:
@@ -336,7 +341,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CredentialsOutputModel'
+                $ref: '#/components/schemas/UserCreationOutputModel'
         '400':
           description: Bad request, possibly due to invalid input or missing fields
           content:
@@ -376,7 +381,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/InputValidationProblem'
         '401':
-          description: Invalid credentials
+          description: Invalid credentials or session limit reached
           content:
             application/json:
               schema:

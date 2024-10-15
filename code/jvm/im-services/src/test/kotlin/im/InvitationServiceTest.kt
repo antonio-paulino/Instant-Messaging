@@ -6,6 +6,8 @@ import im.domain.invitations.ChannelInvitation
 import im.domain.invitations.ChannelInvitationStatus
 import im.domain.user.User
 import im.domain.wrappers.Identifier
+import im.repository.pagination.Pagination
+import im.repository.pagination.PaginationRequest
 import im.repository.pagination.SortRequest
 import im.repository.repositories.transactions.TransactionManager
 import im.services.Failure
@@ -271,12 +273,14 @@ abstract class InvitationServiceTest {
                 channelId = testChannel.id,
                 user = testUser1,
                 SortRequest("id"),
+                PaginationRequest(1, 10),
             )
 
-        assertIs<Success<List<ChannelInvitation>>>(result2)
-        assertEquals(2, result2.value.size)
-        assertEquals(invite.value.id, result2.value[0].id)
-        assertEquals(invite2.value.id, result2.value[1].id)
+        assertIs<Success<Pagination<ChannelInvitation>>>(result2)
+        val items = result2.value.items
+        assertEquals(2, items.size)
+        assertEquals(invite.value.id, items[0].id)
+        assertEquals(invite2.value.id, items[1].id)
     }
 
     @Test
@@ -286,6 +290,7 @@ abstract class InvitationServiceTest {
                 channelId = Identifier(999L),
                 user = testUser1,
                 SortRequest("id"),
+                PaginationRequest(1, 10),
             )
         assertIs<Failure<InvitationError>>(result)
         assertIs<InvitationError.ChannelNotFound>(result.value)
@@ -298,6 +303,7 @@ abstract class InvitationServiceTest {
                 channelId = testChannel.id,
                 user = testUser2,
                 SortRequest("id"),
+                PaginationRequest(1, 10),
             )
         assertIs<Failure<InvitationError>>(result)
         assertIs<InvitationError.UserCannotAccessInvitation>(result.value)
@@ -528,11 +534,13 @@ abstract class InvitationServiceTest {
                 userId = testUser2.id,
                 user = testUser2,
                 SortRequest("id"),
+                PaginationRequest(1, 10),
             )
 
-        assertIs<Success<List<ChannelInvitation>>>(result2)
-        assertEquals(1, result2.value.size)
-        assertEquals(invite.value.id, result2.value[0].id)
+        assertIs<Success<Pagination<ChannelInvitation>>>(result2)
+        val items = result2.value.items
+        assertEquals(1, items.size)
+        assertEquals(invite.value.id, items[0].id)
     }
 
     @Test
@@ -542,10 +550,12 @@ abstract class InvitationServiceTest {
                 userId = testUser2.id,
                 user = testUser2,
                 SortRequest("id"),
+                PaginationRequest(1, 10),
             )
 
-        assertIs<Success<List<ChannelInvitation>>>(result2)
-        assertEquals(0, result2.value.size)
+        assertIs<Success<Pagination<ChannelInvitation>>>(result2)
+        val items = result2.value.items
+        assertEquals(0, items.size)
     }
 
     @Test
@@ -555,6 +565,7 @@ abstract class InvitationServiceTest {
                 userId = testUser2.id,
                 user = testUser1,
                 SortRequest("id"),
+                PaginationRequest(1, 10),
             )
         assertIs<Failure<InvitationError>>(result)
         assertIs<InvitationError.UserCannotAccessInvitation>(result.value)

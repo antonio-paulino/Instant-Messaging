@@ -51,7 +51,7 @@ class MemSessionRepositoryImpl(
         pagination: PaginationRequest,
         sortRequest: SortRequest,
     ): Pagination<Session> {
-        val page = utils.paginate(sessions.values.toList(), pagination, sortRequest, pagination.getCount)
+        val page = utils.paginate(sessions.values.toList(), pagination, sortRequest)
         return Pagination(page.items.map { it.toDomain() }, page.info)
     }
 

@@ -4,6 +4,7 @@ import im.domain.invitations.ImInvitation
 import im.domain.invitations.ImInvitationStatus
 import im.domain.sessions.Session
 import im.domain.tokens.AccessToken
+import im.domain.tokens.RefreshToken
 import im.domain.user.User
 import im.domain.wrappers.Email
 import im.domain.wrappers.Name
@@ -11,6 +12,8 @@ import im.domain.wrappers.Password
 import im.repository.repositories.transactions.Transaction
 import im.repository.repositories.transactions.TransactionManager
 import im.services.Either
+import im.services.Failure
+import im.services.Success
 import im.services.failure
 import im.services.success
 import jakarta.inject.Named
@@ -30,6 +33,8 @@ class AuthServiceImpl(
         private const val MIN_INVITATION_EXPIRATION_MINUTES = 30L
         private const val DEFAULT_INVITATION_EXPIRATION_DAYS = 1L
         private const val MAX_INVITATION_EXPIRATION_DAYS = 7L
+
+        private const val MAX_SESSIONS = 10
     }
 
     override fun register(
@@ -37,7 +42,7 @@ class AuthServiceImpl(
         password: Password,
         email: Email,
         invitationCode: UUID,
-    ): Either<AuthError, Pair<AccessToken, im.domain.tokens.RefreshToken>> =
+    ): Either<AuthError, User> =
         transactionManager.run {
             val imInvitation =
                 imInvitationRepository.findById(invitationCode)
@@ -68,16 +73,14 @@ class AuthServiceImpl(
 
             imInvitationRepository.save(usedInvitation)
 
-            val (accessToken, refreshToken) = createSession(user)
-
-            success(accessToken to refreshToken)
+            success(user)
         }
 
     override fun login(
         username: Name?,
         password: Password,
         email: Email?,
-    ): Either<AuthError, Pair<AccessToken, im.domain.tokens.RefreshToken>> =
+    ): Either<AuthError, Pair<AccessToken, RefreshToken>> =
         transactionManager.run {
             val user =
                 when {
@@ -94,9 +97,14 @@ class AuthServiceImpl(
                 return@run failure(AuthError.InvalidCredentials)
             }
 
-            val (accessToken, refreshToken) = createSession(user)
+            val session = createSession(user)
 
-            success(accessToken to refreshToken)
+            if (session is Failure) {
+                return@run session
+            }
+
+            session as Success
+            success(session.value)
         }
 
     override fun refreshSession(refreshToken: UUID): Either<AuthError, Pair<AccessToken, im.domain.tokens.RefreshToken>> =
@@ -121,7 +129,7 @@ class AuthServiceImpl(
 
             val newRefreshToken =
                 refreshTokenRepository.save(
-                    im.domain.tokens.RefreshToken(session = newSession),
+                    RefreshToken(session = newSession),
                 )
 
             refreshTokenRepository.delete(oldToken)
@@ -181,7 +189,13 @@ class AuthServiceImpl(
             success(invitation)
         }
 
-    private fun Transaction.createSession(user: User): Pair<AccessToken, im.domain.tokens.RefreshToken> {
+    private fun Transaction.createSession(user: User): Either<AuthError, Pair<AccessToken, RefreshToken>> {
+        val activeSessions = sessionRepository.findByUser(user).filter { !it.expired }
+
+        if (activeSessions.size >= MAX_SESSIONS) {
+            return failure(AuthError.SessionLimitReached)
+        }
+
         val session =
             sessionRepository.save(
                 Session(
@@ -208,9 +222,9 @@ class AuthServiceImpl(
 
         val refreshToken =
             refreshTokenRepository.save(
-                im.domain.tokens.RefreshToken(session = session),
+                RefreshToken(session = session),
             )
 
-        return accessToken to refreshToken
+        return success(accessToken to refreshToken)
     }
 }

@@ -6,6 +6,7 @@ import im.api.model.input.body.ImInvitationCreationInputModel
 import im.api.model.input.body.UserCreationInputModel
 import im.api.model.output.credentials.CredentialsOutputModel
 import im.api.model.output.invitations.ImInvitationOutputModel
+import im.api.model.output.users.UserCreationOutputModel
 import im.api.model.problems.Problem
 import im.api.utils.RequestHelper
 import im.services.Failure
@@ -67,12 +68,10 @@ class AuthController(
         ) {
             is Failure -> handleAuthFailure(res.value)
             is Success -> {
-                val (accessToken, refreshToken) = res.value
-                reqHelper.setCookie(response, accessToken)
-                reqHelper.setCookie(response, refreshToken)
+                val user = res.value
                 ResponseEntity
-                    .created(URI("/api/users/${accessToken.session.user.id}"))
-                    .body(CredentialsOutputModel.fromDomain(accessToken, refreshToken))
+                    .created(URI("/api/users/${user.id}"))
+                    .body(UserCreationOutputModel.fromDomain(user))
             }
         }
     }
