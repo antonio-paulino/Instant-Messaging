@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 @ControllerAdvice
 class ExceptionHandler {
     /**
-     * Handles validation exceptions.
+     * Handles validation exceptions thrown by the `@Valid` annotation.
      */
     @ExceptionHandler(MethodArgumentNotValidException::class)
     fun notValid(err: MethodArgumentNotValidException): ResponseEntity<*> =

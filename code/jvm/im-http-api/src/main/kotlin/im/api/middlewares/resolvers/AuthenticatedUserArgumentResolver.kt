@@ -1,5 +1,6 @@
 package im.api.middlewares.resolvers
 
+import im.api.utils.RequestHelper
 import im.domain.user.AuthenticatedUser
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.core.MethodParameter
@@ -16,7 +17,9 @@ import org.springframework.web.method.support.ModelAndViewContainer
  *
  */
 @Component
-class AuthenticatedUserArgumentResolver : HandlerMethodArgumentResolver {
+class AuthenticatedUserArgumentResolver(
+    private val reqHelper: RequestHelper,
+) : HandlerMethodArgumentResolver {
     override fun supportsParameter(parameter: MethodParameter): Boolean = parameter.parameterType == AuthenticatedUser::class.java
 
     override fun resolveArgument(
@@ -26,6 +29,6 @@ class AuthenticatedUserArgumentResolver : HandlerMethodArgumentResolver {
         binderFactory: WebDataBinderFactory?,
     ): Any? {
         val request = webRequest.nativeRequest as HttpServletRequest
-        return request.getAttribute("user") as AuthenticatedUser?
+        return reqHelper.getAuthenticatedUser(request)
     }
 }

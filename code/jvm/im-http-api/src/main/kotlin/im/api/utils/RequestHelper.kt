@@ -10,18 +10,27 @@ import org.springframework.stereotype.Component
 import java.time.ZoneOffset
 import java.util.UUID
 
-private const val ACCESS_TOKEN_COOKIE_NAME = "access_token"
-private const val REFRESH_TOKEN_COOKIE_NAME = "refresh_token"
-private const val AUTHENTICATED_USER_ATTRIBUTE = "user"
-
 @Component
 class RequestHelper {
+
+    companion object {
+        private const val ACCESS_TOKEN_COOKIE_NAME = "access_token"
+        private const val REFRESH_TOKEN_COOKIE_NAME = "refresh_token"
+        private const val AUTHENTICATED_USER_ATTRIBUTE = "user"
+        private const val CONTROLLER_NAME_ATTRIBUTE = "controllerName"
+        private const val HANDLER_METHOD_ATTRIBUTE = "handlerMethod"
+    }
+
     fun setAuthenticatedUser(
         req: HttpServletRequest,
         user: User,
         accessToken: UUID,
     ) {
         req.setAttribute(AUTHENTICATED_USER_ATTRIBUTE, AuthenticatedUser(user, accessToken))
+    }
+
+    fun getAuthenticatedUser(req: HttpServletRequest): AuthenticatedUser? {
+        return req.getAttribute(AUTHENTICATED_USER_ATTRIBUTE) as? AuthenticatedUser
     }
 
     fun getRefreshToken(req: HttpServletRequest): UUID? {
@@ -87,4 +96,21 @@ class RequestHelper {
                 }
         res.addCookie(cookie)
     }
+
+    fun setMethodAttribute(req: HttpServletRequest, method: String) {
+        req.setAttribute(HANDLER_METHOD_ATTRIBUTE, method)
+    }
+
+    fun setControllerAttribute(req: HttpServletRequest, controller: String) {
+        req.setAttribute(CONTROLLER_NAME_ATTRIBUTE, controller)
+    }
+
+    fun getMethodAttribute(req: HttpServletRequest): String? {
+        return req.getAttribute(HANDLER_METHOD_ATTRIBUTE) as? String
+    }
+
+    fun getControllerAttribute(req: HttpServletRequest): String? {
+        return req.getAttribute(CONTROLLER_NAME_ATTRIBUTE) as? String
+    }
+
 }

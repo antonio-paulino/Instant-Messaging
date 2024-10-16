@@ -1,5 +1,6 @@
 package im.api.middlewares.logging
 
+import im.api.utils.RequestHelper
 import jakarta.servlet.FilterChain
 import jakarta.servlet.ServletRequest
 import jakarta.servlet.ServletResponse
@@ -14,7 +15,9 @@ import org.springframework.stereotype.Component
 
 @Component
 @Order(LOWEST_PRECEDENCE)
-class RequestLogger : HttpFilter() {
+class RequestLogger(
+    private val reqHelper: RequestHelper,
+): HttpFilter() {
     override fun doFilter(
         request: ServletRequest,
         response: ServletResponse,
@@ -32,8 +35,8 @@ class RequestLogger : HttpFilter() {
         val startTime = System.nanoTime()
         chain.doFilter(request, response)
         val endTime = System.nanoTime()
-        val method = req.getAttribute("handlerMethod")
-        val controller = req.getAttribute("controllerName")
+        val method = reqHelper.getMethodAttribute(req)
+        val controller = reqHelper.getControllerAttribute(req)
 
         logger.info(
             "Outgoing Response: uri={}, method={}, controller={}, handler={}, status={}, duration={}ms",

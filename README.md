@@ -12,7 +12,7 @@ and will eventually feature a web client developed in TypeScript with the use of
 The documentation for this project can be found in the `docs` directory.
 - [Application Documentation](docs/README.md)
 - [API Specification](docs/instant-messaging-api-spec.yml)
-
+- [Problems](docs/problems)
 ---
 
 ## Authors

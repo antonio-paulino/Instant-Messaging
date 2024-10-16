@@ -62,12 +62,14 @@ class TestConfig(
 class WebMvcConfig(
     private val authService: AuthService,
 ) : WebMvcConfigurer {
+    private val reqHelper = RequestHelper()
+
     override fun addInterceptors(registry: InterceptorRegistry) {
-        registry.addInterceptor(LoggingInterceptor())
-        registry.addInterceptor(AuthInterceptor(authService, RequestHelper()))
+        registry.addInterceptor(LoggingInterceptor(reqHelper))
+        registry.addInterceptor(AuthInterceptor(authService, reqHelper))
     }
 
     override fun addArgumentResolvers(resolvers: MutableList<HandlerMethodArgumentResolver>) {
-        resolvers.add(AuthenticatedUserArgumentResolver())
+        resolvers.add(AuthenticatedUserArgumentResolver(reqHelper))
     }
 }
