@@ -1,8 +1,8 @@
-# Can't access the channel
+Can't access the channel
 
-----
+=========================
 
-## Description
+Description
 
 You can't access the channel. The possible reasons are:
 
@@ -11,7 +11,11 @@ You can't access the channel. The possible reasons are:
 - The channel is private, and you are not a member.
 - You cannot view the user's channels.
 
-## Solution
+=========================
+
+Solution
+
+To resolve this issue:
 
 - If you have been removed from the channel, you can ask for an invitation from the channel owner.
 - Ensure that u have the necessary permissions to access the channel.
