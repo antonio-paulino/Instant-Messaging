@@ -108,11 +108,23 @@ class AuthServiceImpl(
             }
 
             val newSession =
-                session.refresh(LocalDateTime.now().plusMinutes(config.accessTokenTTL.inWholeMinutes))
+                sessionRepository.save(
+                    session.refresh(
+                        LocalDateTime
+                            .now()
+                            .plusMinutes(config.sessionTTL.inWholeMinutes),
+                    ),
+                )
 
             val newAccessToken =
                 accessTokenRepository.save(
-                    AccessToken(session = newSession, expiresAt = newSession.expiresAt),
+                    AccessToken(
+                        session = newSession,
+                        expiresAt =
+                            LocalDateTime
+                                .now()
+                                .plusMinutes(config.accessTokenTTL.inWholeMinutes),
+                    ),
                 )
 
             val newRefreshToken =
