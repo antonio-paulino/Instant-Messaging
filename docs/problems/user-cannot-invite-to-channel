@@ -1,0 +1,18 @@
+User can't invite to channel
+
+=========================
+
+Description
+
+You are unable to invite the user to the channel. The possible reasons are:
+
+- The user does not have permission to invite others.
+
+=======================
+
+Solution
+
+To solve this issue, you can:
+
+- Ensure that the user has the necessary permissions to invite others.
+- If the user does not have the necessary permissions, ask the owner to invite the user to the channel.
