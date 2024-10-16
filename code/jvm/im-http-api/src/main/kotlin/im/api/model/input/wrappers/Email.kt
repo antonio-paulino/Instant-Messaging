@@ -8,35 +8,50 @@ import com.fasterxml.jackson.databind.JsonSerializer
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
+import im.api.model.input.validators.domain.EmailValid
 import jakarta.validation.constraints.Email
-import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.NotNull
-import jakarta.validation.constraints.Size
 
+/**
+ * Wrapper for email.
+ *
+ * @property value The email.
+ */
 @JsonDeserialize(using = EmailDeserializer::class)
 @JsonSerialize(using = EmailSerializer::class) // For testing purposes
 data class Email(
-    @field:Email(message = "Email must be a valid email address")
-    @field:NotNull(message = "Email is required")
-    @field:NotBlank(message = "Email must not be blank")
-    @field:Size(min = 8, max = 50, message = "Email must be between 5 and 50 characters")
+    @field:EmailValid
     val value: String,
 ) {
-    fun toDomain() = im.domain.wrappers.Email(value)
+    fun toDomain() =
+        im.domain.wrappers.email
+            .Email(value)
 
     override fun toString() = value
 }
 
+/**
+ * Deserializer for [Email].
+ *
+ * Converts a key-value pair directly to an [Email] object, without having to define a
+ * JSON object with a `value` field.
+ */
 class EmailDeserializer : JsonDeserializer<im.api.model.input.wrappers.Email>() {
     override fun deserialize(
         p: JsonParser,
         ctxt: DeserializationContext,
     ): im.api.model.input.wrappers.Email {
         val value = p.readValueAs(String::class.java)
-        return im.api.model.input.wrappers.Email(value)
+        return im.api.model.input.wrappers
+            .Email(value)
     }
 }
 
+/**
+ * Serializer for [Email].
+ *
+ * Converts an [Email] object directly to a key-value pair, without having to define a
+ * JSON object with a `value` field.
+ */
 class EmailSerializer : JsonSerializer<im.api.model.input.wrappers.Email>() {
     override fun serialize(
         value: im.api.model.input.wrappers.Email,

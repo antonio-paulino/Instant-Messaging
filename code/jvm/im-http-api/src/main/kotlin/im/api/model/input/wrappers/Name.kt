@@ -8,30 +8,45 @@ import com.fasterxml.jackson.databind.JsonSerializer
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
-import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.Size
+import im.api.model.input.validators.domain.NameValid
 
+/**
+ * Wrapper for name.
+ *
+ * @property value The name.
+ */
 @JsonDeserialize(using = NameDeserializer::class)
 @JsonSerialize(using = NameSerializer::class) // For testing purposes
 data class Name(
-    @field:Size(min = 3, max = 30, message = "Name must be between 3 and 50 characters")
-    @field:NotBlank(message = "Name must not be blank")
+    @field:NameValid
     val value: String,
 ) {
-    fun toDomain() = im.domain.wrappers.Name(value)
+    fun toDomain() =
+        im.domain.wrappers.name
+            .Name(value)
 
     override fun toString() = value
 }
 
+/**
+ * Deserializer for [Name].
+ *
+ * Converts a key-value pair directly to a [Name] object, without having to define a
+ * JSON object with a `value` field.
+ */
 class NameDeserializer : JsonDeserializer<Name>() {
     override fun deserialize(
         p: JsonParser,
         ctxt: DeserializationContext,
-    ): Name {
-        return Name(p.text)
-    }
+    ): Name = Name(p.text)
 }
 
+/**
+ * Serializer for [Name].
+ *
+ * Converts a [Name] object directly to a key-value pair, without having to define a
+ * JSON object with a `value` field.
+ */
 class NameSerializer : JsonSerializer<Name>() {
     override fun serialize(
         value: Name,

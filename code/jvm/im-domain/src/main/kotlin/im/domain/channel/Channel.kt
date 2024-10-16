@@ -1,10 +1,10 @@
 package im.domain.channel
 
 import im.domain.user.User
-import im.domain.wrappers.Identifier
-import im.domain.wrappers.Name
-import im.domain.wrappers.toIdentifier
-import im.domain.wrappers.toName
+import im.domain.wrappers.identifier.Identifier
+import im.domain.wrappers.identifier.toIdentifier
+import im.domain.wrappers.name.Name
+import im.domain.wrappers.name.toName
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 

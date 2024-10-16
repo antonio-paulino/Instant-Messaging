@@ -21,6 +21,12 @@ repositories {
 dependencies {
     implementation(project(":im-http-api"))
 
+    // Repository implementation
+    implementation(project(":im-repository-jpa"))
+    implementation(project(":im-repository"))
+    implementation(project(":im-domain"))
+    implementation(project(":im-services"))
+
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
 }
@@ -32,6 +38,7 @@ kotlin {
 }
 
 tasks.withType<Test> {
+    environment("DB_URL", "jdbc:postgresql://localhost:5432/iseldawdev?user=isel&password=isel")
     dependsOn(":im-repository-jpa:dbTestsWait")
     finalizedBy(":im-repository-jpa:dbTestsDown")
     useJUnitPlatform()
@@ -41,17 +48,19 @@ val composeFileDir: Directory = rootProject.layout.projectDirectory
 val dockerComposePath = composeFileDir.file("docker-compose.yml").toString()
 
 tasks.withType<Jar> {
-    dependsOn(":im-repository-jpa:dbTestsWait")
-    dependsOn(":im-repository-jpa:dbTestsDown")
-    finalizedBy("deploy")
     destinationDirectory.set(rootProject.layout.projectDirectory.dir("build/libs"))
 }
 
+tasks.bootRun {
+    environment("DB_URL", "jdbc:postgresql://localhost:5433/iseldaw?user=isel&password=isel")
+    dependsOn("deploy")
+}
+
 task<Exec>("dbUp") {
-    commandLine("docker", "compose", "-f", dockerComposePath, "up", "-d", "--build", "--force-recreate", "production")
+    commandLine("docker", "compose", "-f", dockerComposePath, "up", "-d", "--build", "--force-recreate", "production-db")
 }
 
 task<Exec>("deploy") {
-    commandLine("docker", "exec", "production", "/app/bin/wait-for-postgres.sh", "localhost")
+    commandLine("docker", "exec", "production-db", "/app/bin/wait-for-postgres.sh", "localhost")
     dependsOn("dbUp")
 }

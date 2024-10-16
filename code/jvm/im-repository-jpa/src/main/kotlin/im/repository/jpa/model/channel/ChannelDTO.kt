@@ -1,8 +1,8 @@
 package im.repository.jpa.model.channel
 
 import im.domain.channel.Channel
-import im.domain.wrappers.toIdentifier
-import im.domain.wrappers.toName
+import im.domain.wrappers.identifier.toIdentifier
+import im.domain.wrappers.name.toName
 import im.repository.jpa.model.user.UserDTO
 import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column

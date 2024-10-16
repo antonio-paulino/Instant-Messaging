@@ -2,14 +2,13 @@ package im.repository.jpa.repositories
 
 import im.domain.sessions.Session
 import im.domain.user.User
-import im.domain.wrappers.Identifier
+import im.domain.wrappers.identifier.Identifier
 import im.repository.jpa.model.session.SessionDTO
 import im.repository.jpa.repositories.jpa.SessionRepositoryJpa
 import im.repository.pagination.Pagination
 import im.repository.pagination.PaginationRequest
 import im.repository.pagination.SortRequest
 import im.repository.repositories.sessions.SessionRepository
-import jakarta.persistence.EntityManager
 import org.springframework.context.annotation.Primary
 import org.springframework.stereotype.Component
 
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Component
 @Primary
 class SessionRepositoryImpl(
     private val sessionRepositoryJpa: SessionRepositoryJpa,
-    private val entityManager: EntityManager,
     private val utils: JpaRepositoryUtils,
 ) : SessionRepository {
     override fun findByUser(user: User): List<Session> = sessionRepositoryJpa.findByUserId(user.id.value).map { it.toDomain() }

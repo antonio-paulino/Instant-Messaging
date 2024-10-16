@@ -10,7 +10,6 @@ repositories {
 dependencies {
     api(project(":im-repository"))
     api(project(":im-domain"))
-    implementation(project(":im-repository-jpa"))
     implementation("jakarta.inject:jakarta.inject-api:2.0.1")
     implementation(kotlin("reflect"))
 
@@ -24,6 +23,7 @@ dependencies {
 }
 
 tasks.test {
+    environment("DB_URL", "jdbc:postgresql://localhost:5432/iseldawdev?user=isel&password=isel")
     useJUnitPlatform()
     dependsOn(":im-repository-jpa:dbTestsWait")
     finalizedBy(":im-repository-jpa:dbTestsDown")

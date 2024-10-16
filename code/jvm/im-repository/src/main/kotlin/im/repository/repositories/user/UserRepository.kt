@@ -1,10 +1,10 @@
 package im.repository.repositories.user
 
 import im.domain.user.User
-import im.domain.wrappers.Email
-import im.domain.wrappers.Identifier
-import im.domain.wrappers.Name
-import im.domain.wrappers.Password
+import im.domain.wrappers.email.Email
+import im.domain.wrappers.identifier.Identifier
+import im.domain.wrappers.name.Name
+import im.domain.wrappers.password.Password
 import im.repository.pagination.Pagination
 import im.repository.pagination.PaginationRequest
 import im.repository.pagination.SortRequest

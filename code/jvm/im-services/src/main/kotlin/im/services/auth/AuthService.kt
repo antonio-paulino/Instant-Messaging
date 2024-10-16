@@ -1,14 +1,12 @@
 package im.services.auth
 
-import im.domain.invitations.ImInvitation
+import im.domain.Either
 import im.domain.tokens.AccessToken
 import im.domain.tokens.RefreshToken
 import im.domain.user.User
-import im.domain.wrappers.Email
-import im.domain.wrappers.Name
-import im.domain.wrappers.Password
-import im.services.Either
-import java.time.LocalDateTime
+import im.domain.wrappers.email.Email
+import im.domain.wrappers.name.Name
+import im.domain.wrappers.password.Password
 import java.util.UUID
 
 /**
@@ -77,12 +75,4 @@ interface AuthService {
      * @return [Unit] if the logout is successful, or an [AuthError] otherwise
      */
     fun logout(token: UUID): Either<AuthError, Unit>
-
-    /**
-     * Creates an invitation.
-     *
-     * @param expiration the expiration date of the invitation
-     * @return the invitation if it is created, or an [AuthError] otherwise
-     */
-    fun createInvitation(expiration: LocalDateTime?): Either<AuthError, ImInvitation>
 }

@@ -1,16 +1,16 @@
 package im.services.messages
 
+import im.domain.Either
+import im.domain.Failure
 import im.domain.channel.ChannelRole
 import im.domain.messages.Message
+import im.domain.success
 import im.domain.user.User
-import im.domain.wrappers.Identifier
+import im.domain.wrappers.identifier.Identifier
 import im.repository.pagination.Pagination
 import im.repository.pagination.PaginationRequest
 import im.repository.pagination.SortRequest
 import im.repository.repositories.transactions.TransactionManager
-import im.services.Either
-import im.services.Failure
-import im.services.success
 import jakarta.inject.Named
 import java.time.LocalDateTime
 

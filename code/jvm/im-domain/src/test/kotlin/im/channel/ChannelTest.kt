@@ -3,7 +3,7 @@ package im.channel
 import im.domain.channel.Channel
 import im.domain.channel.ChannelRole
 import im.domain.user.User
-import im.domain.wrappers.toName
+import im.domain.wrappers.name.toName
 import java.time.LocalDateTime
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -13,7 +13,7 @@ import kotlin.test.assertTrue
 class ChannelTest {
     @Test
     fun `should update channel`() {
-        val user = User(1, "user", "password", "user1@daw.isel.pt")
+        val user = User(1, "user", "Password123", "user1@daw.isel.pt")
         val channel = Channel(1, "im/channel", user, true)
         val updatedChannel = channel.updateChannel("new channel".toName(), false)
         assertEquals("new channel".toName(), updatedChannel.name)
@@ -22,8 +22,8 @@ class ChannelTest {
 
     @Test
     fun `should add member`() {
-        val user = User(1, "user", "password", "user1@daw.isel.pt")
-        val user2 = User(2, "user2", "password", "user2@daw.isel.pt")
+        val user = User(1, "user", "Password123", "user1@daw.isel.pt")
+        val user2 = User(2, "user2", "Password123", "user2@daw.isel.pt")
         val channel = Channel(1, "im/channel", user, true)
         val updatedChannel = channel.addMember(user2, ChannelRole.MEMBER)
         assertEquals(2, updatedChannel.members.size)
@@ -33,8 +33,8 @@ class ChannelTest {
 
     @Test
     fun `should remove member`() {
-        val user = User(1, "user", "password", "user1@daw.isel.pt")
-        val user2 = User(2, "user2", "password", "user2@daw.isel.pt")
+        val user = User(1, "user", "Password123", "user1@daw.isel.pt")
+        val user2 = User(2, "user2", "Password123", "user2@daw.isel.pt")
         val channel = Channel(1, "im/channel", user, true)
         val updatedChannel = channel.addMember(user2, ChannelRole.MEMBER)
         val updatedChannel2 = updatedChannel.removeMember(user2)
@@ -43,8 +43,8 @@ class ChannelTest {
 
     @Test
     fun `should change the role of a member`() {
-        val user = User(1, "user", "password", "user1@daw.isel.pt")
-        val user2 = User(2, "user2", "password", "user2@daw.isel.pt")
+        val user = User(1, "user", "Password123", "user1@daw.isel.pt")
+        val user2 = User(2, "user2", "Password123", "user2@daw.isel.pt")
         val channel = Channel(1, "im/channel", user, true)
         val updatedChannel = channel.addMember(user2, ChannelRole.MEMBER)
         val updatedChannel2 = updatedChannel.addMember(user2, ChannelRole.OWNER)
@@ -54,7 +54,7 @@ class ChannelTest {
 
     @Test
     fun `test equal channels`() {
-        val user = User(1, "user", "password", "user1@daw.isel.pt")
+        val user = User(1, "user", "Password123", "user1@daw.isel.pt")
         val creation = LocalDateTime.now()
         val channel = Channel(1, "im/channel", user, true, createdAt = creation)
         val channel2 = Channel(1, "im/channel", user, true, createdAt = creation)

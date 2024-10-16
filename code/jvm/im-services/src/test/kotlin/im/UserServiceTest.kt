@@ -1,15 +1,15 @@
 package im
 
+import im.domain.Failure
+import im.domain.Success
 import im.domain.channel.Channel
 import im.domain.channel.ChannelRole
 import im.domain.user.User
-import im.domain.wrappers.Identifier
+import im.domain.wrappers.identifier.Identifier
 import im.repository.pagination.Pagination
 import im.repository.pagination.PaginationRequest
 import im.repository.pagination.SortRequest
 import im.repository.repositories.transactions.TransactionManager
-import im.services.Failure
-import im.services.Success
 import im.services.users.UserError
 import im.services.users.UserService
 import org.junit.jupiter.api.BeforeEach
@@ -89,7 +89,7 @@ abstract class UserServiceTest {
 
     @Test
     fun `get user by id user not found`() {
-        val result = userService.getUserById(Identifier(0))
+        val result = userService.getUserById(Identifier(1))
         assertIs<Failure<UserError>>(result)
         assert(result.value == UserError.UserNotFound)
     }

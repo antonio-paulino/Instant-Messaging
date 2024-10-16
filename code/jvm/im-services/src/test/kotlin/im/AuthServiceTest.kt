@@ -1,19 +1,19 @@
 package im
 
+import im.domain.Failure
+import im.domain.Success
 import im.domain.invitations.ImInvitation
 import im.domain.invitations.ImInvitationStatus
 import im.domain.sessions.Session
 import im.domain.tokens.AccessToken
 import im.domain.tokens.RefreshToken
 import im.domain.user.User
-import im.domain.wrappers.Email
-import im.domain.wrappers.Name
-import im.domain.wrappers.Password
-import im.domain.wrappers.toEmail
-import im.domain.wrappers.toName
+import im.domain.wrappers.email.Email
+import im.domain.wrappers.email.toEmail
+import im.domain.wrappers.name.Name
+import im.domain.wrappers.name.toName
+import im.domain.wrappers.password.Password
 import im.repository.repositories.transactions.TransactionManager
-import im.services.Failure
-import im.services.Success
 import im.services.auth.AuthError
 import im.services.auth.AuthService
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -61,15 +61,15 @@ abstract class AuthServiceTest {
 
     private val sessionUser =
         User(
-            0L,
+            1L,
             "sessionUser",
-            "password",
+            "Password123",
             "iseldawsession@isel.pt",
         )
 
     private val expiredSession =
         Session(
-            0L,
+            1L,
             sessionUser,
             LocalDateTime.now().minusDays(1).truncatedTo(ChronoUnit.MILLIS),
         )
@@ -122,7 +122,7 @@ abstract class AuthServiceTest {
     @Test
     fun `register should create user and return ID`() {
         val username = Name("username")
-        val password = Password("password")
+        val password = Password("Password123")
         val email = Email("testdaw@isel.pt")
         val invitationCode = invitationCode1.token
         val result = authService.register(username, password, email, invitationCode)
@@ -135,7 +135,7 @@ abstract class AuthServiceTest {
     @Test
     fun `register invalid invite should return error`() {
         val username = Name("username")
-        val password = Password("password")
+        val password = Password("Password123")
         val email = Email("testdaw@isel.pt")
         val invitationCode = UUID.randomUUID()
         val result = authService.register(username, password, email, invitationCode)
@@ -147,7 +147,7 @@ abstract class AuthServiceTest {
     @Test
     fun `register existing username should return error`() {
         val username = Name("username")
-        val password = Password("password")
+        val password = Password("Password123")
         val email = Email("testdaw@isel.pt")
         val email2 = Email("testdaw2@isel.pt")
 
@@ -162,7 +162,7 @@ abstract class AuthServiceTest {
     @Test
     fun `register with used invitation should return error`() {
         val username = Name("username")
-        val password = Password("password")
+        val password = Password("Password123")
         val email = Email("testdaw@isel.pt")
         val email2 = Email("testdaw2@isel.pt")
 
@@ -177,7 +177,7 @@ abstract class AuthServiceTest {
     @Test
     fun `register with expired invitation should return error`() {
         val username = Name("username")
-        val password = Password("password")
+        val password = Password("Password123")
         val email = Email("testdaw@isel.pt")
 
         val result = authService.register(username, password, email, expiredInvitationCode.token)
@@ -191,7 +191,7 @@ abstract class AuthServiceTest {
     fun `register with existing email should return error`() {
         val username = Name("username")
         val username2 = Name("username2")
-        val password = Password("password")
+        val password = Password("Password123")
         val email = Email("testdaw@isel.pt")
 
         authService.register(username, password, email, invitationCode1.token)
@@ -203,9 +203,9 @@ abstract class AuthServiceTest {
     }
 
     @Test
-    fun `login with valid username and password should return tokens`() {
+    fun `login with valid username and Password123 should return tokens`() {
         val username = Name("username")
-        val password = Password("password")
+        val password = Password("Password123")
         val email = Email("testdaw@isel.pt")
         val invitationCode = invitationCode1.token
         authService.register(username, password, email, invitationCode)
@@ -219,9 +219,9 @@ abstract class AuthServiceTest {
     }
 
     @Test
-    fun `login with valid email and password should return tokens`() {
+    fun `login with valid email and Password123 should return tokens`() {
         val username = Name("username")
-        val password = Password("password")
+        val password = Password("Password123")
         val email = Email("testdaw@isel.pt")
         val invitationCode = invitationCode1.token
         authService.register(username, password, email, invitationCode)
@@ -237,7 +237,7 @@ abstract class AuthServiceTest {
     @Test
     fun `login with invalid username should return error`() {
         val username = Name("username")
-        val password = Password("password")
+        val password = Password("Password123")
         val email = Email("testdaw@isel.pt")
         val invitationCode = invitationCode1.token
         authService.register(username, password, email, invitationCode)
@@ -251,7 +251,7 @@ abstract class AuthServiceTest {
 
     @Test
     fun `login with invalid email should return error`() {
-        val password = Password("password")
+        val password = Password("Password123")
         val email = Email("testdaw@isel.pt")
         val invitationCode = invitationCode1.token
         authService.register(Name("username"), password, email, invitationCode)
@@ -264,15 +264,15 @@ abstract class AuthServiceTest {
     }
 
     @Test
-    fun `login with invalid password should return error`() {
+    fun `login with invalid Password123 should return error`() {
         val username = Name("username")
-        val password = Password("password")
+        val password = Password("Password123")
         val email = Email("testdaw@isel.pt")
         val invitationCode = invitationCode1.token
 
         authService.register(username, password, email, invitationCode)
 
-        val result = authService.login(username, Password("wrongpassword"), null)
+        val result = authService.login(username, Password("wrongPassword123"), null)
         assertIs<Failure<AuthError>>(result)
         val error = result.value
         assertIs<AuthError.InvalidCredentials>(error)
@@ -281,7 +281,7 @@ abstract class AuthServiceTest {
     @Test
     fun `login with valid username and email should return valid tokens`() {
         val username = Name("username")
-        val password = Password("password")
+        val password = Password("Password123")
         val email = Email("testdaw@isel.pt")
         val invitationCode = invitationCode1.token
         val session1 = authService.register(username, password, email, invitationCode)
@@ -307,7 +307,7 @@ abstract class AuthServiceTest {
     @Test
     fun `refreshSession with valid token should return new tokens`() {
         val username = Name("username")
-        val password = Password("password")
+        val password = Password("Password123")
         val email = Email("testdaw@isel.pt")
         val invitationCode = invitationCode1.token
         val registerResult = authService.register(username, password, email, invitationCode)
@@ -356,7 +356,7 @@ abstract class AuthServiceTest {
     @Test
     fun `authenticate with valid token should return user`() {
         val username = Name("username")
-        val password = Password("password")
+        val password = Password("Password123")
         val email = Email("testdaw@isel.pt")
         val invitationCode = invitationCode1.token
         val registerResult = authService.register(username, password, email, invitationCode)
@@ -401,7 +401,7 @@ abstract class AuthServiceTest {
     @Test
     fun `authenticate after log out should fail`() {
         val username = Name("username")
-        val password = Password("password")
+        val password = Password("Password123")
         val email = Email("testdaw@isel.pt")
         val invitationCode = invitationCode1.token
         val registerResult = authService.register(username, password, email, invitationCode)
@@ -432,7 +432,7 @@ abstract class AuthServiceTest {
     @Test
     fun `logout with valid token should succeed`() {
         val username = Name("username")
-        val password = Password("password")
+        val password = Password("Password123")
         val email = Email("testdaw@isel.pt")
         val invitationCode = invitationCode1.token
         val registerResult = authService.register(username, password, email, invitationCode)
@@ -462,66 +462,18 @@ abstract class AuthServiceTest {
     }
 
     @Test
-    fun `createInvitation with valid expiration should return invitation`() {
-        val expiration = LocalDateTime.now().plusDays(1)
-        val result = authService.createInvitation(expiration)
-        assertIs<Success<ImInvitation>>(result)
-        val invitation = result.value
-        assertEquals(expiration, invitation.expiresAt)
-    }
-
-    @Test
-    fun `createInvitation with too short expiration should return error`() {
-        val expiration = LocalDateTime.now().plusMinutes(1)
-        val result = authService.createInvitation(expiration)
-        assertIs<Failure<AuthError>>(result)
-        val error = result.value
-        assertIs<AuthError.InvalidInvitationExpiration>(error)
-    }
-
-    @Test
-    fun `createInvitation with too long expiration should return error`() {
-        val expiration = LocalDateTime.now().plusDays(10)
-        val result = authService.createInvitation(expiration)
-        assertIs<Failure<AuthError>>(result)
-        val error = result.value
-        assertIs<AuthError.InvalidInvitationExpiration>(error)
-    }
-
-    @Test
-    fun `create invitation, try to register 2 users with the same one`() {
+    fun `try to register 2 users with the same invitation`() {
         val username = Name("username")
-        val password = Password("password")
+        val password = Password("Password123")
         val email = Email("testdaw@isel.pt")
         val invitationCode = invitationCode1.token
         val register1 = authService.register(username, password, email, invitationCode)
         assertIs<Success<User>>(register1)
 
-        val session1ResultUser = register1.value
-
-        assertEquals(username, session1ResultUser.name)
-        assertEquals(email, session1ResultUser.email)
-
-        val expiration = LocalDateTime.now().plusDays(1)
-        val invitation = authService.createInvitation(expiration)
-        assertIs<Success<ImInvitation>>(invitation)
-
-        val invitationCode2 = invitation.value.token
-        val username2 = Name("username2")
-        val password2 = Password("password2")
-        val email2 = Email("testdaw2@isel.pt")
-        val register2 = authService.register(username2, password2, email2, invitationCode2)
-        assertIs<Success<User>>(register2)
-
-        val session2ResultUser = register2.value
-
-        assertEquals(username2, session2ResultUser.name)
-        assertEquals(email2, session2ResultUser.email)
-
-        val username3 = Name("username3")
-        val password3 = Password("password3")
-        val email3 = Email("testdaw3@isel.pt")
-        val session3 = authService.register(username3, password3, email3, invitationCode2)
+        val username3 = Name("username2")
+        val password2 = Password("Password1233")
+        val email3 = Email("testdaw2@isel.pt")
+        val session3 = authService.register(username3, password2, email3, invitationCode)
         assertIs<Failure<AuthError>>(session3)
         val error = session3.value
         assertIs<AuthError.InvitationAlreadyUsed>(error)

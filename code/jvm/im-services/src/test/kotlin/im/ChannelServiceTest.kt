@@ -1,16 +1,16 @@
 package im
 
+import im.domain.Failure
+import im.domain.Success
 import im.domain.channel.Channel
 import im.domain.channel.ChannelRole
 import im.domain.user.User
-import im.domain.wrappers.Identifier
-import im.domain.wrappers.toName
+import im.domain.wrappers.identifier.Identifier
+import im.domain.wrappers.name.toName
 import im.repository.pagination.Pagination
 import im.repository.pagination.PaginationRequest
 import im.repository.pagination.SortRequest
 import im.repository.repositories.transactions.TransactionManager
-import im.services.Failure
-import im.services.Success
 import im.services.channels.ChannelError
 import im.services.channels.ChannelService
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -88,7 +88,7 @@ abstract class ChannelServiceTest {
 
     @Test
     fun `get channel by id non existing channel`() {
-        val result = channelService.getChannelById(Identifier(0L), testUser1)
+        val result = channelService.getChannelById(Identifier(1L), testUser1)
         assertIs<Failure<ChannelError>>(result)
         assertIs<ChannelError.ChannelNotFound>(result.value)
     }
@@ -132,7 +132,7 @@ abstract class ChannelServiceTest {
 
     @Test
     fun `update channel non existing channel`() {
-        val result = channelService.updateChannel(Identifier(0L), "newName".toName(), false, testUser1)
+        val result = channelService.updateChannel(Identifier(1L), "newName".toName(), false, testUser1)
         assertIs<Failure<ChannelError>>(result)
         assertIs<ChannelError.ChannelNotFound>(result.value)
     }
@@ -164,7 +164,7 @@ abstract class ChannelServiceTest {
 
     @Test
     fun `delete channel non existing channel`() {
-        val result = channelService.deleteChannel(Identifier(0L), testUser1)
+        val result = channelService.deleteChannel(Identifier(1L), testUser1)
         assertIs<Failure<ChannelError>>(result)
         assertIs<ChannelError.ChannelNotFound>(result.value)
     }
@@ -198,7 +198,7 @@ abstract class ChannelServiceTest {
 
     @Test
     fun `join channel non existing channel`() {
-        val result = channelService.joinChannel(Identifier(0L), testUser2.id, testUser2)
+        val result = channelService.joinChannel(Identifier(1L), testUser2.id, testUser2)
         assertIs<Failure<ChannelError>>(result)
         assertIs<ChannelError.ChannelNotFound>(result.value)
     }
@@ -285,7 +285,7 @@ abstract class ChannelServiceTest {
 
     @Test
     fun `remove channel member non existing channel`() {
-        val result = channelService.removeChannelMember(Identifier(0L), testUser2.id, testUser1)
+        val result = channelService.removeChannelMember(Identifier(1L), testUser2.id, testUser1)
         assertIs<Failure<ChannelError>>(result)
         assertIs<ChannelError.ChannelNotFound>(result.value)
     }
@@ -296,7 +296,7 @@ abstract class ChannelServiceTest {
         assertIs<Success<Channel>>(result)
         val channel = result.value
 
-        val result2 = channelService.removeChannelMember(channel.id, Identifier(0L), testUser1)
+        val result2 = channelService.removeChannelMember(channel.id, Identifier(1L), testUser1)
         assertIs<Failure<ChannelError>>(result2)
         assertIs<ChannelError.UserNotFound>(result2.value)
     }

@@ -1,4 +1,4 @@
-package im.services
+package im.domain
 
 /**
  * Represents a value of one of two possible types (a disjoint union).
@@ -8,9 +8,13 @@ package im.services
  * or succeed with a correct value.
  */
 sealed class Either<out L, out R> {
-    data class Left<out L>(val value: L) : Either<L, Nothing>()
+    data class Left<out L>(
+        val value: L,
+    ) : Either<L, Nothing>()
 
-    data class Right<out R>(val value: R) : Either<Nothing, R>()
+    data class Right<out R>(
+        val value: R,
+    ) : Either<Nothing, R>()
 }
 
 /**

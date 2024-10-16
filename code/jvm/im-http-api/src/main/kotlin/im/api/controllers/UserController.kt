@@ -1,6 +1,6 @@
 package im.api.controllers
 
-import im.api.model.input.AuthenticatedUser
+import im.api.middlewares.authentication.Authenticated
 import im.api.model.input.path.UserIdentifierInputModel
 import im.api.model.input.query.NameInputModel
 import im.api.model.input.query.PaginationInputModel
@@ -8,8 +8,9 @@ import im.api.model.input.query.SortInputModel
 import im.api.model.output.users.UserChannelsOutputModel
 import im.api.model.output.users.UserOutputModel
 import im.api.model.output.users.UsersPaginatedOutputModel
-import im.services.Failure
-import im.services.Success
+import im.domain.Failure
+import im.domain.Success
+import im.domain.user.AuthenticatedUser
 import im.services.channels.ChannelService
 import im.services.users.UserService
 import jakarta.validation.Valid
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
+@Authenticated
 @RequestMapping("/api/users")
 class UserController(
     private val userService: UserService,

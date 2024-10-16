@@ -1,6 +1,6 @@
 package im.api.controllers
 
-import im.api.model.input.AuthenticatedUser
+import im.api.middlewares.authentication.Authenticated
 import im.api.model.input.body.ChannelCreationInputModel
 import im.api.model.input.path.ChannelIdentifierInputModel
 import im.api.model.input.path.UserIdentifierInputModel
@@ -10,15 +10,15 @@ import im.api.model.input.query.SortInputModel
 import im.api.model.output.channel.ChannelCreationOutputModel
 import im.api.model.output.channel.ChannelOutputModel
 import im.api.model.output.channel.ChannelsPaginatedOutputModel
-import im.services.Failure
-import im.services.Success
+import im.domain.Failure
+import im.domain.Success
+import im.domain.user.AuthenticatedUser
 import im.services.channels.ChannelService
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController
 import java.net.URI
 
 @RestController
+@Authenticated
 @RequestMapping("/api/channels")
 class ChannelsController(
     private val channelService: ChannelService,
@@ -138,7 +139,7 @@ class ChannelsController(
      * @see ChannelIdentifierInputModel
      * @see ChannelCreationInputModel
      */
-    @PatchMapping("/{channelId}")
+    @PutMapping("/{channelId}")
     fun updateChannel(
         @Valid channelId: ChannelIdentifierInputModel,
         @RequestBody @Valid channelInput: ChannelCreationInputModel,

@@ -2,7 +2,7 @@ package im.repository.repositories.messages
 
 import im.domain.channel.Channel
 import im.domain.messages.Message
-import im.domain.wrappers.Identifier
+import im.domain.wrappers.identifier.Identifier
 import im.repository.pagination.Pagination
 import im.repository.pagination.PaginationRequest
 import im.repository.pagination.SortRequest

@@ -1,17 +1,18 @@
 package im
 
+import im.domain.Failure
+import im.domain.Success
 import im.domain.channel.Channel
 import im.domain.channel.ChannelRole
 import im.domain.invitations.ChannelInvitation
 import im.domain.invitations.ChannelInvitationStatus
+import im.domain.invitations.ImInvitation
 import im.domain.user.User
-import im.domain.wrappers.Identifier
+import im.domain.wrappers.identifier.Identifier
 import im.repository.pagination.Pagination
 import im.repository.pagination.PaginationRequest
 import im.repository.pagination.SortRequest
 import im.repository.repositories.transactions.TransactionManager
-import im.services.Failure
-import im.services.Success
 import im.services.invitations.InvitationError
 import im.services.invitations.InvitationService
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -32,9 +33,9 @@ abstract class InvitationServiceTest {
     @Autowired
     private lateinit var transactionManager: TransactionManager
 
-    private var testUser1 = User(1L, "testUser", "password", "iseldaw@isel.pt")
-    private var testUser2 = User(2L, "testUser2", "password", "iseldaw2@isel.pt")
-    private var testUser3 = User(3L, "testUser3", "password", "iseldaw3@isel.pt")
+    private var testUser1 = User(1L, "testUser", "Password123", "iseldaw@isel.pt")
+    private var testUser2 = User(2L, "testUser2", "Password123", "iseldaw2@isel.pt")
+    private var testUser3 = User(3L, "testUser3", "Password123", "iseldaw3@isel.pt")
     private var testChannel = Channel(1L, "testChannel", testUser1, true)
     private var testChannel2 = Channel(2L, "testChannel2", testUser2, true)
 
@@ -67,7 +68,7 @@ abstract class InvitationServiceTest {
     @Test
     fun `create invitation successfully`() {
         val result =
-            invitationService.createInvitation(
+            invitationService.createChannelInvitation(
                 channelId = testChannel.id,
                 inviteeId = testUser2.id,
                 expirationDate = LocalDateTime.now().plusDays(1),
@@ -85,7 +86,7 @@ abstract class InvitationServiceTest {
     @Test
     fun `fail to create invitation for non-existing channel`() {
         val result =
-            invitationService.createInvitation(
+            invitationService.createChannelInvitation(
                 channelId = Identifier(999L),
                 inviteeId = testUser2.id,
                 expirationDate = LocalDateTime.now().plusDays(1),
@@ -99,7 +100,7 @@ abstract class InvitationServiceTest {
     @Test
     fun `fail to create invitation for invitee already a member`() {
         val result =
-            invitationService.createInvitation(
+            invitationService.createChannelInvitation(
                 channelId = testChannel2.id,
                 inviteeId = testUser2.id,
                 expirationDate = LocalDateTime.now().plusDays(1),
@@ -113,7 +114,7 @@ abstract class InvitationServiceTest {
     @Test
     fun `fail to create invitation with invalid expiration date`() {
         val result =
-            invitationService.createInvitation(
+            invitationService.createChannelInvitation(
                 channelId = testChannel.id,
                 inviteeId = testUser2.id,
                 expirationDate = LocalDateTime.now().plusMonths(10),
@@ -127,7 +128,7 @@ abstract class InvitationServiceTest {
     @Test
     fun `fail to create invitation with non-existing invitee`() {
         val result =
-            invitationService.createInvitation(
+            invitationService.createChannelInvitation(
                 channelId = testChannel.id,
                 inviteeId = Identifier(999L),
                 expirationDate = LocalDateTime.now().plusDays(1),
@@ -141,7 +142,7 @@ abstract class InvitationServiceTest {
     @Test
     fun `fail to create invitation invite already exists`() {
         val result =
-            invitationService.createInvitation(
+            invitationService.createChannelInvitation(
                 channelId = testChannel.id,
                 inviteeId = testUser2.id,
                 expirationDate = LocalDateTime.now().plusDays(1),
@@ -151,7 +152,7 @@ abstract class InvitationServiceTest {
         assertIs<Success<ChannelInvitation>>(result)
 
         val result2 =
-            invitationService.createInvitation(
+            invitationService.createChannelInvitation(
                 channelId = testChannel.id,
                 inviteeId = testUser2.id,
                 expirationDate = LocalDateTime.now().plusDays(1),
@@ -165,7 +166,7 @@ abstract class InvitationServiceTest {
     @Test
     fun `fail to create invitation no permission`() {
         val result =
-            invitationService.createInvitation(
+            invitationService.createChannelInvitation(
                 channelId = testChannel.id,
                 inviteeId = testUser2.id,
                 expirationDate = LocalDateTime.now().plusDays(1),
@@ -179,7 +180,7 @@ abstract class InvitationServiceTest {
     @Test
     fun `get invitation should return invitation`() {
         val result =
-            invitationService.createInvitation(
+            invitationService.createChannelInvitation(
                 channelId = testChannel.id,
                 inviteeId = testUser2.id,
                 expirationDate = LocalDateTime.now().plusDays(1),
@@ -227,7 +228,7 @@ abstract class InvitationServiceTest {
     @Test
     fun `get invitation user cannot access`() {
         val result =
-            invitationService.createInvitation(
+            invitationService.createChannelInvitation(
                 channelId = testChannel.id,
                 inviteeId = testUser2.id,
                 expirationDate = LocalDateTime.now().plusDays(1),
@@ -250,7 +251,7 @@ abstract class InvitationServiceTest {
     @Test
     fun `get channel invitations should return invitations`() {
         val invite =
-            invitationService.createInvitation(
+            invitationService.createChannelInvitation(
                 channelId = testChannel.id,
                 inviteeId = testUser2.id,
                 expirationDate = LocalDateTime.now().plusDays(1),
@@ -259,7 +260,7 @@ abstract class InvitationServiceTest {
             )
         assertIs<Success<ChannelInvitation>>(invite)
         val invite2 =
-            invitationService.createInvitation(
+            invitationService.createChannelInvitation(
                 channelId = testChannel.id,
                 inviteeId = testUser3.id,
                 expirationDate = LocalDateTime.now().plusDays(1),
@@ -312,7 +313,7 @@ abstract class InvitationServiceTest {
     @Test
     fun `update invitation should update invitation`() {
         val invite =
-            invitationService.createInvitation(
+            invitationService.createChannelInvitation(
                 channelId = testChannel.id,
                 inviteeId = testUser2.id,
                 expirationDate = LocalDateTime.now().plusDays(1),
@@ -374,7 +375,7 @@ abstract class InvitationServiceTest {
     @Test
     fun `update invitation, user cannot update`() {
         val invite =
-            invitationService.createInvitation(
+            invitationService.createChannelInvitation(
                 channelId = testChannel.id,
                 inviteeId = testUser2.id,
                 expirationDate = LocalDateTime.now().plusDays(1),
@@ -426,7 +427,7 @@ abstract class InvitationServiceTest {
     @Test
     fun `update invitation invalid expiration date`() {
         val invite =
-            invitationService.createInvitation(
+            invitationService.createChannelInvitation(
                 channelId = testChannel.id,
                 inviteeId = testUser2.id,
                 expirationDate = LocalDateTime.now().plusDays(1),
@@ -451,7 +452,7 @@ abstract class InvitationServiceTest {
     @Test
     fun `delete invitation successfully`() {
         val createResult =
-            invitationService.createInvitation(
+            invitationService.createChannelInvitation(
                 channelId = testChannel.id,
                 inviteeId = testUser2.id,
                 expirationDate = LocalDateTime.now().plusDays(1),
@@ -497,7 +498,7 @@ abstract class InvitationServiceTest {
     @Test
     fun `fail to delete invitation as non-inviter`() {
         val createResult =
-            invitationService.createInvitation(
+            invitationService.createChannelInvitation(
                 channelId = testChannel.id,
                 inviteeId = testUser2.id,
                 expirationDate = LocalDateTime.now().plusDays(1),
@@ -520,7 +521,7 @@ abstract class InvitationServiceTest {
     @Test
     fun `get user invitations should return invitations`() {
         val invite =
-            invitationService.createInvitation(
+            invitationService.createChannelInvitation(
                 channelId = testChannel.id,
                 inviteeId = testUser2.id,
                 expirationDate = LocalDateTime.now().plusDays(1),
@@ -600,7 +601,7 @@ abstract class InvitationServiceTest {
     @Test
     fun `accept invitation, should accept invitation`() {
         val invite =
-            invitationService.createInvitation(
+            invitationService.createChannelInvitation(
                 channelId = testChannel.id,
                 inviteeId = testUser2.id,
                 expirationDate = LocalDateTime.now().plusDays(1),
@@ -631,9 +632,36 @@ abstract class InvitationServiceTest {
     }
 
     @Test
+    fun `createInvitation with valid expiration should return invitation`() {
+        val expiration = LocalDateTime.now().plusDays(1)
+        val result = invitationService.createImInvitation(expiration)
+        assertIs<Success<ImInvitation>>(result)
+        val invitation = result.value
+        assertEquals(expiration, invitation.expiresAt)
+    }
+
+    @Test
+    fun `createInvitation with too short expiration should return error`() {
+        val expiration = LocalDateTime.now().plusMinutes(1)
+        val result = invitationService.createImInvitation(expiration)
+        assertIs<Failure<InvitationError>>(result)
+        val error = result.value
+        assertIs<InvitationError.InvalidInvitationExpiration>(error)
+    }
+
+    @Test
+    fun `createInvitation with too long expiration should return error`() {
+        val expiration = LocalDateTime.now().plusDays(10)
+        val result = invitationService.createImInvitation(expiration)
+        assertIs<Failure<InvitationError>>(result)
+        val error = result.value
+        assertIs<InvitationError.InvalidInvitationExpiration>(error)
+    }
+
+    @Test
     fun `reject invitation, should reject invitation`() {
         val invite =
-            invitationService.createInvitation(
+            invitationService.createChannelInvitation(
                 channelId = testChannel.id,
                 inviteeId = testUser2.id,
                 expirationDate = LocalDateTime.now().plusDays(1),
@@ -678,7 +706,7 @@ abstract class InvitationServiceTest {
     @Test
     fun `accept invitation, user cannot access`() {
         val invite =
-            invitationService.createInvitation(
+            invitationService.createChannelInvitation(
                 channelId = testChannel.id,
                 inviteeId = testUser2.id,
                 expirationDate = LocalDateTime.now().plusDays(1),

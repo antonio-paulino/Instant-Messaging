@@ -1,6 +1,6 @@
 package im.api.controllers
 
-import im.api.model.input.AuthenticatedUser
+import im.api.middlewares.authentication.Authenticated
 import im.api.model.input.body.ChannelInvitationCreationInputModel
 import im.api.model.input.body.ChannelInvitationUpdateInputModel
 import im.api.model.input.body.InvitationAcceptInputModel
@@ -12,9 +12,10 @@ import im.api.model.input.query.SortInputModel
 import im.api.model.output.invitations.ChannelInvitationCreationOutputModel
 import im.api.model.output.invitations.ChannelInvitationOutputModel
 import im.api.model.output.invitations.ChannelInvitationsPaginatedOutputModel
+import im.domain.Failure
+import im.domain.Success
 import im.domain.invitations.ChannelInvitationStatus
-import im.services.Failure
-import im.services.Success
+import im.domain.user.AuthenticatedUser
 import im.services.invitations.InvitationService
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController
 import java.net.URI
 
 @RestController
+@Authenticated
 @RequestMapping("/api")
 class InvitationsController(
     private val invitationService: InvitationService,
@@ -63,7 +65,7 @@ class InvitationsController(
     ): ResponseEntity<Any> =
         when (
             val res =
-                invitationService.createInvitation(
+                invitationService.createChannelInvitation(
                     channelId.toDomain(),
                     invitationInput.invitee.toDomain(),
                     invitationInput.expiresAt,

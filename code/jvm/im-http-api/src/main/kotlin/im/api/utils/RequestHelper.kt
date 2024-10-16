@@ -1,7 +1,7 @@
 package im.api.utils
 
-import im.api.model.input.AuthenticatedUser
 import im.domain.tokens.AccessToken
+import im.domain.user.AuthenticatedUser
 import im.domain.user.User
 import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletRequest
@@ -14,14 +14,8 @@ private const val ACCESS_TOKEN_COOKIE_NAME = "access_token"
 private const val REFRESH_TOKEN_COOKIE_NAME = "refresh_token"
 private const val AUTHENTICATED_USER_ATTRIBUTE = "user"
 
-private const val REGISTER_ROUTE = "/api/auth/register"
-private const val LOGIN_ROUTE = "/api/auth/login"
-private const val REFRESH_ROUTE = "/api/auth/refresh"
-
 @Component
 class RequestHelper {
-    fun getNoAuthRoutes(): List<String> = listOf(REGISTER_ROUTE, LOGIN_ROUTE, REFRESH_ROUTE)
-
     fun setAuthenticatedUser(
         req: HttpServletRequest,
         user: User,

@@ -40,9 +40,9 @@ abstract class MessageControllerTests {
     @Autowired
     private lateinit var transactionManager: TransactionManager
 
-    private var testUser = User(1L, "testUser", "password", "iseldaw@isel.pt")
-    private var testUser2 = User(2L, "testUser2", "password", "iseldaw2@isel.pt")
-    private var testUser3 = User(3L, "testUser3", "password", "iseldaw3@isel.pt")
+    private var testUser = User(1L, "testUser", "testPassword1", "iseldaw@isel.pt")
+    private var testUser2 = User(2L, "testUser2", "testPassword2", "iseldaw2@isel.pt")
+    private var testUser3 = User(3L, "testUser3", "testPassword3", "iseldaw3@isel.pt")
     private var testChannel = Channel(1L, "testChannel", testUser, true)
     private var testChannel2 = Channel(2L, "testChannel2", testUser, true)
 

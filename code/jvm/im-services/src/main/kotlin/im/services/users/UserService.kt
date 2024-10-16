@@ -1,11 +1,11 @@
 package im.services.users
 
+import im.domain.Either
 import im.domain.user.User
-import im.domain.wrappers.Identifier
+import im.domain.wrappers.identifier.Identifier
 import im.repository.pagination.Pagination
 import im.repository.pagination.PaginationRequest
 import im.repository.pagination.SortRequest
-import im.services.Either
 
 interface UserService {
     /**

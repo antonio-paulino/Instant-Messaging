@@ -3,7 +3,7 @@ package im.repository.mem.repositories
 import im.domain.channel.Channel
 import im.domain.messages.Message
 import im.domain.user.User
-import im.domain.wrappers.Identifier
+import im.domain.wrappers.identifier.Identifier
 import im.repository.mem.model.message.MessageDTO
 import im.repository.pagination.Pagination
 import im.repository.pagination.PaginationRequest

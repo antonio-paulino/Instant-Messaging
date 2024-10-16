@@ -1,33 +1,33 @@
 package im.services.invitations
 
+import im.domain.Either
+import im.domain.Failure
 import im.domain.channel.ChannelRole
+import im.domain.failure
 import im.domain.invitations.ChannelInvitation
 import im.domain.invitations.ChannelInvitationStatus
+import im.domain.invitations.ImInvitation
+import im.domain.success
 import im.domain.user.User
-import im.domain.wrappers.Identifier
+import im.domain.wrappers.identifier.Identifier
 import im.repository.pagination.Pagination
 import im.repository.pagination.PaginationRequest
 import im.repository.pagination.SortRequest
 import im.repository.repositories.transactions.TransactionManager
-import im.services.Either
-import im.services.Failure
-import im.services.failure
-import im.services.success
 import jakarta.inject.Named
 import java.time.LocalDateTime
 
 @Named
 class InvitationServiceImpl(
-    val transactionManager: TransactionManager,
+    private val transactionManager: TransactionManager,
+    private val config: InvitationConfig,
 ) : InvitationService {
     companion object {
-        private const val INVITATION_MAX_EXPIRATION_DAYS = 30L
-        private const val INVITATION_MIN_EXPIRATION_MINUTES = 15L
         private const val DEFAULT_SORT = "id"
         private val validSortFields = setOf("id", "role", "expiresAt")
     }
 
-    override fun createInvitation(
+    override fun createChannelInvitation(
         channelId: Identifier,
         inviteeId: Identifier,
         expirationDate: LocalDateTime,
@@ -39,6 +39,10 @@ class InvitationServiceImpl(
 
             if (expiryValidation is Failure) {
                 return@run expiryValidation
+            }
+
+            if (role == ChannelRole.OWNER) {
+                return@run Failure(InvitationError.OwnerInvitationNotAllowed)
             }
 
             val channel =
@@ -143,6 +147,10 @@ class InvitationServiceImpl(
 
             if (expiryValidation is Failure) {
                 return@run expiryValidation
+            }
+
+            if (role == ChannelRole.OWNER) {
+                return@run Failure(InvitationError.OwnerInvitationNotAllowed)
             }
 
             val channel =
@@ -260,20 +268,50 @@ class InvitationServiceImpl(
         }
 
     private fun validateExpirationDate(expirationDate: LocalDateTime): Either<InvitationError, Unit> {
-        if (expirationDate.isBefore(LocalDateTime.now().plusMinutes(INVITATION_MIN_EXPIRATION_MINUTES))) {
-            return failure(
-                InvitationError.InvalidInvitationExpiration(
-                    "Minimum expiration time is $INVITATION_MIN_EXPIRATION_MINUTES minutes",
-                ),
-            )
+        val minExpiration = LocalDateTime.now().plusMinutes(config.minChannelInvitationTTL.inWholeMinutes)
+        val maxExpiration = LocalDateTime.now().plusHours(config.maxChannelInvitationTTL.inWholeHours)
+
+        return when {
+            expirationDate.isBefore(minExpiration) ->
+                failure(
+                    InvitationError.InvalidInvitationExpiration(
+                        "Minimum expiration time is ${config.minChannelInvitationTTL.inWholeMinutes} minutes",
+                    ),
+                )
+            expirationDate.isAfter(maxExpiration) ->
+                failure(
+                    InvitationError.InvalidInvitationExpiration(
+                        "Maximum expiration time is ${config.maxChannelInvitationTTL.inWholeHours} hours",
+                    ),
+                )
+            else -> success(Unit)
         }
-        if (expirationDate.isAfter(LocalDateTime.now().plusDays(INVITATION_MAX_EXPIRATION_DAYS))) {
-            return failure(
-                InvitationError.InvalidInvitationExpiration(
-                    "Maximum expiration time is $INVITATION_MAX_EXPIRATION_DAYS days",
-                ),
-            )
-        }
-        return success(Unit)
     }
+
+    override fun createImInvitation(expiration: LocalDateTime?): Either<InvitationError, ImInvitation> =
+        transactionManager.run {
+            val expires = expiration ?: LocalDateTime.now().plusMinutes(config.defaultImInvitationTTL.inWholeMinutes)
+            val minExpiration = LocalDateTime.now().plusMinutes(config.minImInvitationTTL.inWholeMinutes)
+            val maxExpiration = LocalDateTime.now().plusMinutes(config.maxImInvitationTTL.inWholeMinutes)
+
+            when {
+                expires.isBefore(minExpiration) -> return@run failure(
+                    InvitationError.InvalidInvitationExpiration(
+                        "Minimum expiration time is ${config.minImInvitationTTL.inWholeMinutes} minutes",
+                    ),
+                )
+                expires.isAfter(maxExpiration) -> return@run failure(
+                    InvitationError.InvalidInvitationExpiration(
+                        "Maximum expiration time is ${config.maxImInvitationTTL.inWholeHours} hours",
+                    ),
+                )
+            }
+
+            val invitation =
+                imInvitationRepository.save(
+                    ImInvitation(expiresAt = expires),
+                )
+
+            success(invitation)
+        }
 }

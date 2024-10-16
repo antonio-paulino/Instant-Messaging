@@ -1,17 +1,17 @@
 package im
 
+import im.domain.Failure
+import im.domain.Success
 import im.domain.channel.Channel
 import im.domain.channel.ChannelRole
 import im.domain.messages.Message
 import im.domain.user.User
-import im.domain.wrappers.toIdentifier
+import im.domain.wrappers.identifier.toIdentifier
 import im.repository.pagination.Pagination
 import im.repository.pagination.PaginationRequest
 import im.repository.pagination.Sort
 import im.repository.pagination.SortRequest
 import im.repository.repositories.transactions.TransactionManager
-import im.services.Failure
-import im.services.Success
 import im.services.messages.MessageError
 import im.services.messages.MessageService
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -34,9 +34,9 @@ abstract class MessageServiceTest {
     @Autowired
     private lateinit var transactionManager: TransactionManager
 
-    private var testUser = User(1L, "testUser", "password", "iseldaw@isel.pt")
-    private var testUser2 = User(2L, "testUser2", "password", "iseldaw2@isel.pt")
-    private var testUser3 = User(3L, "testUser3", "password", "iseldaw3@isel.pt")
+    private var testUser = User(1L, "testUser", "Password123", "iseldaw@isel.pt")
+    private var testUser2 = User(2L, "testUser2", "Password123", "iseldaw2@isel.pt")
+    private var testUser3 = User(3L, "testUser3", "Password123", "iseldaw3@isel.pt")
     private var testChannel = Channel(1L, "testChannel", testUser, true)
     private var testChannel2 = Channel(2L, "testChannel2", testUser, true)
 
@@ -94,7 +94,7 @@ abstract class MessageServiceTest {
     fun `create message channel not found should return failure`() {
         val message =
             messageService.createMessage(
-                0L.toIdentifier(),
+                999L.toIdentifier(),
                 "test message",
                 testUser,
             )
@@ -122,7 +122,7 @@ abstract class MessageServiceTest {
             messageService.createMessage(
                 testChannel.id,
                 "test message",
-                User(0L, "testUser2", "password", "test@daw.isel.pt"),
+                User(1L, "testUser2", "Password123", "test@daw.isel.pt"),
             )
         assertIs<Failure<MessageError>>(message)
         val error = message.value
@@ -131,7 +131,7 @@ abstract class MessageServiceTest {
 
     @Test
     fun `test get channel messages channel not found`() {
-        val messages = messageService.getChannelMessages(0L.toIdentifier(), PaginationRequest(1, 10), SortRequest("createdAt"), testUser)
+        val messages = messageService.getChannelMessages(1L.toIdentifier(), PaginationRequest(1, 10), SortRequest("createdAt"), testUser)
         assertIs<Failure<MessageError>>(messages)
         val error = messages.value
         assertIs<MessageError.ChannelNotFound>(error)
@@ -144,7 +144,7 @@ abstract class MessageServiceTest {
                 testChannel.id,
                 PaginationRequest(1, 10),
                 SortRequest("createdAt"),
-                User(0L, "testUser2", "password", "test@daw.isel.pt"),
+                User(1L, "testUser2", "Password123", "test@daw.isel.pt"),
             )
         assertIs<Failure<MessageError>>(messages)
         val error = messages.value
@@ -296,7 +296,7 @@ abstract class MessageServiceTest {
         val message =
             messageService.updateMessage(
                 testChannel.id,
-                0L.toIdentifier(),
+                1L.toIdentifier(),
                 "test message",
                 testUser,
             )
@@ -309,8 +309,8 @@ abstract class MessageServiceTest {
     fun `update message channel not found should return failure`() {
         val message =
             messageService.updateMessage(
-                0L.toIdentifier(),
-                0L.toIdentifier(),
+                1L.toIdentifier(),
+                1L.toIdentifier(),
                 "test message",
                 testUser,
             )
@@ -372,7 +372,7 @@ abstract class MessageServiceTest {
         val message =
             messageService.deleteMessage(
                 testChannel.id,
-                0L.toIdentifier(),
+                1L.toIdentifier(),
                 testUser,
             )
         assertIs<Failure<MessageError>>(message)
@@ -384,8 +384,8 @@ abstract class MessageServiceTest {
     fun `delete message channel not found should return failure`() {
         val message =
             messageService.deleteMessage(
-                0L.toIdentifier(),
-                0L.toIdentifier(),
+                1L.toIdentifier(),
+                1L.toIdentifier(),
                 testUser,
             )
         assertIs<Failure<MessageError>>(message)
@@ -474,7 +474,7 @@ abstract class MessageServiceTest {
 
     @Test
     fun `find message by id message not found should return failure`() {
-        val found = messageService.getMessageById(testChannel.id, 0L.toIdentifier(), testUser)
+        val found = messageService.getMessageById(testChannel.id, 1L.toIdentifier(), testUser)
         assertIs<Failure<MessageError>>(found)
         val error = found.value
         assertIs<MessageError.MessageNotFound>(error)
@@ -482,7 +482,7 @@ abstract class MessageServiceTest {
 
     @Test
     fun `find message by id channel not found should return failure`() {
-        val found = messageService.getMessageById(0L.toIdentifier(), 0L.toIdentifier(), testUser)
+        val found = messageService.getMessageById(1L.toIdentifier(), 1L.toIdentifier(), testUser)
         assertIs<Failure<MessageError>>(found)
         val error = found.value
         assertIs<MessageError.ChannelNotFound>(error)

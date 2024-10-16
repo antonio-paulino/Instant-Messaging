@@ -1,18 +1,18 @@
 package im.services.channels
 
+import im.domain.Either
+import im.domain.Failure
 import im.domain.channel.Channel
 import im.domain.channel.ChannelRole
+import im.domain.failure
+import im.domain.success
 import im.domain.user.User
-import im.domain.wrappers.Identifier
-import im.domain.wrappers.Name
+import im.domain.wrappers.identifier.Identifier
+import im.domain.wrappers.name.Name
 import im.repository.pagination.Pagination
 import im.repository.pagination.PaginationRequest
 import im.repository.pagination.SortRequest
 import im.repository.repositories.transactions.TransactionManager
-import im.services.Either
-import im.services.Failure
-import im.services.failure
-import im.services.success
 import jakarta.inject.Named
 
 @Named

@@ -22,7 +22,7 @@ import kotlin.test.assertTrue
 
 @SpringBootTest
 class TransactionManagerTest {
-    private var testUser = User(1L, "testUser", "password", "user1@daw.isel.pt")
+    private var testUser = User(1L, "testUser", "Password123", "user1@daw.isel.pt")
     private var testChannel = Channel(1L, "testChannel", testUser, true)
 
     @Autowired
@@ -39,7 +39,7 @@ class TransactionManagerTest {
         userRepository.deleteAll()
         channelRepository.deleteAll()
 
-        testUser = User(1L, "testUser", "password", "user1@daw.isel.pt")
+        testUser = User(1L, "testUser", "Password123", "user1@daw.isel.pt")
         testChannel = Channel(1L, "testChannel", testUser, true)
     }
 
@@ -67,7 +67,7 @@ class TransactionManagerTest {
     @Test
     fun `test transaction run with serialization exception retries and saves`() {
         var retried = false
-        var testUser = User(1L, "testUser", "password", "user1@daw.isel.pt")
+        var testUser = User(1L, "testUser", "Password123", "user1@daw.isel.pt")
         assertDoesNotThrow {
             transactionManager.run(TransactionIsolation.SERIALIZABLE) {
                 testUser = userRepository.save(testUser)

@@ -51,7 +51,7 @@ abstract class AccessTokenRepositoryTest {
 
     private fun insertData() {
         transactionManager.run {
-            testUser = userRepository.save(User(1, "user", "password", "user1@daw.isel.pt"))
+            testUser = userRepository.save(User(1, "user", "Password123", "user1@daw.isel.pt"))
             testSession =
                 sessionRepository.save(
                     Session(

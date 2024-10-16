@@ -3,7 +3,7 @@ package im.domain.invitations
 import im.domain.channel.Channel
 import im.domain.channel.ChannelRole
 import im.domain.user.User
-import im.domain.wrappers.Identifier
+import im.domain.wrappers.identifier.Identifier
 import java.time.LocalDateTime
 
 /**

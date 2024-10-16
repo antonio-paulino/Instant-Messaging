@@ -6,10 +6,11 @@ import im.domain.invitations.ChannelInvitation
 import im.domain.invitations.ChannelInvitationStatus
 import im.domain.sessions.Session
 import im.domain.user.User
-import im.domain.wrappers.toEmail
-import im.domain.wrappers.toIdentifier
-import im.domain.wrappers.toName
-import im.domain.wrappers.toPassword
+import im.domain.wrappers.email.toEmail
+import im.domain.wrappers.identifier.Identifier
+import im.domain.wrappers.identifier.toIdentifier
+import im.domain.wrappers.name.toName
+import im.domain.wrappers.password.toPassword
 import im.repository.pagination.PaginationRequest
 import im.repository.pagination.Sort
 import im.repository.pagination.SortRequest
@@ -64,8 +65,8 @@ abstract class UserRepositoryTest {
 
     private fun insertData() {
         transactionManager.run {
-            testUser = User(1, "user1", "password", "user1@daw.isel.pt")
-            testUser2 = User(2, "user2", "password", "user2@daw.isel.pt")
+            testUser = User(1, "user1", "Password123", "user1@daw.isel.pt")
+            testUser2 = User(2, "user2", "Password123", "user2@daw.isel.pt")
 
             testSession =
                 Session(
@@ -169,12 +170,12 @@ abstract class UserRepositoryTest {
     fun `should update user information`() {
         transactionManager.run {
             val savedUser = userRepository.save(testUser)
-            val updatedUser = savedUser.copy(name = "updatedName".toName(), password = "updatedPassword".toPassword())
+            val updatedUser = savedUser.copy(name = "updatedName".toName(), password = "updatedPassword123".toPassword())
             userRepository.save(updatedUser)
             val user = userRepository.findById(savedUser.id)
             assertNotNull(user)
             assertEquals("updatedName".toName(), user.name)
-            assertEquals("updatedPassword".toPassword(), user.password)
+            assertEquals("updatedPassword123".toPassword(), user.password)
         }
     }
 
@@ -246,7 +247,7 @@ abstract class UserRepositoryTest {
         assertThrows<Exception> {
             transactionManager.run {
                 userRepository.save(testUser)
-                val user2 = testUser.copy(id = im.domain.wrappers.Identifier(999L), password = "password2".toPassword())
+                val user2 = testUser.copy(id = Identifier(999L), password = "password2".toPassword())
                 userRepository.save(user2)
             }
         }
@@ -255,10 +256,10 @@ abstract class UserRepositoryTest {
     @Test
     fun `should find users by partial name match`() {
         transactionManager.run {
-            val user1 = User(name = "john.doe", password = "password1", email = "user1@daw.isel.pt")
-            val user2 = User(name = "jane.doe", password = "password2", email = "user2@daw.isel.pt")
-            val user3 = User(name = "bea.smith", password = "password3", email = "user3@daw.isel.pt")
-            val user4 = User(name = "jane.smith", password = "password4", email = "user4@daw.isel.pt")
+            val user1 = User(name = "john.doe", password = "Password1", email = "user1@daw.isel.pt")
+            val user2 = User(name = "jane.doe", password = "Password2", email = "user2@daw.isel.pt")
+            val user3 = User(name = "bea.smith", password = "Password3", email = "user3@daw.isel.pt")
+            val user4 = User(name = "jane.smith", password = "Password4", email = "user4@daw.isel.pt")
             userRepository.save(user1)
             userRepository.save(user2)
             userRepository.save(user3)
@@ -274,8 +275,8 @@ abstract class UserRepositoryTest {
     @Test
     fun `should return empty list when no users are found by partial name match`() {
         transactionManager.run {
-            val user1 = User(name = "john.doe", password = "password1", email = "user1@daw.isel.pt")
-            val user2 = User(name = "jane.doe", password = "password2", email = "user2@daw.isel.pt")
+            val user1 = User(name = "john.doe", password = "Password1", email = "user1@daw.isel.pt")
+            val user2 = User(name = "jane.doe", password = "Password2", email = "user2@daw.isel.pt")
             userRepository.save(user1)
             userRepository.save(user2)
             val users = userRepository.findByPartialName("doe", PaginationRequest(1, 1), SortRequest("id"))
@@ -315,7 +316,7 @@ abstract class UserRepositoryTest {
     @Test
     fun `should return null when user not found by name and password`() {
         transactionManager.run {
-            val user = userRepository.findByNameAndPassword("non-existing".toName(), "non-existing".toPassword())
+            val user = userRepository.findByNameAndPassword("non-existing".toName(), "Non-existing1".toPassword())
             assertTrue(user == null)
         }
     }
@@ -339,7 +340,7 @@ abstract class UserRepositoryTest {
     fun `should return null when user not found by email and password`() {
         transactionManager.run {
             val user =
-                userRepository.findByEmailAndPassword("non-existing@isel.pt".toEmail(), "non-existing".toPassword())
+                userRepository.findByEmailAndPassword("non-existing@isel.pt".toEmail(), "Non-existing1".toPassword())
             assertTrue(user == null)
         }
     }

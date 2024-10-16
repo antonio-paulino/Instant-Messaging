@@ -12,8 +12,8 @@ import im.domain.sessions.Session
 import im.domain.tokens.AccessToken
 import im.domain.tokens.RefreshToken
 import im.domain.user.User
-import im.domain.wrappers.Name
-import im.domain.wrappers.toPassword
+import im.domain.wrappers.name.Name
+import im.domain.wrappers.password.toPassword
 import im.repository.repositories.transactions.TransactionManager
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals

@@ -3,8 +3,8 @@ package im.repository.mem.repositories
 import im.domain.channel.Channel
 import im.domain.channel.ChannelRole
 import im.domain.user.User
-import im.domain.wrappers.Identifier
-import im.domain.wrappers.Name
+import im.domain.wrappers.identifier.Identifier
+import im.domain.wrappers.name.Name
 import im.repository.mem.model.channel.ChannelDTO
 import im.repository.pagination.Pagination
 import im.repository.pagination.PaginationRequest

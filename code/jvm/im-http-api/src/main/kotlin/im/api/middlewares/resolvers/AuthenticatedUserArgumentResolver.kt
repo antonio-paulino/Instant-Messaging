@@ -1,6 +1,6 @@
 package im.api.middlewares.resolvers
 
-import im.api.model.input.AuthenticatedUser
+import im.domain.user.AuthenticatedUser
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.core.MethodParameter
 import org.springframework.stereotype.Component
@@ -17,9 +17,7 @@ import org.springframework.web.method.support.ModelAndViewContainer
  */
 @Component
 class AuthenticatedUserArgumentResolver : HandlerMethodArgumentResolver {
-    override fun supportsParameter(parameter: MethodParameter): Boolean {
-        return parameter.parameterType == AuthenticatedUser::class.java
-    }
+    override fun supportsParameter(parameter: MethodParameter): Boolean = parameter.parameterType == AuthenticatedUser::class.java
 
     override fun resolveArgument(
         parameter: MethodParameter,

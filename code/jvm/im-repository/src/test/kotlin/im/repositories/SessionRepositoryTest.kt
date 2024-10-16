@@ -2,7 +2,7 @@ package im.repositories
 
 import im.domain.sessions.Session
 import im.domain.user.User
-import im.domain.wrappers.toIdentifier
+import im.domain.wrappers.identifier.toIdentifier
 import im.repository.pagination.PaginationRequest
 import im.repository.pagination.Sort
 import im.repository.pagination.SortRequest
@@ -24,7 +24,7 @@ private const val SESSION_DURATION_DAYS = 90L
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
 abstract class SessionRepositoryTest {
-    private var testUser = User(1, "user", "password", "user1@daw.isel.pt")
+    private var testUser = User(1, "user", "Password123", "user1@daw.isel.pt")
 
     private var testSession: Session =
         Session(

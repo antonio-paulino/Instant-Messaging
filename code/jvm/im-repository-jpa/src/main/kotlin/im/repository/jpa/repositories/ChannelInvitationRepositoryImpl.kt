@@ -4,7 +4,7 @@ import im.domain.channel.Channel
 import im.domain.invitations.ChannelInvitation
 import im.domain.invitations.ChannelInvitationStatus
 import im.domain.user.User
-import im.domain.wrappers.Identifier
+import im.domain.wrappers.identifier.Identifier
 import im.repository.jpa.model.invitation.ChannelInvitationDTO
 import im.repository.jpa.model.invitation.ChannelInvitationStatusDTO
 import im.repository.jpa.repositories.jpa.ChannelInvitationRepositoryJpa

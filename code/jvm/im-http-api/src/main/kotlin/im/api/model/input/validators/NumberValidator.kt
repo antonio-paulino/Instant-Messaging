@@ -6,6 +6,9 @@ import jakarta.validation.ConstraintValidatorContext
 import jakarta.validation.Payload
 import kotlin.reflect.KClass
 
+/**
+ * Validates if a field is a number.
+ */
 @Constraint(validatedBy = [NumberValidator::class])
 @Target(AnnotationTarget.FIELD, AnnotationTarget.VALUE_PARAMETER)
 @Retention(AnnotationRetention.RUNTIME)
@@ -19,7 +22,5 @@ class NumberValidator : ConstraintValidator<IsNumber, String> {
     override fun isValid(
         value: String?,
         context: ConstraintValidatorContext?,
-    ): Boolean {
-        return value?.toIntOrNull() != null
-    }
+    ): Boolean = value?.toIntOrNull() != null
 }

@@ -15,7 +15,7 @@ class MessageTest {
             User(
                 id = 1L,
                 name = "user",
-                password = "password",
+                password = "Password123",
                 email = "user1@daw.isel.pt",
             )
         val channel =
@@ -42,7 +42,7 @@ class MessageTest {
             User(
                 id = 1L,
                 name = "user",
-                password = "password",
+                password = "Password123",
                 email = "user1@daw.isel.pt",
             )
         val channel =
@@ -71,7 +71,7 @@ class MessageTest {
             User(
                 id = 1L,
                 name = "user",
-                password = "password",
+                password = "Password123",
                 email = "user1@daw.isel.pt",
             )
         val channel =
@@ -98,7 +98,7 @@ class MessageTest {
             User(
                 id = 1L,
                 name = "user",
-                password = "password",
+                password = "Password123",
                 email = "user1@daw.isel.pt",
             )
         val channel =

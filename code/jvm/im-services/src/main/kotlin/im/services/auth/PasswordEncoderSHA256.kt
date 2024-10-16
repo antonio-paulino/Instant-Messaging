@@ -1,27 +1,26 @@
 package im.services.auth
 
-import im.domain.wrappers.Password
-import im.domain.wrappers.toPassword
-import jakarta.inject.Named
+import im.domain.wrappers.password.Password
+import im.domain.wrappers.password.PasswordEncoder
+import im.domain.wrappers.password.toPassword
 import java.security.MessageDigest
 import java.security.SecureRandom
 import java.util.Base64
 
-@Named
-class PasswordEncoder {
-    fun encode(
+class PasswordEncoderSHA256 : PasswordEncoder {
+    override fun encode(
         password: Password,
-        iterations: Int = 1000,
+        iterations: Int,
     ): Password {
         val salt = generateSalt()
         val hash = hashPassword(password, salt, iterations)
         return "${Base64.getUrlEncoder().encodeToString(salt)}:$hash".toPassword()
     }
 
-    fun verify(
+    override fun verify(
         password: Password,
         storedPassword: Password,
-        iterations: Int = 1000,
+        iterations: Int,
     ): Boolean {
         val parts = storedPassword.value.split(":")
         val salt = Base64.getUrlDecoder().decode(parts[0])

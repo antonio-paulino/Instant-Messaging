@@ -31,9 +31,7 @@ abstract class ChannelControllerTests {
     @LocalServerPort
     protected var port: Int = 0
 
-    private fun getBaseUrl(): String {
-        return "http://localhost:$port"
-    }
+    private fun getBaseUrl(): String = "http://localhost:$port"
 
     private fun getClient() = WebTestClient.bindToServer().baseUrl(getBaseUrl()).build()
 
@@ -76,24 +74,29 @@ abstract class ChannelControllerTests {
     fun `create channel no auth`() {
         val client = getClient()
 
-        client.post()
+        client
+            .post()
             .uri("api/channels")
             .bodyValue(mapOf("name" to "testChannel", "isPublic" to true))
             .exchange()
-            .expectStatus().isUnauthorized
+            .expectStatus()
+            .isUnauthorized
     }
 
     @Test
     fun `create channel should create a channel 201`() {
         val client = getClient()
 
-        client.post()
+        client
+            .post()
             .uri("api/channels")
             .cookie("access_token", accessToken1.token.toString())
             .bodyValue(mapOf("name" to "testChannel", "isPublic" to true))
             .exchange()
-            .expectStatus().isCreated
-            .expectHeader().valueMatches("Location", "/api/channels/\\d+")
+            .expectStatus()
+            .isCreated
+            .expectHeader()
+            .valueMatches("Location", "/api/channels/\\d+")
             .expectBody(ChannelCreationOutputModel::class.java)
             .returnResult()
             .responseBody
@@ -111,12 +114,14 @@ abstract class ChannelControllerTests {
             channelRepository.save(Channel(0L, "testChannel", testUser1, true))
         }
 
-        client.post()
+        client
+            .post()
             .uri("api/channels")
             .cookie("access_token", accessToken1.token.toString())
             .bodyValue(mapOf("name" to "testChannel", "isPublic" to true))
             .exchange()
-            .expectStatus().isEqualTo(HttpStatus.CONFLICT)
+            .expectStatus()
+            .isEqualTo(HttpStatus.CONFLICT)
             .expectBody(ProblemOutputModel::class.java)
             .returnResult()
             .responseBody
@@ -130,10 +135,12 @@ abstract class ChannelControllerTests {
     fun `get channel by id no auth`() {
         val client = getClient()
 
-        client.get()
+        client
+            .get()
             .uri("api/channels/1")
             .exchange()
-            .expectStatus().isUnauthorized
+            .expectStatus()
+            .isUnauthorized
     }
 
     @Test
@@ -145,11 +152,13 @@ abstract class ChannelControllerTests {
                 channelRepository.save(Channel(0L, "testChannel", testUser1, true))
             }
 
-        client.get()
+        client
+            .get()
             .uri("api/channels/${channel.id}")
             .cookie("access_token", accessToken1.token.toString())
             .exchange()
-            .expectStatus().isOk
+            .expectStatus()
+            .isOk
             .expectBody(ChannelOutputModel::class.java)
             .returnResult()
             .responseBody
@@ -165,11 +174,13 @@ abstract class ChannelControllerTests {
     fun `get channel by id non existing channel 404`() {
         val client = getClient()
 
-        client.get()
+        client
+            .get()
             .uri("api/channels/1")
             .cookie("access_token", accessToken1.token.toString())
             .exchange()
-            .expectStatus().isNotFound
+            .expectStatus()
+            .isNotFound
             .expectBody(ProblemOutputModel::class.java)
             .returnResult()
             .responseBody
@@ -188,11 +199,13 @@ abstract class ChannelControllerTests {
                 channelRepository.save(Channel(0L, "testChannel", testUser1, true))
             }
 
-        client.get()
+        client
+            .get()
             .uri("api/channels/${channel.id}")
             .cookie("access_token", accessToken2.token.toString())
             .exchange()
-            .expectStatus().isOk
+            .expectStatus()
+            .isOk
             .expectBody(ChannelOutputModel::class.java)
             .returnResult()
             .responseBody
@@ -213,11 +226,13 @@ abstract class ChannelControllerTests {
                 channelRepository.save(Channel(0L, "testChannel", testUser1, false))
             }
 
-        client.get()
+        client
+            .get()
             .uri("api/channels/${channel.id}")
             .cookie("access_token", accessToken2.token.toString())
             .exchange()
-            .expectStatus().isForbidden
+            .expectStatus()
+            .isForbidden
             .expectBody(ProblemOutputModel::class.java)
             .returnResult()
             .responseBody
@@ -231,11 +246,13 @@ abstract class ChannelControllerTests {
     fun `test update channel no auth`() {
         val client = getClient()
 
-        client.put()
+        client
+            .put()
             .uri("api/channels/1")
             .bodyValue(mapOf("name" to "newName", "isPublic" to false))
             .exchange()
-            .expectStatus().isUnauthorized
+            .expectStatus()
+            .isUnauthorized
     }
 
     @Test
@@ -249,12 +266,14 @@ abstract class ChannelControllerTests {
 
         val update = ChannelCreationInputModel("newName", false)
 
-        client.patch()
+        client
+            .put()
             .uri("api/channels/${channel.id}")
             .cookie("access_token", accessToken1.token.toString())
             .bodyValue(update)
             .exchange()
-            .expectStatus().isNoContent
+            .expectStatus()
+            .isNoContent
 
         val updatedChannel =
             transactionManager.run {
@@ -272,12 +291,14 @@ abstract class ChannelControllerTests {
 
         val update = ChannelCreationInputModel("newName", false)
 
-        client.patch()
+        client
+            .put()
             .uri("api/channels/1")
             .cookie("access_token", accessToken1.token.toString())
             .bodyValue(update)
             .exchange()
-            .expectStatus().isNotFound
+            .expectStatus()
+            .isNotFound
             .expectBody(ProblemOutputModel::class.java)
             .returnResult()
             .responseBody
@@ -298,12 +319,14 @@ abstract class ChannelControllerTests {
 
         val update = ChannelCreationInputModel("newName", false)
 
-        client.patch()
+        client
+            .put()
             .uri("api/channels/${channel.id}")
             .cookie("access_token", accessToken2.token.toString())
             .bodyValue(update)
             .exchange()
-            .expectStatus().isForbidden
+            .expectStatus()
+            .isForbidden
             .expectBody(ProblemOutputModel::class.java)
             .returnResult()
             .responseBody
@@ -322,11 +345,13 @@ abstract class ChannelControllerTests {
                 channelRepository.save(Channel(0L, "testChannel", testUser1, true))
             }
 
-        client.delete()
+        client
+            .delete()
             .uri("api/channels/${channel.id}")
             .cookie("access_token", accessToken1.token.toString())
             .exchange()
-            .expectStatus().isNoContent
+            .expectStatus()
+            .isNoContent
 
         val deletedChannel =
             transactionManager.run {
@@ -340,21 +365,25 @@ abstract class ChannelControllerTests {
     fun `delete channel no auth 401`() {
         val client = getClient()
 
-        client.delete()
+        client
+            .delete()
             .uri("api/channels/1")
             .exchange()
-            .expectStatus().isUnauthorized
+            .expectStatus()
+            .isUnauthorized
     }
 
     @Test
     fun `delete channel non existing channel 404`() {
         val client = getClient()
 
-        client.delete()
+        client
+            .delete()
             .uri("api/channels/1")
             .cookie("access_token", accessToken1.token.toString())
             .exchange()
-            .expectStatus().isNotFound
+            .expectStatus()
+            .isNotFound
             .expectBody(ProblemOutputModel::class.java)
             .returnResult()
             .responseBody
@@ -373,11 +402,13 @@ abstract class ChannelControllerTests {
                 channelRepository.save(Channel(0L, "testChannel", testUser1, true))
             }
 
-        client.delete()
+        client
+            .delete()
             .uri("api/channels/${channel.id}")
             .cookie("access_token", accessToken2.token.toString())
             .exchange()
-            .expectStatus().isForbidden
+            .expectStatus()
+            .isForbidden
             .expectBody(ProblemOutputModel::class.java)
             .returnResult()
             .responseBody
@@ -396,12 +427,15 @@ abstract class ChannelControllerTests {
                 channelRepository.save(Channel(0L, "testChannel", testUser1, true))
             }
 
-        client.put()
+        client
+            .put()
             .uri("api/channels/${channel.id}/members/${testUser2.id}")
             .cookie("access_token", accessToken2.token.toString())
             .exchange()
-            .expectStatus().isCreated
-            .expectHeader().valueMatches("Location", "/api/channels/${channel.id}/members/\\d+")
+            .expectStatus()
+            .isCreated
+            .expectHeader()
+            .valueMatches("Location", "/api/channels/${channel.id}/members/\\d+")
 
         val updatedChannel =
             transactionManager.run {
@@ -416,11 +450,13 @@ abstract class ChannelControllerTests {
     fun `join channel non existing channel 404`() {
         val client = getClient()
 
-        client.put()
+        client
+            .put()
             .uri("api/channels/1/members/1")
             .cookie("access_token", accessToken1.token.toString())
             .exchange()
-            .expectStatus().isNotFound
+            .expectStatus()
+            .isNotFound
             .expectBody(ProblemOutputModel::class.java)
             .returnResult()
             .responseBody
@@ -439,11 +475,13 @@ abstract class ChannelControllerTests {
                 channelRepository.save(Channel(0L, "testChannel", testUser1, true))
             }
 
-        client.put()
+        client
+            .put()
             .uri("api/channels/${channel.id}/members/${testUser2.id}")
             .cookie("access_token", accessToken1.token.toString())
             .exchange()
-            .expectStatus().isForbidden
+            .expectStatus()
+            .isForbidden
             .expectBody(ProblemOutputModel::class.java)
             .returnResult()
             .responseBody
@@ -462,11 +500,13 @@ abstract class ChannelControllerTests {
                 channelRepository.save(Channel(0L, "testChannel", testUser1, false))
             }
 
-        client.put()
+        client
+            .put()
             .uri("api/channels/${channel.id}/members/${testUser2.id}")
             .cookie("access_token", accessToken1.token.toString())
             .exchange()
-            .expectStatus().isForbidden
+            .expectStatus()
+            .isForbidden
             .expectBody(ProblemOutputModel::class.java)
             .returnResult()
             .responseBody
@@ -485,11 +525,13 @@ abstract class ChannelControllerTests {
                 channelRepository.save(Channel(0L, "testChannel", testUser1, true))
             }
 
-        client.put()
+        client
+            .put()
             .uri("api/channels/${channel.id}/members/${testUser1.id}")
             .cookie("access_token", accessToken1.token.toString())
             .exchange()
-            .expectStatus().isBadRequest
+            .expectStatus()
+            .isBadRequest
             .expectBody(ProblemOutputModel::class.java)
             .returnResult()
             .responseBody
@@ -503,10 +545,12 @@ abstract class ChannelControllerTests {
     fun `remove channel member no auth`() {
         val client = getClient()
 
-        client.delete()
+        client
+            .delete()
             .uri("api/channels/1/members/1")
             .exchange()
-            .expectStatus().isUnauthorized
+            .expectStatus()
+            .isUnauthorized
     }
 
     @Test
@@ -521,11 +565,13 @@ abstract class ChannelControllerTests {
                 )
             }
 
-        client.delete()
+        client
+            .delete()
             .uri("api/channels/${channel.id}/members/${testUser2.id}")
             .cookie("access_token", accessToken2.token.toString())
             .exchange()
-            .expectStatus().isNoContent
+            .expectStatus()
+            .isNoContent
 
         val updatedChannel =
             transactionManager.run {
@@ -549,11 +595,13 @@ abstract class ChannelControllerTests {
                 )
             }
 
-        client.delete()
+        client
+            .delete()
             .uri("api/channels/${channel.id}/members/${testUser2.id}")
             .cookie("access_token", accessToken1.token.toString())
             .exchange()
-            .expectStatus().isNoContent
+            .expectStatus()
+            .isNoContent
 
         val updatedChannel =
             transactionManager.run {
@@ -564,11 +612,13 @@ abstract class ChannelControllerTests {
         assertEquals(1, updatedChannel!!.members.size)
         assertTrue(updatedChannel.members.containsKey(testUser1))
 
-        client.get()
+        client
+            .get()
             .uri("api/channels/${channel.id}")
             .cookie("access_token", accessToken2.token.toString())
             .exchange()
-            .expectStatus().isForbidden
+            .expectStatus()
+            .isForbidden
             .expectBody(ProblemOutputModel::class.java)
             .returnResult()
             .responseBody
@@ -590,11 +640,13 @@ abstract class ChannelControllerTests {
                 )
             }
 
-        client.delete()
+        client
+            .delete()
             .uri("api/channels/${channel.id}/members/${testUser2.id}")
             .cookie("access_token", accessToken1.token.toString())
             .exchange()
-            .expectStatus().isNotFound
+            .expectStatus()
+            .isNotFound
             .expectBody(ProblemOutputModel::class.java)
             .returnResult()
             .responseBody
@@ -608,11 +660,13 @@ abstract class ChannelControllerTests {
     fun `remove channel member non existing channel 404`() {
         val client = getClient()
 
-        client.delete()
+        client
+            .delete()
             .uri("api/channels/1/members/1")
             .cookie("access_token", accessToken1.token.toString())
             .exchange()
-            .expectStatus().isNotFound
+            .expectStatus()
+            .isNotFound
             .expectBody(ProblemOutputModel::class.java)
             .returnResult()
             .responseBody
@@ -634,11 +688,13 @@ abstract class ChannelControllerTests {
                 )
             }
 
-        client.delete()
+        client
+            .delete()
             .uri("api/channels/${channel.id}/members/0")
             .cookie("access_token", accessToken1.token.toString())
             .exchange()
-            .expectStatus().isNotFound
+            .expectStatus()
+            .isNotFound
             .expectBody(ProblemOutputModel::class.java)
             .returnResult()
             .responseBody
@@ -660,11 +716,13 @@ abstract class ChannelControllerTests {
                 )
             }
 
-        client.delete()
+        client
+            .delete()
             .uri("api/channels/${channel.id}/members/${testUser1.id}")
             .cookie("access_token", accessToken2.token.toString())
             .exchange()
-            .expectStatus().isForbidden
+            .expectStatus()
+            .isForbidden
             .expectBody(ProblemOutputModel::class.java)
             .returnResult()
             .responseBody
@@ -683,11 +741,13 @@ abstract class ChannelControllerTests {
                 channelRepository.save(Channel(0L, "testChannel", testUser1, true))
             }
 
-        client.get()
+        client
+            .get()
             .uri("api/channels")
             .cookie("access_token", accessToken1.token.toString())
             .exchange()
-            .expectStatus().isOk
+            .expectStatus()
+            .isOk
             .expectBody(ChannelsOutputModel::class.java)
             .returnResult()
             .responseBody
@@ -704,21 +764,25 @@ abstract class ChannelControllerTests {
     fun `get channels no auth`() {
         val client = getClient()
 
-        client.get()
+        client
+            .get()
             .uri("api/channels")
             .exchange()
-            .expectStatus().isUnauthorized
+            .expectStatus()
+            .isUnauthorized
     }
 
     @Test
     fun `get channels should return empty 200`() {
         val client = getClient()
 
-        client.get()
+        client
+            .get()
             .uri("api/channels")
             .cookie("access_token", accessToken1.token.toString())
             .exchange()
-            .expectStatus().isOk
+            .expectStatus()
+            .isOk
             .expectBody(ChannelsOutputModel::class.java)
             .returnResult()
             .responseBody
@@ -737,11 +801,13 @@ abstract class ChannelControllerTests {
                 channelRepository.save(Channel(0L, "testChannel", testUser1, true))
             }
 
-        client.get()
+        client
+            .get()
             .uri("api/channels?name=test")
             .cookie("access_token", accessToken1.token.toString())
             .exchange()
-            .expectStatus().isOk
+            .expectStatus()
+            .isOk
             .expectBody(ChannelsOutputModel::class.java)
             .returnResult()
             .responseBody
@@ -762,11 +828,13 @@ abstract class ChannelControllerTests {
             channelRepository.save(Channel(0L, "testChannel", testUser1, true))
         }
 
-        client.get()
+        client
+            .get()
             .uri("api/channels?name=notFound")
             .cookie("access_token", accessToken1.token.toString())
             .exchange()
-            .expectStatus().isOk
+            .expectStatus()
+            .isOk
             .expectBody(ChannelsOutputModel::class.java)
             .returnResult()
             .responseBody
@@ -785,11 +853,13 @@ abstract class ChannelControllerTests {
                 channelRepository.save(Channel(0L, "testChannel", testUser1, true))
             }
 
-        client.get()
+        client
+            .get()
             .uri("api/channels?page=1&size=1")
             .cookie("access_token", accessToken1.token.toString())
             .exchange()
-            .expectStatus().isOk
+            .expectStatus()
+            .isOk
             .expectBody(ChannelsOutputModel::class.java)
             .returnResult()
             .responseBody
@@ -806,10 +876,13 @@ abstract class ChannelControllerTests {
     fun `get channels with pagination input error 400`() {
         val client = getClient()
 
-        client.get().uri("api/channels?page=-1&size=1")
+        client
+            .get()
+            .uri("api/channels?page=-1&size=1")
             .cookie("access_token", accessToken1.token.toString())
             .exchange()
-            .expectStatus().isBadRequest
+            .expectStatus()
+            .isBadRequest
             .expectBody(ProblemOutputModel::class.java)
             .returnResult()
             .responseBody
@@ -824,12 +897,14 @@ abstract class ChannelControllerTests {
 
         val channelInput = ChannelCreationInputModel("", true)
 
-        client.post()
+        client
+            .post()
             .uri("api/channels")
             .cookie("access_token", accessToken1.token.toString())
             .bodyValue(channelInput)
             .exchange()
-            .expectStatus().isBadRequest
+            .expectStatus()
+            .isBadRequest
             .expectBody(ProblemOutputModel::class.java)
             .returnResult()
             .responseBody
@@ -845,12 +920,14 @@ abstract class ChannelControllerTests {
         val longName = "a".repeat(51)
         val channelInput = ChannelCreationInputModel(longName, true)
 
-        client.post()
+        client
+            .post()
             .uri("api/channels")
             .cookie("access_token", accessToken1.token.toString())
             .bodyValue(channelInput)
             .exchange()
-            .expectStatus().isBadRequest
+            .expectStatus()
+            .isBadRequest
             .expectBody(ProblemOutputModel::class.java)
             .returnResult()
             .responseBody

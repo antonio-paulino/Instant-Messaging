@@ -1,7 +1,7 @@
 package im.domain.sessions
 
 import im.domain.user.User
-import im.domain.wrappers.Identifier
+import im.domain.wrappers.identifier.Identifier
 import java.time.LocalDateTime
 
 /**

@@ -2,7 +2,7 @@ package im.repository.repositories.sessions
 
 import im.domain.sessions.Session
 import im.domain.user.User
-import im.domain.wrappers.Identifier
+import im.domain.wrappers.identifier.Identifier
 import im.repository.repositories.Repository
 
 /**

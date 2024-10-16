@@ -1,12 +1,12 @@
 package im.domain.user
 
-import im.domain.wrappers.Email
-import im.domain.wrappers.Identifier
-import im.domain.wrappers.Name
-import im.domain.wrappers.Password
-import im.domain.wrappers.toEmail
-import im.domain.wrappers.toName
-import im.domain.wrappers.toPassword
+import im.domain.wrappers.email.Email
+import im.domain.wrappers.email.toEmail
+import im.domain.wrappers.identifier.Identifier
+import im.domain.wrappers.name.Name
+import im.domain.wrappers.name.toName
+import im.domain.wrappers.password.Password
+import im.domain.wrappers.password.toPassword
 
 /**
  * User domain class.

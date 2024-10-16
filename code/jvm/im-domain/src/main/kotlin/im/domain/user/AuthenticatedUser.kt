@@ -1,6 +1,5 @@
-package im.api.model.input
+package im.domain.user
 
-import im.domain.user.User
 import java.util.UUID
 
 data class AuthenticatedUser(

@@ -9,14 +9,14 @@ import kotlin.test.assertEquals
 class SessionTest {
     @Test
     fun `should create a session`() {
-        val user = User(1, "user", "password", "user1@daw.isel.pt")
+        val user = User(1, "user", "Password123", "user1@daw.isel.pt")
         val session = Session(1, user, LocalDateTime.now().plusDays(1))
         assertEquals(user, session.user)
     }
 
     @Test
     fun `should refresh session`() {
-        val user = User(1, "user", "password", "user1@daw.isel.pt")
+        val user = User(1, "user", "Password123", "user1@daw.isel.pt")
         val session = Session(1, user, LocalDateTime.now().plusDays(1))
         val newExpiresAt = LocalDateTime.now().plusDays(2)
         val refreshedSession = session.refresh(newExpiresAt)
@@ -26,7 +26,7 @@ class SessionTest {
 
     @Test
     fun `should check if session is expired`() {
-        val user = User(1, "user", "password", "user1@daw.isel.pt")
+        val user = User(1, "user", "Password123", "user1@daw.isel.pt")
         val session = Session(1, user, LocalDateTime.now().minusDays(1))
         assertEquals(true, session.expired)
     }

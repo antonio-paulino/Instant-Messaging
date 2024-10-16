@@ -3,7 +3,7 @@ package im.repository.mem.model.invitation
 import im.domain.channel.ChannelRole
 import im.domain.invitations.ChannelInvitation
 import im.domain.invitations.ChannelInvitationStatus
-import im.domain.wrappers.toIdentifier
+import im.domain.wrappers.identifier.toIdentifier
 import im.repository.mem.model.channel.ChannelDTO
 import im.repository.mem.model.user.UserDTO
 import java.time.LocalDateTime

@@ -7,12 +7,15 @@ import jakarta.validation.Payload
 import kotlin.reflect.KClass
 import kotlin.reflect.full.memberProperties
 
+/**
+ * Validates if at least one of the fields is not null.
+ */
 @Constraint(validatedBy = [AtLeastOneNotNullValidator::class])
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FILE)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class OneNotNull(
     val fields: Array<String> = [],
-    val message: String = "At least one of email or username must be provided",
+    val message: String = "At least one of the fields must not be null",
     val groups: Array<KClass<*>> = [],
     val payload: Array<KClass<out Payload>> = [],
 )

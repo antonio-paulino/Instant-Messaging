@@ -1,6 +1,6 @@
 package im.api.controllers
 
-import im.api.model.input.AuthenticatedUser
+import im.api.middlewares.authentication.Authenticated
 import im.api.model.input.body.AuthenticationInputModel
 import im.api.model.input.body.ImInvitationCreationInputModel
 import im.api.model.input.body.UserCreationInputModel
@@ -9,9 +9,11 @@ import im.api.model.output.invitations.ImInvitationOutputModel
 import im.api.model.output.users.UserCreationOutputModel
 import im.api.model.problems.Problem
 import im.api.utils.RequestHelper
-import im.services.Failure
-import im.services.Success
+import im.domain.Failure
+import im.domain.Success
+import im.domain.user.AuthenticatedUser
 import im.services.auth.AuthService
+import im.services.invitations.InvitationService
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.Valid
@@ -28,10 +30,12 @@ import java.util.UUID
 @RequestMapping("/api/auth")
 class AuthController(
     private val authService: AuthService,
+    private val invitationService: InvitationService,
     private val reqHelper: RequestHelper,
     private val errorHandler: ErrorHandler,
 ) {
     private val handleAuthFailure = errorHandler::handleAuthFailure
+    private val handleInvitationFailure = errorHandler::handleInvitationFailure
 
     /**
      * Register a new user.
@@ -44,7 +48,6 @@ class AuthController(
      *
      *
      * @param userCredentials The user's credentials.
-     * @param response The HTTP response.
      *
      * @return The response entity.
      *
@@ -54,7 +57,6 @@ class AuthController(
     @PostMapping("/register")
     fun register(
         @RequestBody @Valid userCredentials: UserCreationInputModel,
-        response: HttpServletResponse,
     ): ResponseEntity<Any> {
         val (username, password, email, invitation) = userCredentials
         return when (
@@ -168,9 +170,9 @@ class AuthController(
      * @return The response entity.
      *
      * @see AuthenticatedUser
-     *
      */
     @PostMapping("/logout")
+    @Authenticated
     fun logout(
         response: HttpServletResponse,
         user: AuthenticatedUser,
@@ -204,11 +206,12 @@ class AuthController(
      *
      */
     @PostMapping("/invitations")
+    @Authenticated
     fun createInvitation(
         @RequestBody @Valid invitation: ImInvitationCreationInputModel?,
     ): ResponseEntity<Any> =
-        when (val res = authService.createInvitation(invitation?.expiresAt)) {
-            is Failure -> handleAuthFailure(res.value)
+        when (val res = invitationService.createImInvitation(invitation?.expiresAt)) {
+            is Failure -> handleInvitationFailure(res.value)
             is Success -> {
                 val invite = res.value
                 ResponseEntity

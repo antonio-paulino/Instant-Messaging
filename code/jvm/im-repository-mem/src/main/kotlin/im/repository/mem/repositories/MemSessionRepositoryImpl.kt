@@ -2,7 +2,7 @@ package im.repository.mem.repositories
 
 import im.domain.sessions.Session
 import im.domain.user.User
-import im.domain.wrappers.Identifier
+import im.domain.wrappers.identifier.Identifier
 import im.repository.mem.model.session.SessionDTO
 import im.repository.pagination.Pagination
 import im.repository.pagination.PaginationRequest

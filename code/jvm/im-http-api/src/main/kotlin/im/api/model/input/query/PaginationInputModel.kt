@@ -21,7 +21,7 @@ data class PaginationInputModel(
     @field:Max(100, message = "Size must be less or equal to 100")
     @field:IsNumber("Size must be a number")
     val size: String = "50",
-    @field:IsBool
+    @field:IsBool("Get count must be true or false")
     val getCount: String = "true",
 ) {
     fun toRequest(): PaginationRequest =

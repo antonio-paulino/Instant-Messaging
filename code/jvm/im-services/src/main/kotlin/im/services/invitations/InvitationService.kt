@@ -1,14 +1,16 @@
 package im.services.invitations
 
+import im.domain.Either
 import im.domain.channel.ChannelRole
 import im.domain.invitations.ChannelInvitation
 import im.domain.invitations.ChannelInvitationStatus
+import im.domain.invitations.ImInvitation
 import im.domain.user.User
-import im.domain.wrappers.Identifier
+import im.domain.wrappers.identifier.Identifier
 import im.repository.pagination.Pagination
 import im.repository.pagination.PaginationRequest
 import im.repository.pagination.SortRequest
-import im.services.Either
+import im.services.auth.AuthError
 import java.time.LocalDateTime
 
 interface InvitationService {
@@ -30,13 +32,22 @@ interface InvitationService {
      *
      * @return the created invitation or an error if the invitation could not be created
      */
-    fun createInvitation(
+    fun createChannelInvitation(
         channelId: Identifier,
         inviteeId: Identifier,
         expirationDate: LocalDateTime,
         role: ChannelRole,
         inviter: User,
     ): Either<InvitationError, ChannelInvitation>
+
+    /**
+     * Creates an Instant Messaging invitation.
+     *
+     *
+     * @param expiration the expiration date of the invitation
+     * @return the invitation if it is created, or an [AuthError] otherwise
+     */
+    fun createImInvitation(expiration: LocalDateTime?): Either<InvitationError, ImInvitation>
 
     /**
      * Gets an invitation's details

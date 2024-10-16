@@ -1,8 +1,10 @@
 package im.domain.messages
 
+import im.domain.Failure
+import im.domain.Success
 import im.domain.channel.Channel
 import im.domain.user.User
-import im.domain.wrappers.Identifier
+import im.domain.wrappers.identifier.Identifier
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
@@ -40,9 +42,13 @@ data class Message(
         editedAt = editedAt,
     )
 
+    companion object {
+        private val validator = MessageValidator()
+    }
+
     init {
-        require(content.isNotBlank()) { "Message content cannot be blank" }
-        require(content.length in 1..300) { "Message content must be between 1 and 300 characters" }
+        val validation = validator.validate(content)
+        require(validation is Success) { (validation as Failure).value.toErrorMessage() }
     }
 
     /**

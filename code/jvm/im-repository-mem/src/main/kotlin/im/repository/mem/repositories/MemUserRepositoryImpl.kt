@@ -1,9 +1,10 @@
 package im.repository.mem.repositories
 
 import im.domain.user.User
-import im.domain.wrappers.Email
-import im.domain.wrappers.Name
-import im.domain.wrappers.Password
+import im.domain.wrappers.email.Email
+import im.domain.wrappers.identifier.Identifier
+import im.domain.wrappers.name.Name
+import im.domain.wrappers.password.Password
 import im.repository.mem.model.user.UserDTO
 import im.repository.pagination.Pagination
 import im.repository.pagination.PaginationRequest
@@ -53,7 +54,7 @@ class MemUserRepositoryImpl(
             users[entity.id.value] = UserDTO.fromDomain(entity)
             return entity
         } else {
-            val newId = im.domain.wrappers.Identifier(++id)
+            val newId = Identifier(++id)
             val newUser = entity.copy(id = newId)
             users[newId.value] = UserDTO.fromDomain(newUser)
             return newUser
@@ -65,7 +66,7 @@ class MemUserRepositoryImpl(
         return entities.toList()
     }
 
-    override fun findById(id: im.domain.wrappers.Identifier): User? = users[id.value]?.toDomain()
+    override fun findById(id: Identifier): User? = users[id.value]?.toDomain()
 
     override fun findAll(): List<User> = users.values.map { it.toDomain() }.toList()
 
@@ -77,7 +78,7 @@ class MemUserRepositoryImpl(
         return Pagination(page.items.map { it.toDomain() }, page.info)
     }
 
-    override fun findAllById(ids: Iterable<im.domain.wrappers.Identifier>): List<User> =
+    override fun findAllById(ids: Iterable<Identifier>): List<User> =
         users.values
             .filter { user ->
                 user.id in
@@ -87,13 +88,13 @@ class MemUserRepositoryImpl(
             }.map { it.toDomain() }
             .toList()
 
-    override fun deleteById(id: im.domain.wrappers.Identifier) {
+    override fun deleteById(id: Identifier) {
         if (users.containsKey(id.value)) {
             delete(users[id.value]!!.toDomain())
         }
     }
 
-    override fun existsById(id: im.domain.wrappers.Identifier): Boolean = users.containsKey(id.value)
+    override fun existsById(id: Identifier): Boolean = users.containsKey(id.value)
 
     override fun count(): Long = users.size.toLong()
 
@@ -115,7 +116,7 @@ class MemUserRepositoryImpl(
         users.remove(entity.id.value)
     }
 
-    override fun deleteAllById(ids: Iterable<im.domain.wrappers.Identifier>) {
+    override fun deleteAllById(ids: Iterable<Identifier>) {
         ids.forEach { deleteById(it) }
     }
 

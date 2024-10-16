@@ -5,7 +5,7 @@ import im.domain.channel.ChannelRole
 import im.domain.invitations.ChannelInvitation
 import im.domain.invitations.ChannelInvitationStatus
 import im.domain.user.User
-import im.domain.wrappers.toIdentifier
+import im.domain.wrappers.identifier.toIdentifier
 import im.repository.pagination.PaginationRequest
 import im.repository.pagination.Sort
 import im.repository.pagination.SortRequest
@@ -56,10 +56,10 @@ abstract class ChannelInvitationRepositoryTest {
 
     private fun insertData() {
         transactionManager.run {
-            testInviter = userRepository.save(User(1, "Inviter", "password", "user1@daw.isel.pt"))
-            testInvitee = userRepository.save(User(2, "Invitee", "password", "user2@daw.isel.pt"))
-            testInvitee2 = userRepository.save(User(3, "Invitee2", "password", "user3@dawisel.pt"))
-            testInvitee3 = userRepository.save(User(4, "Invitee3", "password", "user4@dawisel.pt"))
+            testInviter = userRepository.save(User(1, "Inviter", "Password123", "user1@daw.isel.pt"))
+            testInvitee = userRepository.save(User(2, "Invitee", "Password123", "user2@daw.isel.pt"))
+            testInvitee2 = userRepository.save(User(3, "Invitee2", "Password123", "user3@dawisel.pt"))
+            testInvitee3 = userRepository.save(User(4, "Invitee3", "Password123", "user4@dawisel.pt"))
             testChannel = channelRepository.save(Channel(1, "General", testInviter, true))
 
             testInvitation1 =

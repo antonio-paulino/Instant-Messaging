@@ -6,6 +6,9 @@ import jakarta.validation.ConstraintValidatorContext
 import jakarta.validation.Payload
 import kotlin.reflect.KClass
 
+/**
+ * Validates if a field is a boolean.
+ */
 @Constraint(validatedBy = [BoolValidator::class])
 @Target(AnnotationTarget.FIELD, AnnotationTarget.VALUE_PARAMETER)
 @Retention(AnnotationRetention.RUNTIME)

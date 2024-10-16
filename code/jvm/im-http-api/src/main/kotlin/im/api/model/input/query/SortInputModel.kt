@@ -1,6 +1,6 @@
 package im.api.model.input.query
 
-import im.api.model.input.validators.IsSort
+import im.api.model.input.validators.domain.IsSort
 import im.repository.pagination.Sort
 import im.repository.pagination.SortRequest
 

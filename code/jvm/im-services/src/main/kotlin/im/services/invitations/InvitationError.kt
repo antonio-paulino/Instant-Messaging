@@ -25,6 +25,8 @@ sealed class InvitationError {
 
     data object InvitationInvalid : InvitationError()
 
+    data object OwnerInvitationNotAllowed : InvitationError()
+
     data class InvalidSortField(
         val field: String,
         val validFields: List<String>,

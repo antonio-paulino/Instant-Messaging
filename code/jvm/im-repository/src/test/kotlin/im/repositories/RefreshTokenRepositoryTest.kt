@@ -56,7 +56,7 @@ abstract class RefreshTokenRepositoryTest {
         transactionManager.run {
             testUser =
                 userRepository.save(
-                    User(1, "user", "password", "user1@daw.isel.pt"),
+                    User(1, "user", "Password123", "user1@daw.isel.pt"),
                 )
             testSession =
                 sessionRepository.save(

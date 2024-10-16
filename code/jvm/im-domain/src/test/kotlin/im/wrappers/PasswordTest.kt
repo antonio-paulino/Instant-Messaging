@@ -1,7 +1,8 @@
 package im.wrappers
 
-import im.domain.wrappers.toPassword
+import im.domain.wrappers.password.toPassword
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -18,7 +19,7 @@ class PasswordTest {
             assertThrows<IllegalArgumentException> {
                 "".toPassword()
             }
-        assertEquals("Password cannot be blank", exception.message)
+        assertTrue(exception.message!!.contains("Password cannot be blank"))
     }
 
     @Test
@@ -27,7 +28,7 @@ class PasswordTest {
             assertThrows<IllegalArgumentException> {
                 "short".toPassword()
             }
-        assertEquals("Password must be between 8 and 80 characters", exception.message)
+        assertTrue(exception.message!!.contains("Password must be between 8 and 80 characters"))
     }
 
     @Test
@@ -37,7 +38,7 @@ class PasswordTest {
             assertThrows<IllegalArgumentException> {
                 longPassword.toPassword()
             }
-        assertEquals("Password must be between 8 and 80 characters", exception.message)
+        assertTrue(exception.message!!.contains("Password must be between 8 and 80 characters"))
     }
 
     @Test

@@ -1,7 +1,8 @@
 package im.wrappers
 
-import im.domain.wrappers.toName
+import im.domain.wrappers.name.toName
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -18,7 +19,7 @@ class NameTest {
             assertThrows<IllegalArgumentException> {
                 "".toName()
             }
-        assertEquals("Name cannot be blank", exception.message)
+        assertTrue(exception.message!!.contains("Name cannot be blank"))
     }
 
     @Test

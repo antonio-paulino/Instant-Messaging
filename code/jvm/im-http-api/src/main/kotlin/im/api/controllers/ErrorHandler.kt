@@ -166,6 +166,12 @@ class ErrorHandler {
                     HttpStatus.BAD_REQUEST,
                     "Invalid sort field '${failure.field}'. Valid fields are: ${failure.validFields.joinToString()}",
                 )
+
+            InvitationError.OwnerInvitationNotAllowed ->
+                Problem.InvalidInvitationProblem.response(
+                    HttpStatus.FORBIDDEN,
+                    "Cannot create invitations with OWNER role",
+                )
         }
 
     fun handleMessagesFailure(error: MessageError): ResponseEntity<Any> =
@@ -272,12 +278,6 @@ class ErrorHandler {
                 Problem.InvalidInvitationProblem.response(
                     HttpStatus.BAD_REQUEST,
                     "Invitation code expired",
-                )
-
-            is AuthError.InvalidInvitationExpiration ->
-                Problem.InvalidInvitationProblem.response(
-                    HttpStatus.BAD_REQUEST,
-                    error.message,
                 )
 
             AuthError.SessionLimitReached ->

@@ -1,4 +1,4 @@
-package im.api.config
+package im.configs
 
 import im.domain.user.User
 import im.repository.repositories.transactions.TransactionManager
@@ -6,8 +6,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.boot.CommandLineRunner
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.scheduling.annotation.Scheduled
-import org.springframework.stereotype.Component
 
 @Configuration
 open class StartupConfig(
@@ -33,29 +31,5 @@ open class StartupConfig(
 
     companion object {
         private val logger = LoggerFactory.getLogger(StartupConfig::class.java)
-    }
-}
-
-@Component
-class RepositoriesCleanTask(
-    private val transactionManager: TransactionManager,
-) {
-    init {
-        logger.info("RepositoriesCleanTask initialized")
-    }
-
-    @Scheduled(cron = "0 0 0 * * 0")
-    fun cleanUpExpiredEntries() {
-        logger.info("Cleaning up expired entries")
-        transactionManager.run {
-            sessionRepository.deleteExpired()
-            accessTokenRepository.deleteExpired()
-            channelInvitationRepository.deleteExpired()
-            imInvitationRepository.deleteExpired()
-        }
-    }
-
-    companion object {
-        private val logger = LoggerFactory.getLogger(RepositoriesCleanTask::class.java)
     }
 }

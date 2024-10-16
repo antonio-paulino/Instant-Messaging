@@ -1,7 +1,8 @@
 package im.wrappers
 
-import im.domain.wrappers.toEmail
+import im.domain.wrappers.email.toEmail
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -18,7 +19,7 @@ class EmailTest {
             assertThrows<IllegalArgumentException> {
                 "".toEmail()
             }
-        assertEquals("User email cannot be blank", exception.message)
+        assertTrue(exception.message!!.contains("Email cannot be blank"))
     }
 
     @Test
@@ -27,7 +28,7 @@ class EmailTest {
             assertThrows<IllegalArgumentException> {
                 "a@b.ct".toEmail()
             }
-        assertEquals("User email must be between 8 and 50 characters", exception.message)
+        assertTrue(exception.message!!.contains("Email must be between 8 and 50 characters"))
     }
 
     @Test
@@ -37,7 +38,7 @@ class EmailTest {
             assertThrows<IllegalArgumentException> {
                 longEmail.toEmail()
             }
-        assertEquals("User email must be between 8 and 50 characters", exception.message)
+        assertTrue(exception.message!!.contains("Email must be between 8 and 50 characters"))
     }
 
     @Test
@@ -46,6 +47,6 @@ class EmailTest {
             assertThrows<IllegalArgumentException> {
                 "invalid-email".toEmail()
             }
-        assertEquals("User email must be a valid email address", exception.message)
+        assertTrue(exception.message!!.contains("Email has an invalid format"))
     }
 }

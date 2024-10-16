@@ -3,18 +3,18 @@ services:
     container_name: db-test
     build:
       context: .
-      dockerfile: ./Dockerfile
+      dockerfile: Dockerfile-test
     environment:
       - POSTGRES_PASSWORD=isel
       - POSTGRES_USER=isel
       - POSTGRES_DB=iseldawdev
     ports:
       - "5432:5432"
-  production:
-    container_name: production
+  production-db:
+    container_name: production-db
     build:
       context: .
-      dockerfile: ./Dockerfile
+      dockerfile: Dockerfile-test
     environment:
       - POSTGRES_PASSWORD=isel
       - POSTGRES_USER=isel

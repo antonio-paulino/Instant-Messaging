@@ -1,43 +1,38 @@
 package im.api.middlewares.authentication
 
 import im.api.utils.RequestHelper
-import im.services.Failure
-import im.services.Success
+import im.domain.Failure
+import im.domain.Success
 import im.services.auth.AuthService
-import jakarta.servlet.FilterChain
-import jakarta.servlet.ServletRequest
-import jakarta.servlet.ServletResponse
-import jakarta.servlet.http.HttpFilter
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
+import org.springframework.web.method.HandlerMethod
+import org.springframework.web.servlet.HandlerInterceptor
 import java.util.UUID
 
 /**
  * Authenticates the incoming requests.
  */
 @Component
-class AuthFilter(
+class AuthInterceptor(
     private val authService: AuthService,
     private val reqHelper: RequestHelper,
-) : HttpFilter() {
-    override fun doFilter(
-        request: ServletRequest,
-        response: ServletResponse,
-        chain: FilterChain,
-    ) {
-        request as HttpServletRequest
-        response as HttpServletResponse
-        val uri = request.requestURI
+) : HandlerInterceptor {
+    override fun preHandle(
+        request: HttpServletRequest,
+        response: HttpServletResponse,
+        handler: Any,
+    ): Boolean {
+        val controller = if (handler is HandlerMethod) handler.beanType else null
+        val method = if (handler is HandlerMethod) handler.method else null
 
-        logger.info("Authenticating request to $uri")
-
-        if (uri in reqHelper.getNoAuthRoutes()) {
-            logger.info("Skipping authentication for $uri")
-            chain.doFilter(request, response)
-            return
+        if (controller?.isAnnotationPresent(Authenticated::class.java) == false &&
+            method?.isAnnotationPresent(Authenticated::class.java) == false
+        ) {
+            return true
         }
 
         val token = getAccessToken(request)
@@ -45,7 +40,7 @@ class AuthFilter(
         if (token == null) {
             logger.info("Failed to authenticate request")
             response.status = HttpStatus.UNAUTHORIZED.value()
-            return
+            return false
         }
 
         val result = authService.authenticate(token)
@@ -53,13 +48,13 @@ class AuthFilter(
         if (result is Failure) {
             logger.info("Failed to authenticate request")
             response.status = HttpStatus.UNAUTHORIZED.value()
-            return
+            return false
         }
 
         result as Success
         logger.info("Authenticated request for user with id ${result.value.id}")
         reqHelper.setAuthenticatedUser(request, (result).value, token)
-        chain.doFilter(request, response)
+        return true
     }
 
     private fun getAccessToken(request: HttpServletRequest): UUID? {
@@ -70,6 +65,6 @@ class AuthFilter(
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger(AuthFilter::class.java)
+        private val logger = LoggerFactory.getLogger(AuthInterceptor::class.java)
     }
 }

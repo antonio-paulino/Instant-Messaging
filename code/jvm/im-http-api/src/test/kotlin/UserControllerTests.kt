@@ -9,7 +9,7 @@ import im.domain.channel.ChannelRole
 import im.domain.sessions.Session
 import im.domain.tokens.AccessToken
 import im.domain.user.User
-import im.domain.wrappers.toIdentifier
+import im.domain.wrappers.identifier.toIdentifier
 import im.repository.repositories.transactions.TransactionManager
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull

@@ -1,4 +1,7 @@
-package im.domain.wrappers
+package im.domain.wrappers.password
+
+import im.domain.Failure
+import im.domain.Success
 
 /**
  * Password wrapper class that enforces password validation rules.
@@ -8,9 +11,13 @@ package im.domain.wrappers
 data class Password(
     val value: String,
 ) {
+    companion object {
+        private val validator = PasswordValidator()
+    }
+
     init {
-        require(value.isNotBlank()) { "Password cannot be blank" }
-        require(value.length in 8..80) { "Password must be between 8 and 80 characters" }
+        val validation = validator.validate(value)
+        require(validation is Success) { (validation as Failure).value.toErrorMessage() }
     }
 
     override fun toString(): String = value

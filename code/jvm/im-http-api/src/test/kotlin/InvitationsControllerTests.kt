@@ -44,7 +44,7 @@ abstract class InvitationsControllerTests {
 
     private var testUser1: User = User(1L, "testUser1", "testPassword1", "test@isel.pt")
     private var testUser2: User = User(2L, "testUser2", "testPassword2", "test2@isel.pt")
-    private var testUser3 = User(3L, "testUser3", "password", "iseldaw3@isel.pt")
+    private var testUser3 = User(3L, "testUser3", "testPassword3", "iseldaw3@isel.pt")
 
     private var testSession1 = Session(0L, testUser1, LocalDateTime.now().plusMinutes(30))
     private var testSession2 = Session(0L, testUser2, LocalDateTime.now().plusMinutes(30))

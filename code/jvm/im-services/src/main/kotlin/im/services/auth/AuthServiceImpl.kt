@@ -1,21 +1,20 @@
 package im.services.auth
 
-import im.domain.invitations.ImInvitation
+import im.domain.Either
+import im.domain.Failure
+import im.domain.Success
+import im.domain.failure
 import im.domain.invitations.ImInvitationStatus
 import im.domain.sessions.Session
+import im.domain.success
 import im.domain.tokens.AccessToken
 import im.domain.tokens.RefreshToken
 import im.domain.user.User
-import im.domain.wrappers.Email
-import im.domain.wrappers.Name
-import im.domain.wrappers.Password
+import im.domain.wrappers.email.Email
+import im.domain.wrappers.name.Name
+import im.domain.wrappers.password.Password
 import im.repository.repositories.transactions.Transaction
 import im.repository.repositories.transactions.TransactionManager
-import im.services.Either
-import im.services.Failure
-import im.services.Success
-import im.services.failure
-import im.services.success
 import jakarta.inject.Named
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
@@ -24,19 +23,9 @@ import java.util.UUID
 @Named
 class AuthServiceImpl(
     private val transactionManager: TransactionManager,
-    private val passwordEncoder: PasswordEncoder,
+    private val passwordEncoder: PasswordEncoderSHA256,
+    private val config: AuthConfig,
 ) : AuthService {
-    companion object {
-        private const val ACCESS_TOKEN_EXPIRATION_DAYS = 1L
-        private const val SESSION_EXPIRATION_DAYS = 30L
-
-        private const val MIN_INVITATION_EXPIRATION_MINUTES = 30L
-        private const val DEFAULT_INVITATION_EXPIRATION_DAYS = 1L
-        private const val MAX_INVITATION_EXPIRATION_DAYS = 7L
-
-        private const val MAX_SESSIONS = 10
-    }
-
     override fun register(
         username: Name,
         password: Password,
@@ -102,12 +91,11 @@ class AuthServiceImpl(
             if (session is Failure) {
                 return@run session
             }
-
             session as Success
             success(session.value)
         }
 
-    override fun refreshSession(refreshToken: UUID): Either<AuthError, Pair<AccessToken, im.domain.tokens.RefreshToken>> =
+    override fun refreshSession(refreshToken: UUID): Either<AuthError, Pair<AccessToken, RefreshToken>> =
         transactionManager.run {
             val oldToken =
                 refreshTokenRepository.findById(refreshToken)
@@ -120,7 +108,7 @@ class AuthServiceImpl(
             }
 
             val newSession =
-                session.refresh(LocalDateTime.now().plusDays(SESSION_EXPIRATION_DAYS).truncatedTo(ChronoUnit.MILLIS))
+                session.refresh(LocalDateTime.now().plusMinutes(config.accessTokenTTL.inWholeMinutes))
 
             val newAccessToken =
                 accessTokenRepository.save(
@@ -161,38 +149,10 @@ class AuthServiceImpl(
             success(Unit)
         }
 
-    override fun createInvitation(expiration: LocalDateTime?): Either<AuthError, ImInvitation> =
-        transactionManager.run {
-            val expires = expiration ?: LocalDateTime.now().plusDays(DEFAULT_INVITATION_EXPIRATION_DAYS)
-
-            if (expires.isBefore(LocalDateTime.now().plusMinutes(MIN_INVITATION_EXPIRATION_MINUTES))) {
-                return@run failure(
-                    AuthError.InvalidInvitationExpiration(
-                        "Minimum expiration time is $MIN_INVITATION_EXPIRATION_MINUTES minutes",
-                    ),
-                )
-            }
-
-            if (expires.isAfter(LocalDateTime.now().plusDays(MAX_INVITATION_EXPIRATION_DAYS))) {
-                return@run failure(
-                    AuthError.InvalidInvitationExpiration(
-                        "Maximum expiration time is $MAX_INVITATION_EXPIRATION_DAYS days",
-                    ),
-                )
-            }
-
-            val invitation =
-                imInvitationRepository.save(
-                    ImInvitation(expiresAt = expires),
-                )
-
-            success(invitation)
-        }
-
     private fun Transaction.createSession(user: User): Either<AuthError, Pair<AccessToken, RefreshToken>> {
         val activeSessions = sessionRepository.findByUser(user).filter { !it.expired }
 
-        if (activeSessions.size >= MAX_SESSIONS) {
+        if (activeSessions.size >= config.maxSessions) {
             return failure(AuthError.SessionLimitReached)
         }
 
@@ -203,7 +163,7 @@ class AuthServiceImpl(
                     expiresAt =
                         LocalDateTime
                             .now()
-                            .plusDays(SESSION_EXPIRATION_DAYS)
+                            .plusMinutes(config.sessionTTL.inWholeMinutes)
                             .truncatedTo(ChronoUnit.MILLIS),
                 ),
             )
@@ -215,7 +175,7 @@ class AuthServiceImpl(
                     expiresAt =
                         LocalDateTime
                             .now()
-                            .plusDays(ACCESS_TOKEN_EXPIRATION_DAYS)
+                            .plusMinutes(config.accessTokenTTL.inWholeMinutes)
                             .truncatedTo(ChronoUnit.MILLIS),
                 ),
             )

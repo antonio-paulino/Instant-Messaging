@@ -8,26 +8,43 @@ import com.fasterxml.jackson.databind.JsonSerializer
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
-import im.api.model.input.validators.Role
+import im.api.model.input.validators.domain.Role
 
+/**
+ * Wrapper for channel role.
+ *
+ * @property value The channel role.
+ */
 @JsonDeserialize(using = ChannelRoleDeserializer::class)
 @JsonSerialize(using = ChannelRoleSerializer::class) // For testing purposes
 data class ChannelRole(
     @field:Role
     val value: String,
 ) {
-    fun toDomain() = im.domain.channel.ChannelRole.valueOf(value)
+    fun toDomain() =
+        im.domain.channel.ChannelRole
+            .valueOf(value)
 }
 
+/**
+ * Deserializer for [ChannelRole].
+ *
+ * Converts a key-value pair directly to a [ChannelRole] object, without having to define a
+ * JSON object with a `value` field.
+ */
 class ChannelRoleDeserializer : JsonDeserializer<ChannelRole>() {
     override fun deserialize(
         p: JsonParser,
         ctxt: DeserializationContext,
-    ): ChannelRole {
-        return ChannelRole(p.text)
-    }
+    ): ChannelRole = ChannelRole(p.text)
 }
 
+/**
+ * Serializer for [ChannelRole].
+ *
+ * Converts a [ChannelRole] object directly to a key-value pair, without having to define a
+ * JSON object with a `value` field.
+ */
 class ChannelRoleSerializer : JsonSerializer<ChannelRole>() {
     override fun serialize(
         value: ChannelRole,

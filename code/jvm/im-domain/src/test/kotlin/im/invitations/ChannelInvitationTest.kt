@@ -13,8 +13,8 @@ import kotlin.test.assertFailsWith
 class ChannelInvitationTest {
     @Test
     fun `should accept invitation`() {
-        val user1 = User(1, "user", "password", "user1@daw.isel.pt")
-        val user2 = User(2, "user2", "password", "user2@daw.isel.pt")
+        val user1 = User(1, "user", "Password123", "user1@daw.isel.pt")
+        val user2 = User(2, "user2", "Password123", "user2@daw.isel.pt")
         val channel = Channel(1, "im/channel", user1, true)
 
         val invitation =
@@ -34,8 +34,8 @@ class ChannelInvitationTest {
 
     @Test
     fun `should reject invitation`() {
-        val user1 = User(1, "user", "password", "user1@daw.isel.pt")
-        val user2 = User(2, "user2", "password", "user2@daw.isel.pt")
+        val user1 = User(1, "user", "Password123", "user1@daw.isel.pt")
+        val user2 = User(2, "user2", "Password123", "user2@daw.isel.pt")
         val channel = Channel(1, "im/channel", user1, true)
 
         val invitation =
@@ -55,8 +55,8 @@ class ChannelInvitationTest {
 
     @Test
     fun `should update invitation`() {
-        val user1 = User(1, "user", "password", "user1@daw.isel.pt")
-        val user2 = User(2, "user2", "password", "user2@daw.isel.pt")
+        val user1 = User(1, "user", "Password123", "user1@daw.isel.pt")
+        val user2 = User(2, "user2", "Password123", "user2@daw.isel.pt")
         val channel = Channel(1, "im/channel", user1, true)
 
         val invitation =
@@ -77,8 +77,8 @@ class ChannelInvitationTest {
 
     @Test
     fun `test create invite inviter not in channel`() {
-        val user1 = User(1, "user", "password", "user1@daw.isel.pt")
-        val user2 = User(2, "user2", "password", "user2@daw.isel.pt")
+        val user1 = User(1, "user", "Password123", "user1@daw.isel.pt")
+        val user2 = User(2, "user2", "Password123", "user2@daw.isel.pt")
         val channel = Channel(1, "im/channel", user1, true)
 
         assertFailsWith<IllegalArgumentException> {

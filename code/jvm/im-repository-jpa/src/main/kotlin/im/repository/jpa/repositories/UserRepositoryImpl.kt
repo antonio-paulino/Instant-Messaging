@@ -1,17 +1,16 @@
 package im.repository.jpa.repositories
 
 import im.domain.user.User
-import im.domain.wrappers.Email
-import im.domain.wrappers.Identifier
-import im.domain.wrappers.Name
-import im.domain.wrappers.Password
+import im.domain.wrappers.email.Email
+import im.domain.wrappers.identifier.Identifier
+import im.domain.wrappers.name.Name
+import im.domain.wrappers.password.Password
 import im.repository.jpa.model.user.UserDTO
 import im.repository.jpa.repositories.jpa.UserRepositoryJpa
 import im.repository.pagination.Pagination
 import im.repository.pagination.PaginationRequest
 import im.repository.pagination.SortRequest
 import im.repository.repositories.user.UserRepository
-import jakarta.persistence.EntityManager
 import org.springframework.context.annotation.Primary
 import org.springframework.stereotype.Component
 
@@ -19,7 +18,6 @@ import org.springframework.stereotype.Component
 @Primary
 class UserRepositoryImpl(
     private val userRepositoryJpa: UserRepositoryJpa,
-    private val entityManager: EntityManager,
     private val utils: JpaRepositoryUtils,
 ) : UserRepository {
     override fun findByName(name: Name): User? = userRepositoryJpa.findByName(name.value).firstOrNull()?.toDomain()

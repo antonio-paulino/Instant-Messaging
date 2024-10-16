@@ -1,6 +1,6 @@
 package im.api.controllers
 
-import im.api.model.input.AuthenticatedUser
+import im.api.middlewares.authentication.Authenticated
 import im.api.model.input.body.MessageCreationInputModel
 import im.api.model.input.path.ChannelIdentifierInputModel
 import im.api.model.input.path.MessageIdentifierInputModel
@@ -10,8 +10,9 @@ import im.api.model.output.messages.MessageCreationOutputModel
 import im.api.model.output.messages.MessageOutputModel
 import im.api.model.output.messages.MessageUpdateOutputModel
 import im.api.model.output.messages.MessagesPaginatedOutputModel
-import im.services.Failure
-import im.services.Success
+import im.domain.Failure
+import im.domain.Success
+import im.domain.user.AuthenticatedUser
 import im.services.messages.MessageService
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController
 import java.net.URI
 
 @RestController
+@Authenticated
 @RequestMapping("/api/channels/{channelId}/messages")
 class MessagesController(
     private val messageService: MessageService,

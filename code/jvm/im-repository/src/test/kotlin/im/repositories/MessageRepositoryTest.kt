@@ -3,7 +3,7 @@ package im.repositories
 import im.domain.channel.Channel
 import im.domain.messages.Message
 import im.domain.user.User
-import im.domain.wrappers.toIdentifier
+import im.domain.wrappers.identifier.toIdentifier
 import im.repository.pagination.PaginationRequest
 import im.repository.pagination.Sort
 import im.repository.pagination.SortRequest
@@ -51,7 +51,7 @@ abstract class MessageRepositoryTest {
 
     private fun insertData() {
         transactionManager.run {
-            testUser = userRepository.save(User(1L, "testUser", "password", "user1@daw.isel.pt"))
+            testUser = userRepository.save(User(1L, "testUser", "Password123", "user1@daw.isel.pt"))
             testChannel = channelRepository.save(Channel(1L, "General", testUser, true))
             testChannel2 = channelRepository.save(Channel(2L, "Random", testUser, true))
 

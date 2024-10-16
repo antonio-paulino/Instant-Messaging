@@ -2,7 +2,7 @@ package im.repository.jpa.model.invitation
 
 import im.domain.channel.ChannelRole
 import im.domain.invitations.ChannelInvitation
-import im.domain.wrappers.toIdentifier
+import im.domain.wrappers.identifier.toIdentifier
 import im.repository.jpa.model.channel.ChannelDTO
 import im.repository.jpa.model.user.UserDTO
 import jakarta.persistence.Column

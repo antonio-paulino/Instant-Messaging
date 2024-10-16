@@ -1,10 +1,6 @@
 package im.services.auth
 
 sealed class AuthError {
-    data class InvalidInvitationExpiration(
-        val message: String,
-    ) : AuthError()
-
     data object SessionLimitReached : AuthError()
 
     data object InvalidInvitationCode : AuthError()
