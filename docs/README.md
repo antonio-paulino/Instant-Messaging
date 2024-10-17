@@ -31,7 +31,7 @@ The application is divided into modules, each with a specific responsibility, su
 
 The main dependencies are:
 * **[Spring Web](https://spring.io/)**: for building the RESTful API.
-* **[Spring Data JPA](https://spring.io/projects/spring-data-jpa)**: for accessing the database.
+* **[Spring Data JPA](https://spring.io/projects/spring-data-jpa)**: for communicating with the database.
 * **[PostgresSQL](https://www.postgresql.org/)**: for the database.
 
 ----
@@ -135,7 +135,6 @@ This module behaves as a bridge between the services and the database, providing
 
 It has the following structure:
 
-- [`/repository`](../code/jvm/im-repository/src/main/kotlin/im/repository) is the directory that contains the repository interfaces;
 - [`/repository/pagination`](../code/jvm/im-repository/src/main/kotlin/im/repository/pagination) contains the pagination classes to 
 be used when interacting with the repositories;
 - [`/repository/repositories`](../code/jvm/im-repository/src/main/kotlin/im/repository/repositories) 
@@ -245,16 +244,16 @@ Example:
 
 ### Deployment
 
-To deploy the application, you need to have [Docker](https://www.docker.com/) and [Gradle](https://gradle.org/) installed.
+To deploy the application, you need to have [Docker](https://www.docker.com/) installed on your machine.
 
-To build and run the backend application, you can use the following commands:
+To build and run the backend application, you can use the following command in the root 
+directory of the project:
 
 ```shell
-cd code/jvm
-./gradlew build bootJar
+docker-compose up
 ```
 
-This will build and run the backend application in your terminal, and you can access it at `http://localhost:8080`.
+This will build and run the backend application, which will be accessible at `http://localhost:8080`.
 
 ----
 
@@ -322,7 +321,7 @@ It has the following scripts:
 
 We highlight the following aspects of the physical model:
 
-- Primary keys use the `SERIAL` type to auto-increment the values;
+- Primary id keys use the `BIGSERIAL` type to auto-increment the values;
 - Foreign keys are used to enforce the relationships between the tables;
 - All the constraints defined in the Conceptual Model are enforced in the physical model;
 - Indexes were used to optimize some queries, such as searching for messages in a channel by creation date;

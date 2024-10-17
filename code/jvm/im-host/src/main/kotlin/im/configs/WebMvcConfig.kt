@@ -14,12 +14,14 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 open class WebMvcConfig(
     private val authService: AuthService,
 ) : WebMvcConfigurer {
+    private val requestHelper = RequestHelper()
+
     override fun addInterceptors(registry: InterceptorRegistry) {
-        registry.addInterceptor(LoggingInterceptor())
-        registry.addInterceptor(AuthInterceptor(authService, RequestHelper()))
+        registry.addInterceptor(LoggingInterceptor(requestHelper))
+        registry.addInterceptor(AuthInterceptor(authService, requestHelper))
     }
 
     override fun addArgumentResolvers(resolvers: MutableList<HandlerMethodArgumentResolver>) {
-        resolvers.add(AuthenticatedUserArgumentResolver())
+        resolvers.add(AuthenticatedUserArgumentResolver(requestHelper))
     }
 }
