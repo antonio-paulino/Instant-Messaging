@@ -44,7 +44,7 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-val composeFileDir: Directory = rootProject.layout.projectDirectory
+val composeFileDir: Directory = rootProject.layout.projectDirectory.dir("../..")
 val dockerComposePath = composeFileDir.file("docker-compose.yml").toString()
 
 tasks.withType<Jar> {
@@ -57,10 +57,10 @@ tasks.bootRun {
 }
 
 task<Exec>("dbUp") {
-    commandLine("docker", "compose", "-f", dockerComposePath, "up", "-d", "--build", "--force-recreate", "production-db")
+    commandLine("docker", "compose", "-f", dockerComposePath, "up", "-d", "--build", "--force-recreate", "prod-db")
 }
 
 task<Exec>("deploy") {
-    commandLine("docker", "exec", "production-db", "/app/bin/wait-for-postgres.sh", "localhost")
+    commandLine("docker", "exec", "prod-db", "/app/bin/wait-for-postgres.sh", "localhost")
     dependsOn("dbUp")
 }

@@ -29,7 +29,7 @@ kotlin {
     jvmToolchain(21)
 }
 
-val composeFileDir: Directory = rootProject.layout.projectDirectory
+val composeFileDir: Directory = rootProject.layout.projectDirectory.dir("../..")
 val dockerComposePath = composeFileDir.file("docker-compose.yml").toString()
 
 task<Exec>("dbTestsUp") {
