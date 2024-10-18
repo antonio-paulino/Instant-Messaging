@@ -109,6 +109,16 @@ abstract class ChannelInvitationRepositoryTest {
     }
 
     @Test
+    fun `should find all by ids`() {
+        transactionManager.run {
+            val savedInvitation1 = channelInvitationRepository.save(testInvitation1)
+            val savedInvitation2 = channelInvitationRepository.save(testInvitation2)
+            val foundInvitations = channelInvitationRepository.findAllById(listOf(savedInvitation1.id, savedInvitation2.id))
+            assertEquals(2, foundInvitations.size)
+        }
+    }
+
+    @Test
     open fun `should save multiple channel invitations`() {
         transactionManager.run {
             val invitations = listOf(testInvitation1, testInvitation2)
@@ -260,6 +270,27 @@ abstract class ChannelInvitationRepositoryTest {
     }
 
     @Test
+    fun `get invitations by channel no count`() {
+        transactionManager.run {
+            testInvitation1 = testInvitation1.copy(channel = testChannel)
+            channelInvitationRepository.save(testInvitation1)
+            val (invitations, pagination) =
+                channelInvitationRepository.findByChannel(
+                    testChannel,
+                    ChannelInvitationStatus.PENDING,
+                    SortRequest("id"),
+                    PaginationRequest(1, 1, getCount = false),
+                )
+            assertEquals(1, invitations.size)
+            assertNotNull(pagination)
+            assertEquals(1, pagination!!.currentPage)
+            assertNull(pagination.nextPage)
+            assertNull(pagination.total)
+            assertNull(pagination.totalPages)
+        }
+    }
+
+    @Test
     open fun `find by invitee and channel should return null`() {
         transactionManager.run {
             val invitation = channelInvitationRepository.findByInviteeAndChannel(testInvitee, testChannel)
@@ -310,6 +341,26 @@ abstract class ChannelInvitationRepositoryTest {
             assertEquals(1, channels.size)
             assertEquals(testChannel, channels.first().channel)
             assertEquals(testInviter, channels.first().inviter)
+        }
+    }
+
+    @Test
+    fun `get invitations by user no count`() {
+        transactionManager.run {
+            channelInvitationRepository.save(testInvitation1)
+            val (invitations, pagination) =
+                channelInvitationRepository.findByInvitee(
+                    testInvitee,
+                    ChannelInvitationStatus.PENDING,
+                    SortRequest("id"),
+                    PaginationRequest(1, 1, getCount = false),
+                )
+            assertEquals(1, invitations.size)
+            assertNotNull(pagination)
+            assertEquals(1, pagination!!.currentPage)
+            assertNull(pagination.nextPage)
+            assertNull(pagination.total)
+            assertNull(pagination.totalPages)
         }
     }
 

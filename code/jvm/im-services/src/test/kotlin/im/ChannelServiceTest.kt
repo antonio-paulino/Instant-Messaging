@@ -327,6 +327,13 @@ abstract class ChannelServiceTest {
     }
 
     @Test
+    fun `get channels invalid sort`() {
+        val result = channelService.getChannels(null, PaginationRequest(1, 10), SortRequest("invalid"))
+        assertIs<Failure<ChannelError>>(result)
+        assertIs<ChannelError.InvalidSortField>(result.value)
+    }
+
+    @Test
     fun `get channels should return empty`() {
         val result = channelService.getChannels(null, PaginationRequest(1, 10), SortRequest("id"))
         assertIs<Success<Pagination<Channel>>>(result)

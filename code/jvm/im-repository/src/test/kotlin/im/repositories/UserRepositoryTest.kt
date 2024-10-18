@@ -273,6 +273,27 @@ abstract class UserRepositoryTest {
     }
 
     @Test
+    fun `should find all by id`() {
+        transactionManager.run {
+            val savedUser1 = userRepository.save(testUser)
+            val savedUser2 = userRepository.save(testUser2)
+            val users = userRepository.findAllById(listOf(savedUser1.id, savedUser2.id))
+            assertEquals(2, users.size)
+            assertEquals(testUser.name, users[0].name)
+            assertEquals(testUser2.name, users[1].name)
+        }
+    }
+
+    @Test
+    fun `should save all`() {
+        transactionManager.run {
+            val users = listOf(testUser, testUser2)
+            userRepository.saveAll(users)
+            assertEquals(2, userRepository.count())
+        }
+    }
+
+    @Test
     fun `should return empty list when no users are found by partial name match`() {
         transactionManager.run {
             val user1 = User(name = "john.doe", password = "Password1", email = "user1@daw.isel.pt")

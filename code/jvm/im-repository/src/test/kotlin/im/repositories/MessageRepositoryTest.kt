@@ -65,7 +65,7 @@ abstract class MessageRepositoryTest {
                 )
             testMessage2 =
                 Message(
-                    2L,
+                    testMessage1.id.value + 1,
                     testChannel,
                     testUser,
                     "Another message",
@@ -73,7 +73,7 @@ abstract class MessageRepositoryTest {
                 )
             testMessage3 =
                 Message(
-                    3L,
+                    testMessage2.id.value + 1,
                     testChannel2,
                     testUser,
                     "Last message",
@@ -111,6 +111,31 @@ abstract class MessageRepositoryTest {
             assertNull(pagination.prevPage)
             assertEquals(2, pagination.total)
             assertEquals(1, pagination.totalPages)
+            assertEquals(2, latestMessages.count())
+            assertEquals(testMessage2.content, latestMessages.first().content)
+            assertEquals(testMessage1.content, latestMessages.last().content)
+        }
+    }
+
+    @Test
+    fun `should return latest messages with no count info`() {
+        transactionManager.run {
+            messageRepository.save(testMessage2)
+            messageRepository.save(testMessage1)
+            messageRepository.save(testMessage3)
+
+            val (latestMessages, pagination) =
+                messageRepository.findByChannel(
+                    testChannel,
+                    PaginationRequest(1, 2, false),
+                    SortRequest("createdAt", Sort.DESC),
+                )
+
+            assertEquals(1, pagination!!.currentPage)
+            assertNull(pagination.nextPage)
+            assertNull(pagination.prevPage)
+            assertNull(pagination.total)
+            assertNull(pagination.totalPages)
             assertEquals(2, latestMessages.count())
             assertEquals(testMessage2.content, latestMessages.first().content)
             assertEquals(testMessage1.content, latestMessages.last().content)
@@ -193,6 +218,36 @@ abstract class MessageRepositoryTest {
             val messages = listOf(testMessage1, testMessage2)
             val savedMessages = messageRepository.saveAll(messages)
             assertEquals(2, savedMessages.size)
+        }
+    }
+
+    @Test
+    fun `should find all by ids`() {
+        transactionManager.run {
+            val savedMessage1 = messageRepository.save(testMessage1)
+            val savedMessage2 = messageRepository.save(testMessage2)
+            val messages = messageRepository.findAllById(listOf(savedMessage1.id, savedMessage2.id))
+            assertEquals(2, messages.size)
+        }
+    }
+
+    @Test
+    fun `should find by channel and id`() {
+        transactionManager.run {
+            val savedMessage = messageRepository.save(testMessage1)
+            val message = messageRepository.findByChannelAndId(testChannel, savedMessage.id)
+            assertEquals(savedMessage.id, message!!.id)
+        }
+    }
+
+    @Test
+    fun `should find all messages`() {
+        transactionManager.run {
+            messageRepository.save(testMessage1)
+        }
+        transactionManager.run {
+            val messages = messageRepository.findAll()
+            assertEquals(1, messages.size)
         }
     }
 

@@ -160,6 +160,23 @@ abstract class RefreshTokenRepositoryTest {
     }
 
     @Test
+    fun `should save all refresh tokens`() {
+        transactionManager.run {
+            val savedTokens = refreshTokenRepository.saveAll(listOf(testRefreshToken, testRefreshToken2))
+            assertEquals(2, savedTokens.count())
+        }
+    }
+
+    @Test
+    fun `should delete all refresh tokens by entities`() {
+        transactionManager.run {
+            val savedTokens = refreshTokenRepository.saveAll(listOf(testRefreshToken, testRefreshToken2))
+            refreshTokenRepository.deleteAll(savedTokens)
+            assertEquals(0, refreshTokenRepository.count())
+        }
+    }
+
+    @Test
     fun `pagination no count`() {
         transactionManager.run {
             refreshTokenRepository.save(testRefreshToken)

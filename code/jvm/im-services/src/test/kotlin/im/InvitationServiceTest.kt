@@ -140,6 +140,20 @@ abstract class InvitationServiceTest {
     }
 
     @Test
+    fun `fail to create invitation with owner role`() {
+        val result =
+            invitationService.createChannelInvitation(
+                channelId = testChannel.id,
+                inviteeId = testUser2.id,
+                expirationDate = LocalDateTime.now().plusDays(1),
+                role = ChannelRole.OWNER,
+                inviter = testUser1,
+            )
+        assertIs<Failure<InvitationError>>(result)
+        assertIs<InvitationError.OwnerInvitationNotAllowed>(result.value)
+    }
+
+    @Test
     fun `fail to create invitation invite already exists`() {
         val result =
             invitationService.createChannelInvitation(
@@ -282,6 +296,19 @@ abstract class InvitationServiceTest {
         assertEquals(2, items.size)
         assertEquals(invite.value.id, items[0].id)
         assertEquals(invite2.value.id, items[1].id)
+    }
+
+    @Test
+    fun `get channel invitations invalid sort field`() {
+        val result =
+            invitationService.getChannelInvitations(
+                channelId = testChannel.id,
+                user = testUser1,
+                SortRequest("invalid"),
+                PaginationRequest(1, 10),
+            )
+        assertIs<Failure<InvitationError>>(result)
+        assertIs<InvitationError.InvalidSortField>(result.value)
     }
 
     @Test

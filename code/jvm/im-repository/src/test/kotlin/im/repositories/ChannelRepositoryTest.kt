@@ -194,6 +194,28 @@ abstract class ChannelRepositoryTest {
     }
 
     @Test
+    fun `should find channels by partial name with no count`() {
+        transactionManager.run {
+            channelRepository.save(testChannel1)
+            channelRepository.save(testChannel2)
+            val (foundChannels, pagination) =
+                channelRepository.findByPartialName(
+                    "Gen",
+                    false,
+                    PaginationRequest(1, 10, getCount = false),
+                    SortRequest("id"),
+                )
+            assertEquals(1, foundChannels.count())
+            assertEquals(testChannel1.name, foundChannels.first().name)
+            assertNull(pagination!!.total)
+            assertNull(pagination.totalPages)
+            assertEquals(1, pagination.currentPage)
+            assertNull(pagination.prevPage)
+            assertNull(pagination.prevPage)
+        }
+    }
+
+    @Test
     open fun `should find all channels`() {
         transactionManager.run {
             channelRepository.save(testChannel1)
@@ -221,6 +243,58 @@ abstract class ChannelRepositoryTest {
 
             assertEquals(1, firstChannels.size)
             assertEquals(testChannel1.name, firstChannels.first().name)
+        }
+    }
+
+    @Test
+    fun `should find first page with no count`() {
+        transactionManager.run {
+            channelRepository.save(testChannel1)
+            channelRepository.save(testChannel2)
+
+            val res = channelRepository.find(PaginationRequest(1, 1, getCount = false), false, SortRequest("id"))
+
+            val (firstChannels, pagination) = res
+
+            assertNotNull(pagination)
+            assertEquals(1, firstChannels.size)
+            assertEquals(testChannel1.name, firstChannels.first().name)
+            assertNull(pagination!!.total)
+            assertNull(pagination.totalPages)
+            assertEquals(1, pagination.currentPage)
+            assertEquals(2, pagination.nextPage)
+            assertNull(pagination.prevPage)
+        }
+    }
+
+    @Test
+    fun `should find all by ids`() {
+        transactionManager.run {
+            val savedChannel1 = channelRepository.save(testChannel1)
+            val savedChannel2 = channelRepository.save(testChannel2)
+
+            val channels = channelRepository.findAllById(listOf(savedChannel1.id, savedChannel2.id))
+            assertEquals(2, channels.size)
+        }
+    }
+
+    @Test
+    fun `should delete all by entities`() {
+        transactionManager.run {
+            val savedChannel1 = channelRepository.save(testChannel1)
+            val savedChannel2 = channelRepository.save(testChannel2)
+
+            channelRepository.deleteAll(listOf(savedChannel1, savedChannel2))
+            assertEquals(0, channelRepository.count())
+        }
+    }
+
+    @Test
+    fun `exists should return true`() {
+        transactionManager.run {
+            val savedChannel = channelRepository.save(testChannel1)
+            val exists = channelRepository.existsById(savedChannel.id)
+            assertTrue(exists)
         }
     }
 

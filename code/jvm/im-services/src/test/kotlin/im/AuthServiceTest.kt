@@ -203,7 +203,7 @@ abstract class AuthServiceTest {
     }
 
     @Test
-    fun `login with valid username and Password123 should return tokens`() {
+    fun `login with valid username and password should return tokens`() {
         val username = Name("username")
         val password = Password("Password123")
         val email = Email("testdaw@isel.pt")
@@ -219,7 +219,26 @@ abstract class AuthServiceTest {
     }
 
     @Test
-    fun `login with valid email and Password123 should return tokens`() {
+    fun `login session limit reached should return error`() {
+        val username = Name("username")
+        val password = Password("Password123")
+        val email = Email("testdaw@isel.pt")
+        val invitationCode = invitationCode1.token
+        authService.register(username, password, email, invitationCode)
+
+        repeat(10) {
+            authService.login(username, password, null)
+        }
+
+        val result = authService.login(username, password, null)
+
+        assertIs<Failure<AuthError>>(result)
+        val error = result.value
+        assertIs<AuthError.SessionLimitReached>(error)
+    }
+
+    @Test
+    fun `login with valid email and password should return tokens`() {
         val username = Name("username")
         val password = Password("Password123")
         val email = Email("testdaw@isel.pt")
@@ -264,7 +283,7 @@ abstract class AuthServiceTest {
     }
 
     @Test
-    fun `login with invalid Password123 should return error`() {
+    fun `login with invalid password should return error`() {
         val username = Name("username")
         val password = Password("Password123")
         val email = Email("testdaw@isel.pt")

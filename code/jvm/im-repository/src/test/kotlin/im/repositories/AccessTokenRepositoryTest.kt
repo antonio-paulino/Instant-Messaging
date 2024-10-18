@@ -107,6 +107,32 @@ abstract class AccessTokenRepositoryTest {
     }
 
     @Test
+    fun `should delete all access tokens by entities`() {
+        transactionManager.run {
+            testUser = userRepository.save(testUser)
+            testSession = sessionRepository.save(testSession.copy(user = testUser))
+            testAccessToken = testAccessToken.copy(session = testSession)
+            testAccessToken2 = testAccessToken2.copy(session = testSession)
+            val savedToken1 = accessTokenRepository.save(testAccessToken)
+            val savedToken2 = accessTokenRepository.save(testAccessToken2)
+            accessTokenRepository.deleteAll(listOf(savedToken1, savedToken2))
+            assertEquals(0, accessTokenRepository.count())
+        }
+    }
+
+    @Test
+    fun `should save all access tokens by entities`() {
+        transactionManager.run {
+            testUser = userRepository.save(testUser)
+            testSession = sessionRepository.save(testSession.copy(user = testUser))
+            testAccessToken = testAccessToken.copy(session = testSession)
+            testAccessToken2 = testAccessToken2.copy(session = testSession)
+            val savedTokens = accessTokenRepository.saveAll(listOf(testAccessToken, testAccessToken2))
+            assertEquals(2, savedTokens.size)
+        }
+    }
+
+    @Test
     open fun `should return null when id does not exist`() {
         transactionManager.run {
             val foundToken = accessTokenRepository.findById(UUID.randomUUID())

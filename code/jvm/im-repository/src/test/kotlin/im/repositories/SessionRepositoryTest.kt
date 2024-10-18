@@ -93,6 +93,14 @@ abstract class SessionRepositoryTest {
     }
 
     @Test
+    fun `should save all`() {
+        transactionManager.run {
+            val sessions = sessionRepository.saveAll(listOf(testSession, testSession2))
+            assertEquals(2, sessions.count())
+        }
+    }
+
+    @Test
     fun `should not find by id`() {
         transactionManager.run {
             val foundSession = sessionRepository.findById((9999L).toIdentifier())

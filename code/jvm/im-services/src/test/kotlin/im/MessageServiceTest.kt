@@ -222,6 +222,20 @@ abstract class MessageServiceTest {
     }
 
     @Test
+    fun `get messages invalid sort field`() {
+        val messages =
+            messageService.getChannelMessages(
+                testChannel.id,
+                PaginationRequest(1, 1),
+                SortRequest("invalid"),
+                testUser,
+            )
+        assertIs<Failure<MessageError>>(messages)
+        val error = messages.value
+        assertIs<MessageError.InvalidSortField>(error)
+    }
+
+    @Test
     fun `get messages paginated desc sort should return messages`() {
         messageService.createMessage(
             testChannel.id,
