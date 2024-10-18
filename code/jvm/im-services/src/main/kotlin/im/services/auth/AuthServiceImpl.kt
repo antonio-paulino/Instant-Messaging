@@ -53,14 +53,14 @@ class AuthServiceImpl(
                 return@run failure(AuthError.UserAlreadyExists("email"))
             }
 
+            val usedInvitation = imInvitation.use()
+
+            imInvitationRepository.save(usedInvitation)
+
             val user =
                 userRepository.save(
                     User(name = username, password = passwordEncoder.encode(password), email = email),
                 )
-
-            val usedInvitation = imInvitation.use()
-
-            imInvitationRepository.save(usedInvitation)
 
             success(user)
         }
