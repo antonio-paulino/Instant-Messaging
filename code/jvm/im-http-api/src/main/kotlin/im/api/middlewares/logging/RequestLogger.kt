@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component
 @Order(LOWEST_PRECEDENCE)
 class RequestLogger(
     private val reqHelper: RequestHelper,
-): HttpFilter() {
+) : HttpFilter() {
     override fun doFilter(
         request: ServletRequest,
         response: ServletResponse,

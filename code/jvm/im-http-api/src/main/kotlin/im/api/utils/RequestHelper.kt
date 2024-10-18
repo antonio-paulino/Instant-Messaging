@@ -12,7 +12,6 @@ import java.util.UUID
 
 @Component
 class RequestHelper {
-
     companion object {
         private const val ACCESS_TOKEN_COOKIE_NAME = "access_token"
         private const val REFRESH_TOKEN_COOKIE_NAME = "refresh_token"
@@ -97,11 +96,17 @@ class RequestHelper {
         res.addCookie(cookie)
     }
 
-    fun setMethodAttribute(req: HttpServletRequest, method: String) {
+    fun setMethodAttribute(
+        req: HttpServletRequest,
+        method: String,
+    ) {
         req.setAttribute(HANDLER_METHOD_ATTRIBUTE, method)
     }
 
-    fun setControllerAttribute(req: HttpServletRequest, controller: String) {
+    fun setControllerAttribute(
+        req: HttpServletRequest,
+        controller: String,
+    ) {
         req.setAttribute(CONTROLLER_NAME_ATTRIBUTE, controller)
     }
 
@@ -112,5 +117,4 @@ class RequestHelper {
     fun getControllerAttribute(req: HttpServletRequest): String? {
         return req.getAttribute(CONTROLLER_NAME_ATTRIBUTE) as? String
     }
-
 }
