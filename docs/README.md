@@ -16,6 +16,7 @@
   - [Database Model](#database-model)
     - [Conceptual Model](#conceptual-model)
     - [Physical Model](#physical-model)
+  - [Critical Analysis](#critical-analysis)
 
 ---
 
@@ -327,3 +328,21 @@ We highlight the following aspects of the physical model:
 - Indexes were used to optimize some queries, such as searching for messages in a channel by creation date;
 - Triggers were used to enforce integrity constraints in situations where high concurrency could lead to
 inconsistencies, such as ensuring that an ImInvitation can only be used once;
+
+
+## Critical Analysis
+
+For this phase of the project, the main focus was the development of the backend application following the requirements defined in the project outline.
+
+We believe that we have achieved the main goals of this phase, and have implemented a RESTful API that provides the necessary functionality for the application 
+to function with all the necessary requirements.
+
+The biggest challenge we faced in this phase of the project was the refactoring of the codebase every time we found a better
+way to implement a feature or a better way to structure the code, which led to having to change the tests and code in multiple modules.
+
+The future improvements we plan to make are:
+
+- Adding a default role for public channels to allow for read-only public channels;
+- Adding announcements to channels, for example when a user joins or leaves a channel;
+- Adding a feature to allow member roles to be changed by the owner;
+- Implementing more tests to cover more edge cases.
