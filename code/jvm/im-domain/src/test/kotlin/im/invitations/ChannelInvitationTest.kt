@@ -59,6 +59,7 @@ class ChannelInvitationTest {
         val user2 = User(2, "user2", "Password123", "user2@daw.isel.pt")
         val channel = Channel(1, "im/channel", user1, true)
 
+        val time = LocalDateTime.now()
         val invitation =
             ChannelInvitation(
                 1,
@@ -67,12 +68,12 @@ class ChannelInvitationTest {
                 user2,
                 ChannelInvitationStatus.PENDING,
                 ChannelRole.MEMBER,
-                LocalDateTime.now(),
+                time,
             )
-        val updatedInvitation = invitation.update(ChannelRole.GUEST, LocalDateTime.now().plusDays(1))
+        val updatedInvitation = invitation.update(ChannelRole.GUEST, time.plusDays(1))
 
         assertEquals(ChannelRole.GUEST, updatedInvitation.role)
-        assertEquals(LocalDateTime.now().plusDays(1), updatedInvitation.expiresAt)
+        assertEquals(time.plusDays(1), updatedInvitation.expiresAt)
     }
 
     @Test

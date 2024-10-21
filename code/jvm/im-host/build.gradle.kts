@@ -53,14 +53,19 @@ tasks.withType<Jar> {
 
 tasks.bootRun {
     environment("DB_URL", "jdbc:postgresql://localhost:5433/iseldaw?user=isel&password=isel")
-    dependsOn("deploy")
+    dependsOn("wait-db")
 }
 
 task<Exec>("dbUp") {
     commandLine("docker", "compose", "-f", dockerComposePath, "up", "-d", "--build", "--force-recreate", "prod-db")
 }
 
-task<Exec>("deploy") {
+task<Exec>("wait-db") {
     commandLine("docker", "exec", "prod-db", "/app/bin/wait-for-postgres.sh", "localhost")
     dependsOn("dbUp")
+}
+
+task<Exec>("deploy") {
+    commandLine("docker", "compose", "-f", dockerComposePath, "up", "-d", "--build", "--force-recreate", "api")
+    dependsOn("wait-db")
 }
