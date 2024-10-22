@@ -245,13 +245,13 @@ Example:
 
 ### Deployment
 
-To deploy the application, you need to have [Docker](https://www.docker.com/) installed on your machine.
+To deploy the application, you need to have [Docker](https://www.docker.com/) installed.
 
 To build and run the backend application, you can use the following command in the root 
-directory of the project:
+directory of the backend project:
 
 ```shell
-docker-compose up
+./gradlew build bootRun
 ```
 
 This will build and run the backend application, which will be accessible at `http://localhost:8080`.
