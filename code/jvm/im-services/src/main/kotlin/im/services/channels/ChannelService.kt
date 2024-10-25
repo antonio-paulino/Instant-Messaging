@@ -16,14 +16,17 @@ interface ChannelService {
      * Creates a channel.
      *
      * - The channel name must be unique.
+     * - The default role of the channel must be either [ChannelRole.MEMBER] or [ChannelRole.GUEST].
      *
      * @param name the name of the channel
+     * @param defaultRole the default role of the channel for new members
      * @param isPublic whether the channel is public or private
      * @param user the user that is creating the channel
      * @return the created channel
      */
     fun createChannel(
         name: Name,
+        defaultRole: ChannelRole,
         isPublic: Boolean,
         user: User,
     ): Either<ChannelError, Channel>
@@ -49,6 +52,7 @@ interface ChannelService {
      *
      * @param channelId the unique identifier of the channel
      * @param name the new name of the channel
+     * @param defaultRole the new default role of the channel
      * @param isPublic whether the channel is public or private
      * @param user the user that is updating the channel
      * @return the updated channel
@@ -56,6 +60,7 @@ interface ChannelService {
     fun updateChannel(
         channelId: Identifier,
         name: Name,
+        defaultRole: ChannelRole,
         isPublic: Boolean,
         user: User,
     ): Either<ChannelError, Unit>
@@ -130,4 +135,24 @@ interface ChannelService {
         sortRequest: SortRequest,
         user: User,
     ): Either<ChannelError, Map<Channel, ChannelRole>>
+
+    /**
+     * Updates the role of a member in a channel.
+     *
+     * - An owner cannot change their own role.
+     * - A user must be the owner of the channel to update the role of a member.
+     * - The role of a member cannot be updated to owner.
+     *
+     * @param channelId the unique identifier of the channel
+     * @param userId the unique identifier of the user
+     * @param role the new role of the user
+     *
+     * @return a [ChannelError] if the update is unsuccessful, or [Unit] otherwise
+     */
+    fun updateMemberRole(
+        channelId: Identifier,
+        userId: Identifier,
+        role: ChannelRole,
+        user: User,
+    ): Either<ChannelError, Unit>
 }

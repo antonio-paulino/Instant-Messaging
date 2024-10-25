@@ -6,6 +6,8 @@ import im.domain.user.User
 import im.domain.wrappers.identifier.Identifier
 import im.domain.wrappers.name.Name
 import im.repository.jpa.model.channel.ChannelDTO
+import im.repository.jpa.model.channel.ChannelMemberId
+import im.repository.jpa.model.channel.ChannelRoleDTO
 import im.repository.jpa.repositories.jpa.ChannelMemberRepositoryJpa
 import im.repository.jpa.repositories.jpa.ChannelRepositoryJpa
 import im.repository.pagination.Pagination
@@ -78,6 +80,29 @@ class ChannelRepositoryImpl(
             .findByMember(user.id.value, utils.toSort(sortRequest))
             .associate { it.channel.toDomain() to it.role.toDomain() }
 
+    override fun addMember(
+        channel: Channel,
+        user: User,
+        role: ChannelRole,
+    ) {
+        channelMemberRepositoryJpa.addMember(channel.id.value, user.id.value, role.name)
+    }
+
+    override fun removeMember(
+        channel: Channel,
+        user: User,
+    ) {
+        channelMemberRepositoryJpa.deleteById(ChannelMemberId(channel.id.value, user.id.value))
+    }
+
+    override fun updateMemberRole(
+        channel: Channel,
+        user: User,
+        role: ChannelRole,
+    ) {
+        channelMemberRepositoryJpa.updateById(ChannelMemberId(channel.id.value, user.id.value), ChannelRoleDTO.fromDomain(role))
+    }
+
     override fun save(entity: Channel): Channel = channelRepositoryJpa.save(ChannelDTO.fromDomain(entity)).toDomain()
 
     override fun saveAll(entities: Iterable<Channel>): List<Channel> =
@@ -145,5 +170,6 @@ class ChannelRepositoryImpl(
 
     override fun flush() {
         channelRepositoryJpa.flush()
+        channelMemberRepositoryJpa.flush()
     }
 }

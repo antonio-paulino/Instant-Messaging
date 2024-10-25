@@ -36,6 +36,7 @@ abstract class UserServiceTest {
         Channel(
             1L,
             "testChannel1",
+            ChannelRole.MEMBER,
             owner = testUser1,
             true,
             members = mapOf(testUser1 to ChannelRole.OWNER, testUser2 to ChannelRole.MEMBER),
@@ -44,6 +45,7 @@ abstract class UserServiceTest {
         Channel(
             2L,
             "testChannel2",
+            ChannelRole.MEMBER,
             owner = testUser2,
             true,
             members = mapOf(testUser2 to ChannelRole.OWNER),

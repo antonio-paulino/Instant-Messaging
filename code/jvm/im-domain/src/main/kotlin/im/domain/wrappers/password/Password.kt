@@ -8,7 +8,8 @@ import im.domain.Success
  *
  * A password must not be blank and must be between 8 and 80 characters.
  */
-data class Password(
+@JvmInline
+value class Password(
     val value: String,
 ) {
     companion object {

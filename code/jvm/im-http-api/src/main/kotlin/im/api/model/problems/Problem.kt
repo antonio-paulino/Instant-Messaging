@@ -103,4 +103,10 @@ sealed class Problem(
 
     data object SessionLimitReachedProblem :
         Problem(URI.create("${PROBLEMS_URI}/session-limit-reached"))
+
+    data object CannotUpdateMemberRoleProblem :
+        Problem(URI.create("${PROBLEMS_URI}/cannot-update-member-role"))
+
+    data object InvalidRoleProblem :
+        Problem(URI.create("${PROBLEMS_URI}/invalid-role"))
 }

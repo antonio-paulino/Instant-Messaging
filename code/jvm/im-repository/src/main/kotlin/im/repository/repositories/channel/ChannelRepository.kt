@@ -84,4 +84,41 @@ interface ChannelRepository : Repository<Channel, Identifier> {
         user: User,
         sortRequest: SortRequest,
     ): Map<Channel, ChannelRole>
+
+    /**
+     * Adds a member to a channel.
+     *
+     * @param channel the channel
+     * @param user the user
+     * @param role the role of the user in the channel
+     */
+    fun addMember(
+        channel: Channel,
+        user: User,
+        role: ChannelRole,
+    )
+
+    /**
+     * Removes a member from a channel.
+     *
+     * @param channel the channel
+     * @param user the user
+     */
+    fun removeMember(
+        channel: Channel,
+        user: User,
+    )
+
+    /**
+     * Updates the role of a member in a channel.
+     *
+     * @param channel the channel
+     * @param user the user
+     * @param role the new role of the user
+     */
+    fun updateMemberRole(
+        channel: Channel,
+        user: User,
+        role: ChannelRole,
+    )
 }

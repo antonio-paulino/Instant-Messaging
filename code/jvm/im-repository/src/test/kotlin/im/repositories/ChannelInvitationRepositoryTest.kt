@@ -60,7 +60,7 @@ abstract class ChannelInvitationRepositoryTest {
             testInvitee = userRepository.save(User(2, "Invitee", "Password123", "user2@daw.isel.pt"))
             testInvitee2 = userRepository.save(User(3, "Invitee2", "Password123", "user3@dawisel.pt"))
             testInvitee3 = userRepository.save(User(4, "Invitee3", "Password123", "user4@dawisel.pt"))
-            testChannel = channelRepository.save(Channel(1, "General", testInviter, true))
+            testChannel = channelRepository.save(Channel(1, "General", ChannelRole.MEMBER, testInviter, true))
 
             testInvitation1 =
                 ChannelInvitation(

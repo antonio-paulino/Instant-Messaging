@@ -21,10 +21,11 @@ import java.time.temporal.ChronoUnit
 data class Channel(
     val id: Identifier = Identifier(0),
     val name: Name,
+    val defaultRole: ChannelRole = ChannelRole.MEMBER,
     val owner: User,
     val isPublic: Boolean,
     val createdAt: LocalDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS),
-    private val membersLazy: Lazy<Map<User, ChannelRole>> = lazy { mapOf(owner to ChannelRole.OWNER) },
+    val membersLazy: Lazy<Map<User, ChannelRole>> = lazy { mapOf(owner to ChannelRole.OWNER) },
 ) {
     val members
         get() = membersLazy.value
@@ -32,6 +33,7 @@ data class Channel(
     constructor(
         id: Long = 0,
         name: String,
+        defaultRole: ChannelRole,
         owner: User,
         isPublic: Boolean,
         createdAt: LocalDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS),
@@ -39,6 +41,7 @@ data class Channel(
     ) : this(
         id = id.toIdentifier(),
         name = name.toName(),
+        defaultRole = defaultRole,
         owner = owner,
         isPublic = isPublic,
         createdAt = createdAt,
@@ -54,8 +57,9 @@ data class Channel(
      */
     fun updateChannel(
         name: Name,
+        defaultRole: ChannelRole,
         isPublic: Boolean,
-    ) = copy(name = name, isPublic = isPublic)
+    ) = copy(name = name, isPublic = isPublic, defaultRole = defaultRole)
 
     /**
      * Adds a member to the channel with the specified role.

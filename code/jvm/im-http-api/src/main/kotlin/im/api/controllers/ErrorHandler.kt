@@ -26,19 +26,19 @@ class ErrorHandler {
                     "Channel not found",
                 )
 
-            ChannelError.UserCannotAccessChannel ->
+            ChannelError.CannotAccessChannel ->
                 Problem.CannotAccessChannelProblem.response(
                     HttpStatus.FORBIDDEN,
                     "You do not have access to this channel",
                 )
 
-            ChannelError.UserCannotAddMember ->
+            ChannelError.CannotAddMember ->
                 Problem.CannotAddMemberProblem.response(
                     HttpStatus.FORBIDDEN,
                     "You cannot add members to this channel",
                 )
 
-            ChannelError.UserCannotRemoveMember ->
+            ChannelError.CannotRemoveMember ->
                 Problem.CannotRemoveMemberProblem.response(
                     HttpStatus.FORBIDDEN,
                     "You cannot remove members from this channel",
@@ -50,13 +50,13 @@ class ErrorHandler {
                     "User not found",
                 )
 
-            ChannelError.UserCannotDeleteChannel ->
+            ChannelError.CannotDeleteChannel ->
                 Problem.CannotDeleteChannelProblem.response(
                     HttpStatus.FORBIDDEN,
                     "You cannot delete this channel",
                 )
 
-            ChannelError.UserCannotUpdateChannel ->
+            ChannelError.CannotUpdateChannel ->
                 Problem.CannotUpdateChannelProblem.response(
                     HttpStatus.FORBIDDEN,
                     "You cannot update this channel",
@@ -90,6 +90,18 @@ class ErrorHandler {
                 Problem.CannotAccessChannelProblem.response(
                     HttpStatus.FORBIDDEN,
                     "You cannot access this user's channels",
+                )
+
+            ChannelError.CannotUpdateMemberRole ->
+                Problem.CannotUpdateMemberRoleProblem.response(
+                    HttpStatus.FORBIDDEN,
+                    "You cannot update this member's role",
+                )
+
+            ChannelError.InvalidDefaultRole ->
+                Problem.InvalidRoleProblem.response(
+                    HttpStatus.BAD_REQUEST,
+                    "Invalid role",
                 )
         }
 

@@ -43,8 +43,8 @@ abstract class MessageControllerTests {
     private var testUser = User(1L, "testUser", "testPassword1", "iseldaw@isel.pt")
     private var testUser2 = User(2L, "testUser2", "testPassword2", "iseldaw2@isel.pt")
     private var testUser3 = User(3L, "testUser3", "testPassword3", "iseldaw3@isel.pt")
-    private var testChannel = Channel(1L, "testChannel", testUser, true)
-    private var testChannel2 = Channel(2L, "testChannel2", testUser, true)
+    private var testChannel = Channel(1L, "testChannel", ChannelRole.GUEST, testUser, true)
+    private var testChannel2 = Channel(2L, "testChannel2", ChannelRole.GUEST, testUser, true)
 
     private var session = Session(0L, testUser, LocalDateTime.now().plusDays(1))
     private var session2 = Session(0L, testUser2, LocalDateTime.now().plusDays(1))

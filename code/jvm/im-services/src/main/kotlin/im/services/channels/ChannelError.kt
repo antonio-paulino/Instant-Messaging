@@ -7,15 +7,15 @@ sealed class ChannelError {
         val conflict: String,
     ) : ChannelError()
 
-    data object UserCannotUpdateChannel : ChannelError()
+    data object CannotUpdateChannel : ChannelError()
 
-    data object UserCannotDeleteChannel : ChannelError()
+    data object CannotDeleteChannel : ChannelError()
 
-    data object UserCannotAccessChannel : ChannelError()
+    data object CannotAccessChannel : ChannelError()
 
-    data object UserCannotAddMember : ChannelError()
+    data object CannotAddMember : ChannelError()
 
-    data object UserCannotRemoveMember : ChannelError()
+    data object CannotRemoveMember : ChannelError()
 
     data object UserNotFound : ChannelError()
 
@@ -24,6 +24,10 @@ sealed class ChannelError {
     data object UserAlreadyMember : ChannelError()
 
     data object UserNotMember : ChannelError()
+
+    data object CannotUpdateMemberRole : ChannelError()
+
+    data object InvalidDefaultRole : ChannelError()
 
     data class InvalidSortField(
         val field: String,

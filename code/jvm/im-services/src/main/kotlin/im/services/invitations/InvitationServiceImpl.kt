@@ -259,7 +259,7 @@ class InvitationServiceImpl(
                 val channel = invitation.channel
                 val role = invitation.role
                 channelInvitationRepository.save(invitation.accept())
-                channelRepository.save(channel.addMember(user, role))
+                channelRepository.addMember(channel, user, role)
             } else {
                 channelInvitationRepository.save(invitation.reject())
             }

@@ -1,0 +1,19 @@
+Invalid Role
+
+=========================
+
+Description
+
+You are attempting to set an invalid role for a member. The possible reasons are:
+
+- You cannot set the member role to owner.
+- You cannot set a channel's default role to owner.
+
+==========================
+
+Solution
+
+To solve this issue, you can:
+
+- Ensure that you are not trying to set the member role to owner.
+- Ensure that you are not trying to set a channel's default role to owner.

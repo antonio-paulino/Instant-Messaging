@@ -1,0 +1,21 @@
+Can't update member role
+
+=========================
+
+Description
+
+You are unable to update the member role. The possible reasons are:
+
+- You are not the owner of the channel.
+- You cannot set the member role to owner.
+- You are the owner of the channel, and trying to update your own role.
+
+==========================
+
+Solution
+
+To solve this issue, you can:
+
+- Ensure that you are the owner of the channel.
+- Ensure that you are not trying to set the member role to owner.
+- Ensure that you are not trying to update your own role.

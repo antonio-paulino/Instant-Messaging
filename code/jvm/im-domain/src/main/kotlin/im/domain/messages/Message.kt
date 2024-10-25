@@ -5,6 +5,7 @@ import im.domain.Success
 import im.domain.channel.Channel
 import im.domain.user.User
 import im.domain.wrappers.identifier.Identifier
+import im.domain.wrappers.identifier.toIdentifier
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
@@ -26,24 +27,25 @@ data class Message(
     val createdAt: LocalDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS),
     val editedAt: LocalDateTime? = null,
 ) {
-    constructor(
-        id: Long = 0,
-        channel: Channel,
-        user: User,
-        content: String,
-        createdAt: LocalDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS),
-        editedAt: LocalDateTime? = null,
-    ) : this(
-        id = Identifier(id),
-        channel = channel,
-        user = user,
-        content = content,
-        createdAt = createdAt,
-        editedAt = editedAt,
-    )
-
     companion object {
         private val validator = MessageValidator()
+
+        operator fun invoke(
+            id: Long = 0,
+            channel: Channel,
+            user: User,
+            content: String,
+            createdAt: LocalDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS),
+            editedAt: LocalDateTime? = null,
+        ): Message =
+            Message(
+                id.toIdentifier(),
+                channel,
+                user,
+                content,
+                createdAt,
+                editedAt,
+            )
     }
 
     init {

@@ -6,6 +6,8 @@ import im.domain.user.User
 import im.domain.wrappers.identifier.Identifier
 import im.domain.wrappers.name.Name
 import im.repository.mem.model.channel.ChannelDTO
+import im.repository.mem.model.channel.ChannelRoleDTO
+import im.repository.mem.model.user.UserDTO
 import im.repository.pagination.Pagination
 import im.repository.pagination.PaginationRequest
 import im.repository.pagination.SortRequest
@@ -74,6 +76,35 @@ class MemChannelRepositoryImpl(
                 channels.values.filter { it.members.keys.any { member -> member.toDomain() == user } },
                 sortRequest,
             ).associate { it.toDomain() to findRole(it, user) }
+
+    override fun addMember(
+        channel: Channel,
+        user: User,
+        role: ChannelRole,
+    ) {
+        val channelDTO = channels[channel.id.value] ?: throw IllegalArgumentException("Channel not found")
+        val newMembers = channelDTO.members + (UserDTO.fromDomain(user) to ChannelRoleDTO.fromDomain(role))
+        channels[channel.id.value] = channelDTO.copy(members = newMembers)
+    }
+
+    override fun removeMember(
+        channel: Channel,
+        user: User,
+    ) {
+        val channelDTO = channels[channel.id.value] ?: throw IllegalArgumentException("Channel not found")
+        val newMembers = channelDTO.members.filter { it.key.toDomain() != user }
+        channels[channel.id.value] = channelDTO.copy(members = newMembers)
+    }
+
+    override fun updateMemberRole(
+        channel: Channel,
+        user: User,
+        role: ChannelRole,
+    ) {
+        val channelDTO = channels[channel.id.value] ?: throw IllegalArgumentException("Channel not found")
+        val newMembers = channelDTO.members.mapValues { if (it.key.toDomain() == user) ChannelRoleDTO.fromDomain(role) else it.value }
+        channels[channel.id.value] = channelDTO.copy(members = newMembers)
+    }
 
     private fun findRole(
         channel: ChannelDTO,

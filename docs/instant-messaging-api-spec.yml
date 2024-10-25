@@ -352,6 +352,33 @@ paths:
             $ref: '#/components/responses/Forbidden'
         '404':
             $ref: '#/components/responses/NotFound'
+    patch:
+        tags:
+            - Channels
+        summary: Update a user's role in a channel
+        security:
+            - bearerAuth: []
+        parameters:
+            - $ref: '#/components/parameters/ChannelID'
+            - $ref: '#/components/parameters/UserID'
+        requestBody:
+            description: New role
+            required: true
+            content:
+              application/json:
+                  schema:
+                    $ref: '#/components/schemas/RoleInputModel'
+        responses:
+            '204':
+                description: User role updated successfully
+            '400':
+                $ref: '#/components/responses/BadRequest'
+            '401':
+                $ref: '#/components/responses/Unauthorized'
+            '403':
+                $ref: '#/components/responses/Forbidden'
+            '404':
+                $ref: '#/components/responses/NotFound'
 
   /api/channels/{channelID}/messages:
     get:
@@ -831,10 +858,14 @@ components:
       properties:
         name:
           type: string
+        defaultRole:
+          type: string
+          enum: [ member, guest ]
         isPublic:
           type: boolean
       required:
         - name
+        - defaultRole
         - isPublic
 
     ChannelOutputModel:
@@ -1016,6 +1047,14 @@ components:
           items:
             type: string
 
+    RoleInputModel:
+      type: object
+      properties:
+        role:
+          type: string
+          enum: [ owner, member, guest ]
+      required:
+        - role
 
     ChannelUpdateInputModel:
       type: object

@@ -74,8 +74,8 @@ abstract class UserRepositoryTest {
                     expiresAt = LocalDateTime.now().plusDays(SESSION_DURATION_DAYS).truncatedTo(ChronoUnit.MILLIS),
                 )
 
-            testOwnedChannel = Channel(1, "General1", testUser, true, members = mapOf(testUser2 to ChannelRole.OWNER))
-            testInvitedChannel = Channel(2, "General2", testUser2, true, members = mapOf())
+            testOwnedChannel = Channel(1, "General1", ChannelRole.MEMBER, testUser, true, members = mapOf(testUser2 to ChannelRole.OWNER))
+            testInvitedChannel = Channel(2, "General2", ChannelRole.MEMBER, testUser2, true, members = mapOf())
 
             testInvitation =
                 ChannelInvitation(

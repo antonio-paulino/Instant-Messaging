@@ -14,7 +14,6 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
-import jakarta.persistence.NamedQuery
 import jakarta.persistence.Table
 import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction
@@ -37,10 +36,6 @@ import java.time.LocalDateTime
  */
 @Entity
 @Table(name = "channel_invitation")
-@NamedQuery(
-    name = "ChannelInvitationDTO.findByChannel",
-    query = "SELECT i FROM ChannelInvitationDTO i WHERE i.channel.id = :channelId and i.status = :status",
-)
 open class ChannelInvitationDTO(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

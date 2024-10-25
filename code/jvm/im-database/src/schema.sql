@@ -54,9 +54,12 @@ CREATE TABLE CHANNEL
 (
     id         BIGSERIAL PRIMARY KEY,
     name       VARCHAR(30) UNIQUE NOT NULL,
+    default_role VARCHAR(10) NOT NULL DEFAULT 'MEMBER',
     owner      BIGINT             NOT NULL REFERENCES USERS (id) ON DELETE CASCADE,
     is_public  BOOLEAN            NOT NULL,
     created_at TIMESTAMP          NOT NULL DEFAULT CURRENT_TIMESTAMP
+
+    CONSTRAINT valid_channel_role CHECK (default_role IN ('MEMBER', 'GUEST'))
 );
 
 CREATE TABLE CHANNEL_MEMBER

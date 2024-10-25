@@ -8,7 +8,8 @@ import im.domain.Success
  *
  * An identifier must be positive.
  */
-data class Identifier(
+@JvmInline
+value class Identifier(
     val value: Long,
 ) {
     companion object {

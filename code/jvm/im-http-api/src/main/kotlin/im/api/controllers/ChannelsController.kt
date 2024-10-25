@@ -7,6 +7,7 @@ import im.api.model.input.path.UserIdentifierInputModel
 import im.api.model.input.query.NameInputModel
 import im.api.model.input.query.PaginationInputModel
 import im.api.model.input.query.SortInputModel
+import im.api.model.input.wrappers.ChannelRole
 import im.api.model.output.channel.ChannelCreationOutputModel
 import im.api.model.output.channel.ChannelOutputModel
 import im.api.model.output.channel.ChannelsPaginatedOutputModel
@@ -19,6 +20,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -59,7 +61,12 @@ class ChannelsController(
     ): ResponseEntity<Any> =
         when (
             val res =
-                channelService.createChannel(channelInput.name.toDomain(), channelInput.isPublic.toBoolean(), user.user)
+                channelService.createChannel(
+                    channelInput.name.toDomain(),
+                    channelInput.defaultRole.toDomain(),
+                    channelInput.isPublic.toBoolean(),
+                    user.user,
+                )
         ) {
             is Success ->
                 ResponseEntity
@@ -150,6 +157,7 @@ class ChannelsController(
                 channelService.updateChannel(
                     channelId.toDomain(),
                     channelInput.name.toDomain(),
+                    channelInput.defaultRole.toDomain(),
                     channelInput.isPublic.toBoolean(),
                     user.user,
                 )
@@ -240,6 +248,18 @@ class ChannelsController(
         user: AuthenticatedUser,
     ): ResponseEntity<Any> =
         when (val res = channelService.removeChannelMember(channelId.toDomain(), userId.toDomain(), user.user)) {
+            is Success -> ResponseEntity.noContent().build()
+            is Failure -> handleChannelFailure(res.value)
+        }
+
+    @PatchMapping("/{channelId}/members/{userId}")
+    fun updateMemberRole(
+        @Valid channelId: ChannelIdentifierInputModel,
+        @Valid userId: UserIdentifierInputModel,
+        @RequestBody @Valid role: ChannelRole,
+        user: AuthenticatedUser,
+    ): ResponseEntity<Any> =
+        when (val res = channelService.updateMemberRole(channelId.toDomain(), userId.toDomain(), role.toDomain(), user.user)) {
             is Success -> ResponseEntity.noContent().build()
             is Failure -> handleChannelFailure(res.value)
         }

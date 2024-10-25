@@ -3,6 +3,7 @@ package im.domain.user
 import im.domain.wrappers.email.Email
 import im.domain.wrappers.email.toEmail
 import im.domain.wrappers.identifier.Identifier
+import im.domain.wrappers.identifier.toIdentifier
 import im.domain.wrappers.name.Name
 import im.domain.wrappers.name.toName
 import im.domain.wrappers.password.Password
@@ -22,10 +23,18 @@ data class User(
     val password: Password,
     val email: Email,
 ) {
-    constructor(id: Long = 0, name: String, password: String, email: String) : this(
-        id = Identifier(id),
-        name = name.toName(),
-        password = password.toPassword(),
-        email = email.toEmail(),
-    )
+    companion object {
+        operator fun invoke(
+            id: Long = 0,
+            name: String,
+            password: String,
+            email: String,
+        ): User =
+            User(
+                id.toIdentifier(),
+                name.toName(),
+                password.toPassword(),
+                email.toEmail(),
+            )
+    }
 }

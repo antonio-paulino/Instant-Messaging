@@ -8,7 +8,8 @@ import im.domain.Success
  *
  * A name must not be blank and must be between 3 and 30 characters.
  */
-data class Name(
+@JvmInline
+value class Name(
     val value: String,
 ) {
     companion object {

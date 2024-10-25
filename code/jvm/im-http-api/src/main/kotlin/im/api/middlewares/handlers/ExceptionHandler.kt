@@ -20,7 +20,9 @@ class ExceptionHandler {
     fun notValid(err: MethodArgumentNotValidException): ResponseEntity<*> =
         InputValidationProblem.InvalidInput.response(
             HttpStatus.BAD_REQUEST,
-            err.bindingResult.allErrors.mapNotNull { it.defaultMessage },
+            err.bindingResult.allErrors
+                .mapNotNull { it.defaultMessage }
+                .sorted(),
         )
 
     /**

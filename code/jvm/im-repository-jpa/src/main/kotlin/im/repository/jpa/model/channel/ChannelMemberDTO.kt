@@ -1,5 +1,8 @@
 package im.repository.jpa.model.channel
 
+import im.domain.channel.Channel
+import im.domain.channel.ChannelRole
+import im.domain.user.User
 import im.repository.jpa.model.user.UserDTO
 import jakarta.persistence.Column
 import jakarta.persistence.EmbeddedId
@@ -33,4 +36,17 @@ open class ChannelMemberDTO(
     open val user: UserDTO = UserDTO(),
     @Column(name = "role")
     open val role: ChannelRoleDTO = ChannelRoleDTO.MEMBER,
-)
+) {
+    companion object {
+        fun fromDomain(
+            channel: Channel,
+            user: User,
+            role: ChannelRole,
+        ) = ChannelMemberDTO(
+            id = ChannelMemberId(channel.id.value, user.id.value),
+            channel = ChannelDTO.fromDomain(channel),
+            user = UserDTO.fromDomain(user),
+            role = ChannelRoleDTO.fromDomain(role),
+        )
+    }
+}

@@ -1,6 +1,7 @@
 package im.repositories
 
 import im.domain.channel.Channel
+import im.domain.channel.ChannelRole
 import im.domain.messages.Message
 import im.domain.user.User
 import im.domain.wrappers.identifier.toIdentifier
@@ -52,8 +53,8 @@ abstract class MessageRepositoryTest {
     private fun insertData() {
         transactionManager.run {
             testUser = userRepository.save(User(1L, "testUser", "Password123", "user1@daw.isel.pt"))
-            testChannel = channelRepository.save(Channel(1L, "General", testUser, true))
-            testChannel2 = channelRepository.save(Channel(2L, "Random", testUser, true))
+            testChannel = channelRepository.save(Channel(1L, "General", ChannelRole.MEMBER, testUser, true))
+            testChannel2 = channelRepository.save(Channel(2L, "Random", ChannelRole.MEMBER, testUser, true))
 
             testMessage1 =
                 Message(

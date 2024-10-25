@@ -66,6 +66,7 @@ abstract class ChannelRepositoryTest {
                 Channel(
                     id = 1L,
                     name = "General",
+                    ChannelRole.MEMBER,
                     owner = testOwner,
                     isPublic = true,
                     createdAt = LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS),
@@ -73,8 +74,9 @@ abstract class ChannelRepositoryTest {
 
             testChannel2 =
                 Channel(
-                    id = 2L,
+                    id = testChannel1.id.value + 1,
                     name = "Gaming",
+                    ChannelRole.MEMBER,
                     owner = testOwner,
                     isPublic = false,
                     createdAt = LocalDateTime.now().minusDays(1).truncatedTo(ChronoUnit.MILLIS),
@@ -197,7 +199,6 @@ abstract class ChannelRepositoryTest {
     fun `should find channels by partial name with no count`() {
         transactionManager.run {
             channelRepository.save(testChannel1)
-            channelRepository.save(testChannel2)
             val (foundChannels, pagination) =
                 channelRepository.findByPartialName(
                     "Gen",
@@ -452,10 +453,12 @@ abstract class ChannelRepositoryTest {
     @Test
     open fun `should add member to channel with role Member`() {
         transactionManager.run {
-            val savedChannel = channelRepository.save(testChannel1)
-            val newChannel = savedChannel.addMember(testMember, ChannelRole.MEMBER)
-            val updatedChannel = channelRepository.save(newChannel)
-            assertEquals(2, updatedChannel.members.size) // Owner + Member
+            testChannel1 = channelRepository.save(testChannel1)
+            channelRepository.addMember(testChannel1, testMember, ChannelRole.MEMBER)
+        }
+        transactionManager.run {
+            val updatedChannel = channelRepository.findById(testChannel1.id)
+            assertEquals(2, updatedChannel!!.members.size) // Owner + Member
             assertEquals(ChannelRole.MEMBER, updatedChannel.members[testMember])
         }
     }
@@ -463,10 +466,12 @@ abstract class ChannelRepositoryTest {
     @Test
     open fun `should add member to channel with role Guest`() {
         transactionManager.run {
-            val savedChannel = channelRepository.save(testChannel1)
-            val newChannel = savedChannel.addMember(testMember, ChannelRole.GUEST)
-            val updatedChannel = channelRepository.save(newChannel)
-            assertEquals(2, updatedChannel.members.size) // Owner + Guest
+            testChannel1 = channelRepository.save(testChannel1)
+            channelRepository.addMember(testChannel1, testMember, ChannelRole.GUEST)
+        }
+        transactionManager.run {
+            val updatedChannel = channelRepository.findById(testChannel1.id)
+            assertEquals(2, updatedChannel!!.members.size) // Owner + Member
             assertEquals(ChannelRole.GUEST, updatedChannel.members[testMember])
         }
     }
@@ -474,17 +479,34 @@ abstract class ChannelRepositoryTest {
     @Test
     open fun `should remove member from channel`() {
         transactionManager.run {
-            val savedChannel = channelRepository.save(testChannel1)
+            testChannel1 = channelRepository.save(testChannel1)
 
-            val newChannel = savedChannel.addMember(testMember, ChannelRole.MEMBER)
+            val newChannel = testChannel1.addMember(testMember, ChannelRole.MEMBER)
             val updatedChannel = channelRepository.save(newChannel)
             assertEquals(2, updatedChannel.members.size)
             assertEquals(ChannelRole.MEMBER, updatedChannel.members[testMember])
             // Remove Member
             val newChannel2 = updatedChannel.removeMember(testMember)
-            val updatedChannel2 = channelRepository.save(newChannel2)
+            channelRepository.removeMember(newChannel2, testMember)
 
-            assertEquals(1, updatedChannel2.members.size) // Owner
+            assertEquals(1, newChannel2.members.size)
+        }
+    }
+
+    @Test
+    fun `should update member role`() {
+        transactionManager.run {
+            testChannel1 = channelRepository.save(testChannel1)
+            val newChannel = testChannel1.addMember(testMember, ChannelRole.MEMBER)
+            val updatedChannel = channelRepository.save(newChannel)
+            assertEquals(2, updatedChannel.members.size)
+            assertEquals(ChannelRole.MEMBER, updatedChannel.members[testMember])
+            channelRepository.updateMemberRole(updatedChannel, testMember, ChannelRole.GUEST)
+        }
+        transactionManager.run {
+            val updatedChannel = channelRepository.findById(testChannel1.id)
+            assertEquals(2, updatedChannel!!.members.size)
+            assertEquals(ChannelRole.GUEST, updatedChannel.members[testMember])
         }
     }
 

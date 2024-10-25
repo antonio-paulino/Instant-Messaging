@@ -23,7 +23,7 @@ import kotlin.test.assertTrue
 @SpringBootTest
 class TransactionManagerTest {
     private var testUser = User(1L, "testUser", "Password123", "user1@daw.isel.pt")
-    private var testChannel = Channel(1L, "testChannel", testUser, true)
+    private var testChannel = Channel(1L, "testChannel", ChannelRole.MEMBER, testUser, true)
 
     @Autowired
     private lateinit var transactionManager: TransactionManagerJpa
@@ -40,7 +40,7 @@ class TransactionManagerTest {
         channelRepository.deleteAll()
 
         testUser = User(1L, "testUser", "Password123", "user1@daw.isel.pt")
-        testChannel = Channel(1L, "testChannel", testUser, true)
+        testChannel = Channel(1L, "testChannel", ChannelRole.MEMBER, testUser, true)
     }
 
     @Test

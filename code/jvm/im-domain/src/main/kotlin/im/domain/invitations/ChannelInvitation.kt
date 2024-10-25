@@ -4,6 +4,7 @@ import im.domain.channel.Channel
 import im.domain.channel.ChannelRole
 import im.domain.user.User
 import im.domain.wrappers.identifier.Identifier
+import im.domain.wrappers.identifier.toIdentifier
 import java.time.LocalDateTime
 
 /**
@@ -18,31 +19,34 @@ import java.time.LocalDateTime
  * @property expiresAt The date and time when the invitation expires.
  */
 data class ChannelInvitation(
-    val id: Identifier,
+    val id: Identifier = Identifier(0),
     val channel: Channel,
     val inviter: User,
     val invitee: User,
-    val status: ChannelInvitationStatus,
+    val status: ChannelInvitationStatus = ChannelInvitationStatus.PENDING,
     val role: ChannelRole,
     val expiresAt: LocalDateTime,
 ) {
-    constructor(
-        id: Long = 0,
-        channel: Channel,
-        inviter: User,
-        invitee: User,
-        status: ChannelInvitationStatus = ChannelInvitationStatus.PENDING,
-        role: ChannelRole,
-        expiresAt: LocalDateTime,
-    ) : this(
-        id = Identifier(id),
-        channel = channel,
-        inviter = inviter,
-        invitee = invitee,
-        status = status,
-        role = role,
-        expiresAt = expiresAt,
-    )
+    companion object {
+        operator fun invoke(
+            id: Long = 0,
+            channel: Channel,
+            inviter: User,
+            invitee: User,
+            status: ChannelInvitationStatus = ChannelInvitationStatus.PENDING,
+            role: ChannelRole,
+            expiresAt: LocalDateTime,
+        ): ChannelInvitation =
+            ChannelInvitation(
+                id.toIdentifier(),
+                channel,
+                inviter,
+                invitee,
+                status,
+                role,
+                expiresAt,
+            )
+    }
 
     val expired: Boolean
         get() = expiresAt.isBefore(LocalDateTime.now())

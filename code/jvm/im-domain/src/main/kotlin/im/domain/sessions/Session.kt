@@ -2,6 +2,7 @@ package im.domain.sessions
 
 import im.domain.user.User
 import im.domain.wrappers.identifier.Identifier
+import im.domain.wrappers.identifier.toIdentifier
 import java.time.LocalDateTime
 
 /**
@@ -17,14 +18,21 @@ data class Session(
     val user: User,
     val expiresAt: LocalDateTime,
 ) {
-    constructor(id: Long, user: User, expiresAt: LocalDateTime) : this(
-        id = Identifier(id),
-        user = user,
-        expiresAt = expiresAt,
-    )
-
     val expired: Boolean
         get() = expiresAt.isBefore(LocalDateTime.now())
+
+    companion object {
+        operator fun invoke(
+            id: Long = 0,
+            user: User,
+            expiresAt: LocalDateTime,
+        ): Session =
+            Session(
+                id = id.toIdentifier(),
+                user = user,
+                expiresAt = expiresAt,
+            )
+    }
 
     /**
      * Refreshes the session by setting a new expiration date.

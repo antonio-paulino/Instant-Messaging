@@ -36,8 +36,8 @@ abstract class InvitationServiceTest {
     private var testUser1 = User(1L, "testUser", "Password123", "iseldaw@isel.pt")
     private var testUser2 = User(2L, "testUser2", "Password123", "iseldaw2@isel.pt")
     private var testUser3 = User(3L, "testUser3", "Password123", "iseldaw3@isel.pt")
-    private var testChannel = Channel(1L, "testChannel", testUser1, true)
-    private var testChannel2 = Channel(2L, "testChannel2", testUser2, true)
+    private var testChannel = Channel(1L, "testChannel", ChannelRole.MEMBER, testUser1, true)
+    private var testChannel2 = Channel(2L, "testChannel2", ChannelRole.GUEST, testUser2, true)
 
     @BeforeEach
     fun setup() {

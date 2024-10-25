@@ -10,6 +10,7 @@ data class ChannelDTO(
     val id: Long = 0,
     val name: String,
     val owner: UserDTO,
+    val defaultRole: ChannelRoleDTO = ChannelRoleDTO.MEMBER,
     val isPublic: Boolean,
     val createdAt: LocalDateTime = LocalDateTime.now(),
     val members: Map<UserDTO, ChannelRoleDTO> = hashMapOf(),
@@ -20,6 +21,7 @@ data class ChannelDTO(
                 id = channel.id.value,
                 name = channel.name.value,
                 owner = UserDTO.fromDomain(channel.owner),
+                defaultRole = ChannelRoleDTO.valueOf(channel.defaultRole.name),
                 isPublic = channel.isPublic,
                 createdAt = channel.createdAt,
                 members =
@@ -34,6 +36,7 @@ data class ChannelDTO(
             id = id.toIdentifier(),
             name = name.toName(),
             owner = owner.toDomain(),
+            defaultRole = ChannelRoleDTO.valueOf(defaultRole.name).toDomain(),
             isPublic = isPublic,
             createdAt = createdAt,
             membersLazy =

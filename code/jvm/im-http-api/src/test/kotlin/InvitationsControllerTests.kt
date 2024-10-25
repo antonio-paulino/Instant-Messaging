@@ -54,8 +54,8 @@ abstract class InvitationsControllerTests {
     private var accessToken2 = AccessToken(UUID.randomUUID(), testSession2, LocalDateTime.now().plusMinutes(30))
     private var accessToken3 = AccessToken(UUID.randomUUID(), testSession3, LocalDateTime.now().plusMinutes(30))
 
-    private var testChannel = Channel(1L, "testChannel", testUser1, true)
-    private var testChannel2 = Channel(2L, "testChannel2", testUser2, true)
+    private var testChannel = Channel(1L, "testChannel", ChannelRole.GUEST, testUser1, true)
+    private var testChannel2 = Channel(2L, "testChannel2", ChannelRole.MEMBER, testUser2, true)
 
     @BeforeEach
     fun setup() {

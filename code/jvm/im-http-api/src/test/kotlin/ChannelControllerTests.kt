@@ -47,6 +47,8 @@ abstract class ChannelControllerTests {
     private var accessToken1 = AccessToken(UUID.randomUUID(), testSession1, LocalDateTime.now().plusMinutes(30))
     private var accessToken2 = AccessToken(UUID.randomUUID(), testSession2, LocalDateTime.now().plusMinutes(30))
 
+    private var testChannel1 = Channel(0L, "testChannel", ChannelRole.GUEST, testUser1, true)
+
     @BeforeEach
     fun setup() {
         transactionManager.run {
@@ -67,6 +69,7 @@ abstract class ChannelControllerTests {
             testSession2 = sessionRepository.save(testSession2.copy(user = testUser2))
             accessToken1 = accessTokenRepository.save(accessToken1.copy(session = testSession1))
             accessToken2 = accessTokenRepository.save(accessToken2.copy(session = testSession2))
+            testChannel1 = testChannel1.copy(owner = testUser1, membersLazy = lazy { mapOf(testUser1 to ChannelRole.OWNER) })
         }
     }
 
@@ -91,7 +94,7 @@ abstract class ChannelControllerTests {
             .post()
             .uri("api/channels")
             .cookie("access_token", accessToken1.token.toString())
-            .bodyValue(mapOf("name" to "testChannel", "isPublic" to true))
+            .bodyValue(testChannel1)
             .exchange()
             .expectStatus()
             .isCreated
@@ -111,14 +114,14 @@ abstract class ChannelControllerTests {
         val client = getClient()
 
         transactionManager.run {
-            channelRepository.save(Channel(0L, "testChannel", testUser1, true))
+            channelRepository.save(testChannel1)
         }
 
         client
             .post()
             .uri("api/channels")
             .cookie("access_token", accessToken1.token.toString())
-            .bodyValue(mapOf("name" to "testChannel", "isPublic" to true))
+            .bodyValue(testChannel1)
             .exchange()
             .expectStatus()
             .isEqualTo(HttpStatus.CONFLICT)
@@ -149,7 +152,7 @@ abstract class ChannelControllerTests {
 
         val channel =
             transactionManager.run {
-                channelRepository.save(Channel(0L, "testChannel", testUser1, true))
+                channelRepository.save(testChannel1)
             }
 
         client
@@ -196,7 +199,7 @@ abstract class ChannelControllerTests {
 
         val channel =
             transactionManager.run {
-                channelRepository.save(Channel(0L, "testChannel", testUser1, true))
+                channelRepository.save(testChannel1)
             }
 
         client
@@ -223,7 +226,7 @@ abstract class ChannelControllerTests {
 
         val channel =
             transactionManager.run {
-                channelRepository.save(Channel(0L, "testChannel", testUser1, false))
+                channelRepository.save(testChannel1.copy(isPublic = false))
             }
 
         client
@@ -261,10 +264,10 @@ abstract class ChannelControllerTests {
 
         val channel =
             transactionManager.run {
-                channelRepository.save(Channel(0L, "testChannel", testUser1, true))
+                channelRepository.save(testChannel1)
             }
 
-        val update = ChannelCreationInputModel("newName", false)
+        val update = ChannelCreationInputModel("newName", ChannelRole.MEMBER, false)
 
         client
             .put()
@@ -283,13 +286,14 @@ abstract class ChannelControllerTests {
         assertNotNull(updatedChannel)
         assertEquals("newName", updatedChannel!!.name.value)
         assertEquals(false, updatedChannel.isPublic)
+        assertEquals(ChannelRole.MEMBER, updatedChannel.defaultRole)
     }
 
     @Test
     fun `update channel non existing channel 404`() {
         val client = getClient()
 
-        val update = ChannelCreationInputModel("newName", false)
+        val update = ChannelCreationInputModel("newName", ChannelRole.MEMBER, false)
 
         client
             .put()
@@ -314,10 +318,10 @@ abstract class ChannelControllerTests {
 
         val channel =
             transactionManager.run {
-                channelRepository.save(Channel(0L, "testChannel", testUser1, true))
+                channelRepository.save(testChannel1)
             }
 
-        val update = ChannelCreationInputModel("newName", false)
+        val update = ChannelCreationInputModel("newName", ChannelRole.MEMBER, false)
 
         client
             .put()
@@ -342,7 +346,7 @@ abstract class ChannelControllerTests {
 
         val channel =
             transactionManager.run {
-                channelRepository.save(Channel(0L, "testChannel", testUser1, true))
+                channelRepository.save(testChannel1)
             }
 
         client
@@ -399,7 +403,7 @@ abstract class ChannelControllerTests {
 
         val channel =
             transactionManager.run {
-                channelRepository.save(Channel(0L, "testChannel", testUser1, true))
+                channelRepository.save(testChannel1)
             }
 
         client
@@ -424,7 +428,7 @@ abstract class ChannelControllerTests {
 
         val channel =
             transactionManager.run {
-                channelRepository.save(Channel(0L, "testChannel", testUser1, true))
+                channelRepository.save(testChannel1)
             }
 
         client
@@ -444,6 +448,7 @@ abstract class ChannelControllerTests {
 
         assertNotNull(updatedChannel)
         assertEquals(2, updatedChannel!!.members.size)
+        assertEquals(updatedChannel.members[testUser2], ChannelRole.GUEST)
     }
 
     @Test
@@ -472,7 +477,7 @@ abstract class ChannelControllerTests {
 
         val channel =
             transactionManager.run {
-                channelRepository.save(Channel(0L, "testChannel", testUser1, true))
+                channelRepository.save(testChannel1)
             }
 
         client
@@ -497,7 +502,7 @@ abstract class ChannelControllerTests {
 
         val channel =
             transactionManager.run {
-                channelRepository.save(Channel(0L, "testChannel", testUser1, false))
+                channelRepository.save(testChannel1.copy(isPublic = false))
             }
 
         client
@@ -522,7 +527,7 @@ abstract class ChannelControllerTests {
 
         val channel =
             transactionManager.run {
-                channelRepository.save(Channel(0L, "testChannel", testUser1, true))
+                channelRepository.save(testChannel1)
             }
 
         client
@@ -560,7 +565,7 @@ abstract class ChannelControllerTests {
         val channel =
             transactionManager.run {
                 channelRepository.save(
-                    Channel(0L, "testChannel", testUser1, true)
+                    testChannel1
                         .copy(membersLazy = lazy { mapOf(testUser1 to ChannelRole.OWNER, testUser2 to ChannelRole.MEMBER) }),
                 )
             }
@@ -590,8 +595,11 @@ abstract class ChannelControllerTests {
         val channel =
             transactionManager.run {
                 channelRepository.save(
-                    Channel(0L, "testChannel", testUser1, false)
-                        .copy(membersLazy = lazy { mapOf(testUser1 to ChannelRole.OWNER, testUser2 to ChannelRole.MEMBER) }),
+                    testChannel1
+                        .copy(
+                            membersLazy = lazy { mapOf(testUser1 to ChannelRole.OWNER, testUser2 to ChannelRole.MEMBER) },
+                            isPublic = false,
+                        ),
                 )
             }
 
@@ -635,7 +643,7 @@ abstract class ChannelControllerTests {
         val channel =
             transactionManager.run {
                 channelRepository.save(
-                    Channel(0L, "testChannel", testUser1, true)
+                    testChannel1
                         .copy(membersLazy = lazy { mapOf(testUser1 to ChannelRole.OWNER) }),
                 )
             }
@@ -683,7 +691,7 @@ abstract class ChannelControllerTests {
         val channel =
             transactionManager.run {
                 channelRepository.save(
-                    Channel(0L, "testChannel", testUser1, true)
+                    testChannel1
                         .copy(membersLazy = lazy { mapOf(testUser1 to ChannelRole.OWNER) }),
                 )
             }
@@ -711,7 +719,7 @@ abstract class ChannelControllerTests {
         val channel =
             transactionManager.run {
                 channelRepository.save(
-                    Channel(0L, "testChannel", testUser1, true)
+                    testChannel1
                         .copy(membersLazy = lazy { mapOf(testUser1 to ChannelRole.OWNER, testUser2 to ChannelRole.MEMBER) }),
                 )
             }
@@ -733,12 +741,163 @@ abstract class ChannelControllerTests {
     }
 
     @Test
+    fun `update member role no auth`() {
+        val client = getClient()
+
+        client
+            .patch()
+            .uri("api/channels/1/members/1")
+            .bodyValue(ChannelRole.OWNER)
+            .exchange()
+            .expectStatus()
+            .isUnauthorized
+    }
+
+    @Test
+    fun `update member role should update the member role`() {
+        val client = getClient()
+
+        val channel =
+            transactionManager.run {
+                channelRepository.save(
+                    Channel(0L, "testChannel", ChannelRole.MEMBER, testUser1, true)
+                        .copy(membersLazy = lazy { mapOf(testUser1 to ChannelRole.OWNER, testUser2 to ChannelRole.MEMBER) }),
+                )
+            }
+
+        client
+            .patch()
+            .uri("api/channels/${channel.id}/members/${testUser2.id}")
+            .cookie("access_token", accessToken1.token.toString())
+            .bodyValue(ChannelRole.GUEST)
+            .exchange()
+            .expectStatus()
+            .isNoContent
+
+        val updatedChannel =
+            transactionManager.run {
+                channelRepository.findById(channel.id).also { it?.members }
+            }
+
+        assertNotNull(updatedChannel)
+        assertEquals(ChannelRole.GUEST, updatedChannel!!.members[testUser2])
+    }
+
+    @Test
+    fun `update member role non existing channel`() {
+        val client = getClient()
+
+        client
+            .patch()
+            .uri("api/channels/1/members/1")
+            .cookie("access_token", accessToken1.token.toString())
+            .bodyValue(ChannelRole.GUEST)
+            .exchange()
+            .expectStatus()
+            .isNotFound
+            .expectBody(ProblemOutputModel::class.java)
+            .returnResult()
+            .responseBody
+            .also {
+                assertNotNull(it)
+                assertEquals("channel-not-found", it!!.title)
+            }
+    }
+
+    @Test
+    fun `update member role user not found`() {
+        val client = getClient()
+
+        val channel =
+            transactionManager.run {
+                channelRepository.save(
+                    testChannel1
+                        .copy(membersLazy = lazy { mapOf(testUser1 to ChannelRole.GUEST) }),
+                )
+            }
+
+        client
+            .patch()
+            .uri("api/channels/${channel.id}/members/0")
+            .cookie("access_token", accessToken1.token.toString())
+            .bodyValue(ChannelRole.GUEST)
+            .exchange()
+            .expectStatus()
+            .isNotFound
+            .expectBody(ProblemOutputModel::class.java)
+            .returnResult()
+            .responseBody
+            .also {
+                assertNotNull(it)
+                assertEquals("user-not-found", it!!.title)
+            }
+    }
+
+    @Test
+    fun `update member role, cannot update member role to owner`() {
+        val client = getClient()
+
+        val channel =
+            transactionManager.run {
+                channelRepository.save(
+                    testChannel1
+                        .copy(membersLazy = lazy { mapOf(testUser1 to ChannelRole.OWNER, testUser2 to ChannelRole.MEMBER) }),
+                )
+            }
+
+        client
+            .patch()
+            .uri("api/channels/${channel.id}/members/${testUser2.id}")
+            .cookie("access_token", accessToken1.token.toString())
+            .bodyValue(ChannelRole.OWNER)
+            .exchange()
+            .expectStatus()
+            .isForbidden
+            .expectBody(ProblemOutputModel::class.java)
+            .returnResult()
+            .responseBody
+            .also {
+                assertNotNull(it)
+                assertEquals("cannot-update-member-role", it!!.title)
+            }
+    }
+
+    @Test
+    fun `update member role, not owner of the channel`() {
+        val client = getClient()
+
+        val channel =
+            transactionManager.run {
+                channelRepository.save(
+                    testChannel1
+                        .copy(membersLazy = lazy { mapOf(testUser1 to ChannelRole.OWNER, testUser2 to ChannelRole.MEMBER) }),
+                )
+            }
+
+        client
+            .patch()
+            .uri("api/channels/${channel.id}/members/${testUser2.id}")
+            .cookie("access_token", accessToken2.token.toString())
+            .bodyValue(ChannelRole.GUEST)
+            .exchange()
+            .expectStatus()
+            .isForbidden
+            .expectBody(ProblemOutputModel::class.java)
+            .returnResult()
+            .responseBody
+            .also {
+                assertNotNull(it)
+                assertEquals("cannot-update-member-role", it!!.title)
+            }
+    }
+
+    @Test
     fun `get channels should return channels 200`() {
         val client = getClient()
 
         val channel =
             transactionManager.run {
-                channelRepository.save(Channel(0L, "testChannel", testUser1, true))
+                channelRepository.save(testChannel1)
             }
 
         client
@@ -798,7 +957,7 @@ abstract class ChannelControllerTests {
 
         val channel =
             transactionManager.run {
-                channelRepository.save(Channel(0L, "testChannel", testUser1, true))
+                channelRepository.save(testChannel1)
             }
 
         client
@@ -825,7 +984,7 @@ abstract class ChannelControllerTests {
         val client = getClient()
 
         transactionManager.run {
-            channelRepository.save(Channel(0L, "testChannel", testUser1, true))
+            channelRepository.save(testChannel1)
         }
 
         client
@@ -850,7 +1009,7 @@ abstract class ChannelControllerTests {
 
         val channel =
             transactionManager.run {
-                channelRepository.save(Channel(0L, "testChannel", testUser1, true))
+                channelRepository.save(testChannel1)
             }
 
         client
@@ -895,7 +1054,7 @@ abstract class ChannelControllerTests {
     fun `create channels with empty name should return 400`() {
         val client = getClient()
 
-        val channelInput = ChannelCreationInputModel("", true)
+        val channelInput = ChannelCreationInputModel("", ChannelRole.MEMBER, true)
 
         client
             .post()
@@ -918,7 +1077,7 @@ abstract class ChannelControllerTests {
         val client = getClient()
 
         val longName = "a".repeat(51)
-        val channelInput = ChannelCreationInputModel(longName, true)
+        val channelInput = ChannelCreationInputModel(longName, ChannelRole.MEMBER, true)
 
         client
             .post()

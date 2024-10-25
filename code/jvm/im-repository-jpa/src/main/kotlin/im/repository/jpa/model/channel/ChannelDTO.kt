@@ -14,7 +14,6 @@ import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.MapKeyJoinColumn
-import jakarta.persistence.NamedQuery
 import jakarta.persistence.Table
 import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction
@@ -35,10 +34,6 @@ import java.time.LocalDateTime
  * @property createdAt The date and time when the channel was created.
  * @property members The members of the channel and their roles.
  */
-@NamedQuery(
-    name = "ChannelDTO.findAllPaginated",
-    query = "SELECT c FROM ChannelDTO c ",
-)
 @Entity
 @Table(name = "channel")
 open class ChannelDTO(
@@ -47,6 +42,8 @@ open class ChannelDTO(
     open val id: Long = 0,
     @Column(nullable = false, length = 30)
     open val name: String = "",
+    @Column(nullable = false)
+    open val defaultRole: ChannelRoleDTO = ChannelRoleDTO.MEMBER,
     @ManyToOne
     @JoinColumn(name = "owner", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
@@ -69,6 +66,7 @@ open class ChannelDTO(
             ChannelDTO(
                 id = channel.id.value,
                 name = channel.name.value,
+                defaultRole = ChannelRoleDTO.fromDomain(channel.defaultRole),
                 owner = UserDTO.fromDomain(channel.owner),
                 isPublic = channel.isPublic,
                 createdAt = channel.createdAt,
@@ -83,6 +81,7 @@ open class ChannelDTO(
         Channel(
             id = id.toIdentifier(),
             name = name.toName(),
+            defaultRole = defaultRole.toDomain(),
             owner = owner!!.toDomain(),
             isPublic = isPublic,
             createdAt = createdAt,

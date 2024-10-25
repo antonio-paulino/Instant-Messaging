@@ -54,7 +54,7 @@ abstract class ChannelServiceTest {
 
     @Test
     fun `create channel should create a channel`() {
-        val result = channelService.createChannel("testChannel".toName(), true, testUser1)
+        val result = channelService.createChannel("testChannel".toName(), ChannelRole.GUEST, true, testUser1)
 
         assertIs<Success<Channel>>(result)
         val channel = result.value
@@ -62,20 +62,21 @@ abstract class ChannelServiceTest {
         assertEquals("testChannel", channel.name.value)
         assertEquals(true, channel.isPublic)
         assertEquals(testUser1, channel.owner)
+        assertEquals(ChannelRole.GUEST, channel.defaultRole)
     }
 
     @Test
     fun `create channel channel already exists`() {
-        val result = channelService.createChannel("testChannel".toName(), true, testUser1)
+        val result = channelService.createChannel("testChannel".toName(), ChannelRole.GUEST, true, testUser1)
         assertIs<Success<Channel>>(result)
 
-        val result2 = channelService.createChannel("testChannel".toName(), true, testUser1)
+        val result2 = channelService.createChannel("testChannel".toName(), ChannelRole.GUEST, true, testUser1)
         assertIs<Failure<ChannelError>>(result2)
     }
 
     @Test
     fun `get channel by id should return the channel`() {
-        val result = channelService.createChannel("testChannel".toName(), true, testUser1)
+        val result = channelService.createChannel("testChannel".toName(), ChannelRole.GUEST, true, testUser1)
         assertIs<Success<Channel>>(result)
         val channel = result.value
 
@@ -95,7 +96,7 @@ abstract class ChannelServiceTest {
 
     @Test
     fun `get public channel by id not a member of the channel`() {
-        val result = channelService.createChannel("testChannel".toName(), true, testUser1)
+        val result = channelService.createChannel("testChannel".toName(), ChannelRole.GUEST, true, testUser1)
         assertIs<Success<Channel>>(result)
         val channel = result.value
         val result2 = channelService.getChannelById(channel.id, testUser2)
@@ -105,21 +106,21 @@ abstract class ChannelServiceTest {
 
     @Test
     fun `get private channel by id not a member of the channel`() {
-        val result = channelService.createChannel("testChannel".toName(), false, testUser1)
+        val result = channelService.createChannel("testChannel".toName(), ChannelRole.MEMBER, false, testUser1)
         assertIs<Success<Channel>>(result)
         val channel = result.value
         val result2 = channelService.getChannelById(channel.id, testUser2)
         assertIs<Failure<ChannelError>>(result2)
-        assertIs<ChannelError.UserCannotAccessChannel>(result2.value)
+        assertIs<ChannelError.CannotAccessChannel>(result2.value)
     }
 
     @Test
     fun `update channel should update the channel`() {
-        val result = channelService.createChannel("testChannel".toName(), true, testUser1)
+        val result = channelService.createChannel("testChannel".toName(), ChannelRole.GUEST, true, testUser1)
         assertIs<Success<Channel>>(result)
         val channel = result.value
 
-        val result2 = channelService.updateChannel(channel.id, "newName".toName(), false, testUser1)
+        val result2 = channelService.updateChannel(channel.id, "newName".toName(), ChannelRole.MEMBER, false, testUser1)
         assertIs<Success<Unit>>(result2)
 
         val result3 = channelService.getChannelById(channel.id, testUser1)
@@ -128,29 +129,30 @@ abstract class ChannelServiceTest {
 
         assertEquals("newName", updatedChannel.name.value)
         assertEquals(false, updatedChannel.isPublic)
+        assertEquals(ChannelRole.MEMBER, updatedChannel.defaultRole)
     }
 
     @Test
     fun `update channel non existing channel`() {
-        val result = channelService.updateChannel(Identifier(1L), "newName".toName(), false, testUser1)
+        val result = channelService.updateChannel(Identifier(1L), "newName".toName(), ChannelRole.MEMBER, false, testUser1)
         assertIs<Failure<ChannelError>>(result)
         assertIs<ChannelError.ChannelNotFound>(result.value)
     }
 
     @Test
     fun `update channel not the owner of the channel`() {
-        val result = channelService.createChannel("testChannel".toName(), true, testUser1)
+        val result = channelService.createChannel("testChannel".toName(), ChannelRole.GUEST, true, testUser1)
         assertIs<Success<Channel>>(result)
         val channel = result.value
 
-        val result2 = channelService.updateChannel(channel.id, "newName".toName(), false, testUser2)
+        val result2 = channelService.updateChannel(channel.id, "newName".toName(), ChannelRole.MEMBER, false, testUser2)
         assertIs<Failure<ChannelError>>(result2)
-        assertIs<ChannelError.UserCannotUpdateChannel>(result2.value)
+        assertIs<ChannelError.CannotUpdateChannel>(result2.value)
     }
 
     @Test
     fun `delete channel should delete the channel`() {
-        val result = channelService.createChannel("testChannel".toName(), true, testUser1)
+        val result = channelService.createChannel("testChannel".toName(), ChannelRole.GUEST, true, testUser1)
         assertIs<Success<Channel>>(result)
         val channel = result.value
 
@@ -171,18 +173,18 @@ abstract class ChannelServiceTest {
 
     @Test
     fun `delete channel not the owner of the channel`() {
-        val result = channelService.createChannel("testChannel".toName(), true, testUser1)
+        val result = channelService.createChannel("testChannel".toName(), ChannelRole.GUEST, true, testUser1)
         assertIs<Success<Channel>>(result)
         val channel = result.value
 
         val result2 = channelService.deleteChannel(channel.id, testUser2)
         assertIs<Failure<ChannelError>>(result2)
-        assertIs<ChannelError.UserCannotDeleteChannel>(result2.value)
+        assertIs<ChannelError.CannotDeleteChannel>(result2.value)
     }
 
     @Test
     fun `join channel should join the channel`() {
-        val result = channelService.createChannel("testChannel".toName(), true, testUser1)
+        val result = channelService.createChannel("testChannel".toName(), ChannelRole.GUEST, true, testUser1)
         assertIs<Success<Channel>>(result)
         val channel = result.value
 
@@ -205,18 +207,18 @@ abstract class ChannelServiceTest {
 
     @Test
     fun `join channel cannot add other user`() {
-        val result = channelService.createChannel("testChannel".toName(), true, testUser1)
+        val result = channelService.createChannel("testChannel".toName(), ChannelRole.GUEST, true, testUser1)
         assertIs<Success<Channel>>(result)
         val channel = result.value
 
         val result2 = channelService.joinChannel(channel.id, testUser2.id, testUser1)
         assertIs<Failure<ChannelError>>(result2)
-        assertIs<ChannelError.UserCannotAddMember>(result2.value)
+        assertIs<ChannelError.CannotAddMember>(result2.value)
     }
 
     @Test
     fun `join channel private channel`() {
-        val result = channelService.createChannel("testChannel".toName(), false, testUser1)
+        val result = channelService.createChannel("testChannel".toName(), ChannelRole.GUEST, false, testUser1)
         assertIs<Success<Channel>>(result)
         val channel = result.value
 
@@ -227,7 +229,7 @@ abstract class ChannelServiceTest {
 
     @Test
     fun `join channel user already in the channel`() {
-        val result = channelService.createChannel("testChannel".toName(), true, testUser1)
+        val result = channelService.createChannel("testChannel".toName(), ChannelRole.GUEST, true, testUser1)
         assertIs<Success<Channel>>(result)
         val channel = result.value
 
@@ -238,7 +240,7 @@ abstract class ChannelServiceTest {
 
     @Test
     fun `remove channel member user should leave channel`() {
-        val result = channelService.createChannel("testChannel".toName(), true, testUser1)
+        val result = channelService.createChannel("testChannel".toName(), ChannelRole.GUEST, true, testUser1)
         assertIs<Success<Channel>>(result)
         val channel = result.value
 
@@ -254,7 +256,7 @@ abstract class ChannelServiceTest {
 
     @Test
     fun `remove channel member owner should kick member and cannot access private channel`() {
-        val result = channelService.createChannel("testChannel".toName(), true, testUser1)
+        val result = channelService.createChannel("testChannel".toName(), ChannelRole.GUEST, true, testUser1)
         assertIs<Success<Channel>>(result)
         val channel = result.value
 
@@ -264,17 +266,17 @@ abstract class ChannelServiceTest {
         val result3 = channelService.removeChannelMember(channel.id, testUser2.id, testUser1)
         assertIs<Success<Unit>>(result3)
 
-        val result4 = channelService.updateChannel(channel.id, "testChannel".toName(), false, testUser1)
+        val result4 = channelService.updateChannel(channel.id, "testChannel".toName(), ChannelRole.GUEST, false, testUser1)
         assertIs<Success<Unit>>(result4)
 
         val result5 = channelService.getChannelById(channel.id, testUser2)
         assertIs<Failure<ChannelError>>(result5)
-        assertIs<ChannelError.UserCannotAccessChannel>(result5.value)
+        assertIs<ChannelError.CannotAccessChannel>(result5.value)
     }
 
     @Test
     fun `remove channel member, member not in channel`() {
-        val result = channelService.createChannel("testChannel".toName(), true, testUser1)
+        val result = channelService.createChannel("testChannel".toName(), ChannelRole.GUEST, true, testUser1)
         assertIs<Success<Channel>>(result)
         val channel = result.value
 
@@ -292,7 +294,7 @@ abstract class ChannelServiceTest {
 
     @Test
     fun `remove channel member user not found`() {
-        val result = channelService.createChannel("testChannel".toName(), true, testUser1)
+        val result = channelService.createChannel("testChannel".toName(), ChannelRole.GUEST, true, testUser1)
         assertIs<Success<Channel>>(result)
         val channel = result.value
 
@@ -303,18 +305,81 @@ abstract class ChannelServiceTest {
 
     @Test
     fun `remove channel member cannot remove user`() {
-        val result = channelService.createChannel("testChannel".toName(), true, testUser1)
+        val result = channelService.createChannel("testChannel".toName(), ChannelRole.GUEST, true, testUser1)
         assertIs<Success<Channel>>(result)
         val channel = result.value
 
         val result2 = channelService.removeChannelMember(channel.id, testUser1.id, testUser2)
         assertIs<Failure<ChannelError>>(result2)
-        assertIs<ChannelError.UserCannotRemoveMember>(result2.value)
+        assertIs<ChannelError.CannotRemoveMember>(result2.value)
+    }
+
+    @Test
+    fun `update member role should update the member role`() {
+        val result = channelService.createChannel("testChannel".toName(), ChannelRole.GUEST, true, testUser1)
+        assertIs<Success<Channel>>(result)
+        val channel = result.value
+
+        val result2 = channelService.joinChannel(channel.id, testUser2.id, testUser2)
+        assertIs<Success<Unit>>(result2)
+
+        val result3 = channelService.updateMemberRole(channel.id, testUser2.id, ChannelRole.GUEST, testUser1)
+        assertIs<Success<Unit>>(result3)
+
+        val result4 = channelService.getUserChannels(testUser2.id, SortRequest("id"), testUser2)
+        assertIs<Success<Map<Channel, ChannelRole>>>(result4)
+        assertEquals(ChannelRole.GUEST, result4.value[channel])
+    }
+
+    @Test
+    fun `update member role non existing channel`() {
+        val result = channelService.updateMemberRole(Identifier(1L), testUser2.id, ChannelRole.GUEST, testUser1)
+        assertIs<Failure<ChannelError>>(result)
+        assertIs<ChannelError.ChannelNotFound>(result.value)
+    }
+
+    @Test
+    fun `update member role user not found`() {
+        val result = channelService.createChannel("testChannel".toName(), ChannelRole.GUEST, true, testUser1)
+        assertIs<Success<Channel>>(result)
+        val channel = result.value
+
+        val result2 = channelService.updateMemberRole(channel.id, Identifier(1L), ChannelRole.GUEST, testUser1)
+        assertIs<Failure<ChannelError>>(result2)
+        assertIs<ChannelError.UserNotFound>(result2.value)
+    }
+
+    @Test
+    fun `update member role, cannot update member role to owner`() {
+        val result = channelService.createChannel("testChannel".toName(), ChannelRole.GUEST, true, testUser1)
+        assertIs<Success<Channel>>(result)
+        val channel = result.value
+
+        val result2 = channelService.joinChannel(channel.id, testUser2.id, testUser2)
+        assertIs<Success<Unit>>(result2)
+
+        val result3 = channelService.updateMemberRole(channel.id, testUser1.id, ChannelRole.OWNER, testUser2)
+        assertIs<Failure<ChannelError>>(result3)
+        assertIs<ChannelError.CannotUpdateMemberRole>(result3.value)
+    }
+
+    @Test
+    fun `update member role, not owner of the channel`() {
+        val result = channelService.createChannel("testChannel".toName(), ChannelRole.GUEST, true, testUser1)
+        assertIs<Success<Channel>>(result)
+        val channel = result.value
+
+        val result2 = channelService.joinChannel(channel.id, testUser2.id, testUser2)
+        assertIs<Success<Unit>>(result2)
+
+        val result3 = channelService.updateMemberRole(channel.id, testUser2.id, ChannelRole.GUEST, testUser2)
+        assertIs<Failure<ChannelError>>(result3)
+        assertIs<ChannelError.CannotUpdateMemberRole>(result3.value)
     }
 
     @Test
     fun `get channels should return channels`() {
-        val result = channelService.createChannel("testChannel".toName(), true, testUser1)
+        val result = channelService.createChannel("testChannel".toName(), ChannelRole.GUEST, true, testUser1)
         assertIs<Success<Channel>>(result)
         val channel = result.value
 
@@ -343,11 +408,11 @@ abstract class ChannelServiceTest {
 
     @Test
     fun `get channels should return channels with name`() {
-        val result = channelService.createChannel("testChannel".toName(), true, testUser1)
+        val result = channelService.createChannel("testChannel".toName(), ChannelRole.GUEST, true, testUser1)
         assertIs<Success<Channel>>(result)
         val channel = result.value
 
-        val result2 = channelService.createChannel("testChannel2".toName(), true, testUser1)
+        val result2 = channelService.createChannel("testChannel2".toName(), ChannelRole.GUEST, true, testUser1)
         assertIs<Success<Channel>>(result2)
         val channel2 = result2.value
 
@@ -368,7 +433,7 @@ abstract class ChannelServiceTest {
 
     @Test
     fun `get channels with name should return empty`() {
-        val result = channelService.createChannel("testChannel".toName(), true, testUser1)
+        val result = channelService.createChannel("testChannel".toName(), ChannelRole.GUEST, true, testUser1)
         assertIs<Success<Channel>>(result)
 
         val result2 = channelService.getChannels("NonExisting", PaginationRequest(1, 10), SortRequest("id"))
@@ -380,11 +445,11 @@ abstract class ChannelServiceTest {
 
     @Test
     fun `get channels with pagination should return channels`() {
-        val result = channelService.createChannel("testChannel".toName(), true, testUser1)
+        val result = channelService.createChannel("testChannel".toName(), ChannelRole.GUEST, true, testUser1)
         assertIs<Success<Channel>>(result)
         val channel = result.value
 
-        val result2 = channelService.createChannel("testChannel2".toName(), true, testUser1)
+        val result2 = channelService.createChannel("testChannel2".toName(), ChannelRole.GUEST, true, testUser1)
         assertIs<Success<Channel>>(result2)
 
         val result3 = channelService.getChannels(null, PaginationRequest(1, 1), SortRequest("id"))
@@ -405,11 +470,11 @@ abstract class ChannelServiceTest {
     fun `get user channels should return user channels`() {
         val testChannel1 =
             transactionManager.run {
-                channelRepository.save(Channel(1L, "testChannel1", testUser1, true))
+                channelRepository.save(Channel(1L, "testChannel1", ChannelRole.GUEST, testUser1, true))
             }
         val testChannel2 =
             transactionManager.run {
-                channelRepository.save(Channel(2L, "testChannel2", testUser2, true))
+                channelRepository.save(Channel(2L, "testChannel2", ChannelRole.MEMBER, testUser2, true))
             }
         val result = channelService.getUserChannels(testUser1.id, SortRequest("id"), testUser1)
         assertIs<Success<Map<Channel, ChannelRole>>>(result)
