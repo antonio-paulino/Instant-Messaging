@@ -1,6 +1,7 @@
 package im.message
 
 import im.domain.channel.Channel
+import im.domain.channel.ChannelRole
 import im.domain.messages.Message
 import im.domain.user.User
 import java.time.LocalDateTime
@@ -22,6 +23,7 @@ class MessageTest {
             Channel(
                 id = 1L,
                 name = "im/channel",
+                ChannelRole.MEMBER,
                 owner = user,
                 isPublic = true,
             )
@@ -49,6 +51,7 @@ class MessageTest {
             Channel(
                 id = 1L,
                 name = "im/channel",
+                ChannelRole.MEMBER,
                 owner = user,
                 isPublic = true,
             )
@@ -78,6 +81,7 @@ class MessageTest {
             Channel(
                 id = 1L,
                 name = "im/channel",
+                ChannelRole.MEMBER,
                 owner = user,
                 isPublic = true,
             )
@@ -105,6 +109,7 @@ class MessageTest {
             Channel(
                 id = 1L,
                 name = "im/channel",
+                ChannelRole.MEMBER,
                 owner = user,
                 isPublic = true,
             )

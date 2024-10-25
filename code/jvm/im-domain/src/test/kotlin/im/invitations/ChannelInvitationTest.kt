@@ -15,7 +15,7 @@ class ChannelInvitationTest {
     fun `should accept invitation`() {
         val user1 = User(1, "user", "Password123", "user1@daw.isel.pt")
         val user2 = User(2, "user2", "Password123", "user2@daw.isel.pt")
-        val channel = Channel(1, "im/channel", user1, true)
+        val channel = Channel(1, "im/channel", ChannelRole.MEMBER, user1, true)
 
         val invitation =
             ChannelInvitation(
@@ -36,7 +36,7 @@ class ChannelInvitationTest {
     fun `should reject invitation`() {
         val user1 = User(1, "user", "Password123", "user1@daw.isel.pt")
         val user2 = User(2, "user2", "Password123", "user2@daw.isel.pt")
-        val channel = Channel(1, "im/channel", user1, true)
+        val channel = Channel(1, "im/channel", ChannelRole.MEMBER, user1, true)
 
         val invitation =
             ChannelInvitation(
@@ -57,7 +57,7 @@ class ChannelInvitationTest {
     fun `should update invitation`() {
         val user1 = User(1, "user", "Password123", "user1@daw.isel.pt")
         val user2 = User(2, "user2", "Password123", "user2@daw.isel.pt")
-        val channel = Channel(1, "im/channel", user1, true)
+        val channel = Channel(1, "im/channel", ChannelRole.MEMBER, user1, true)
 
         val time = LocalDateTime.now()
         val invitation =
@@ -80,7 +80,7 @@ class ChannelInvitationTest {
     fun `test create invite inviter not in channel`() {
         val user1 = User(1, "user", "Password123", "user1@daw.isel.pt")
         val user2 = User(2, "user2", "Password123", "user2@daw.isel.pt")
-        val channel = Channel(1, "im/channel", user1, true)
+        val channel = Channel(1, "im/channel", ChannelRole.MEMBER, user1, true)
 
         assertFailsWith<IllegalArgumentException> {
             ChannelInvitation(
