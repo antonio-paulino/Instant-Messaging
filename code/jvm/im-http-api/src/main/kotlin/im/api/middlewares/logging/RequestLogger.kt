@@ -28,7 +28,7 @@ class RequestLogger(
 
         logger.info(
             "Incoming Request: uri={}, method={} ",
-            req.requestURI,
+            req.requestURI + (req.queryString?.let { "?$it" } ?: ""),
             req.method,
         )
 

@@ -35,8 +35,23 @@ class RequestHelper {
     fun getRefreshToken(req: HttpServletRequest): UUID? {
         val refreshToken =
             req.getHeader("Authorization")?.removePrefix("Bearer ")
-                ?: req.cookies?.find { it.name == REFRESH_TOKEN_COOKIE_NAME }?.value
-        return refreshToken?.let { UUID.fromString(it) }
+                ?: req.cookies?.find { it.name == REFRESH_TOKEN_COOKIE_NAME }?.value ?: return null
+        return try {
+            UUID.fromString(refreshToken)
+        } catch (e: IllegalArgumentException) {
+            null
+        }
+    }
+
+    fun getAccessToken(request: HttpServletRequest): UUID? {
+        val token =
+            request.getHeader("Authorization")?.removePrefix("Bearer ")
+                ?: request.cookies?.find { it.name == ACCESS_TOKEN_COOKIE_NAME }?.value ?: return null
+        return try {
+            UUID.fromString(token)
+        } catch (e: IllegalArgumentException) {
+            null
+        }
     }
 
     fun setCookie(

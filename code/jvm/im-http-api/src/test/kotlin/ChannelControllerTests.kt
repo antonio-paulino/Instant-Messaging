@@ -88,6 +88,20 @@ abstract class ChannelControllerTests {
     }
 
     @Test
+    fun `create channel invalid auth`() {
+        val client = getClient()
+
+        client
+            .post()
+            .uri("api/channels")
+            .cookie("access_token", "randomstring")
+            .bodyValue(mapOf("name" to "testChannel", "isPublic" to true))
+            .exchange()
+            .expectStatus()
+            .isUnauthorized
+    }
+
+    @Test
     fun `create channel should create a channel 201`() {
         val client = getClient()
 

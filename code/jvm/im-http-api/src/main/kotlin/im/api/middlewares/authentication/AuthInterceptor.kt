@@ -11,7 +11,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 import org.springframework.web.method.HandlerMethod
 import org.springframework.web.servlet.HandlerInterceptor
-import java.util.UUID
 
 /**
  * Authenticates the incoming requests.
@@ -35,7 +34,7 @@ class AuthInterceptor(
             return true
         }
 
-        val token = getAccessToken(request)
+        val token = reqHelper.getAccessToken(request)
 
         if (token == null) {
             logger.info("Failed to authenticate request")
@@ -55,13 +54,6 @@ class AuthInterceptor(
         logger.info("Authenticated request for user with id ${result.value.id}")
         reqHelper.setAuthenticatedUser(request, (result).value, token)
         return true
-    }
-
-    private fun getAccessToken(request: HttpServletRequest): UUID? {
-        val token =
-            request.getHeader("Authorization")?.removePrefix("Bearer ")
-                ?: request.cookies?.find { it.name == "access_token" }?.value
-        return token?.let { UUID.fromString(it) }
     }
 
     companion object {
