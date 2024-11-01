@@ -1,6 +1,7 @@
 package im
 
 import im.api.model.input.body.ChannelCreationInputModel
+import im.api.model.input.body.ChannelRoleUpdateInputModel
 import im.api.model.output.channel.ChannelCreationOutputModel
 import im.api.model.output.channel.ChannelOutputModel
 import im.api.model.output.channel.ChannelsOutputModel
@@ -619,7 +620,6 @@ abstract class ChannelControllerTests {
         assertNotNull(updatedChannel)
         assertEquals(1, updatedChannel!!.members.size)
         assertTrue(updatedChannel.members.containsKey(testUser1))
-
         client
             .get()
             .uri("api/channels/${channel.id}")
@@ -769,7 +769,7 @@ abstract class ChannelControllerTests {
             .patch()
             .uri("api/channels/${channel.id}/members/${testUser2.id}")
             .cookie("access_token", accessToken1.token.toString())
-            .bodyValue(ChannelRole.GUEST)
+            .bodyValue(ChannelRoleUpdateInputModel(ChannelRole.GUEST.name))
             .exchange()
             .expectStatus()
             .isNoContent
@@ -791,7 +791,7 @@ abstract class ChannelControllerTests {
             .patch()
             .uri("api/channels/1/members/1")
             .cookie("access_token", accessToken1.token.toString())
-            .bodyValue(ChannelRole.GUEST)
+            .bodyValue(ChannelRoleUpdateInputModel(ChannelRole.OWNER.name))
             .exchange()
             .expectStatus()
             .isNotFound
@@ -820,7 +820,7 @@ abstract class ChannelControllerTests {
             .patch()
             .uri("api/channels/${channel.id}/members/0")
             .cookie("access_token", accessToken1.token.toString())
-            .bodyValue(ChannelRole.GUEST)
+            .bodyValue(ChannelRoleUpdateInputModel(ChannelRole.GUEST.name))
             .exchange()
             .expectStatus()
             .isNotFound
@@ -849,7 +849,7 @@ abstract class ChannelControllerTests {
             .patch()
             .uri("api/channels/${channel.id}/members/${testUser2.id}")
             .cookie("access_token", accessToken1.token.toString())
-            .bodyValue(ChannelRole.OWNER)
+            .bodyValue(ChannelRoleUpdateInputModel(ChannelRole.OWNER.name))
             .exchange()
             .expectStatus()
             .isForbidden
@@ -878,7 +878,7 @@ abstract class ChannelControllerTests {
             .patch()
             .uri("api/channels/${channel.id}/members/${testUser2.id}")
             .cookie("access_token", accessToken2.token.toString())
-            .bodyValue(ChannelRole.GUEST)
+            .bodyValue(ChannelRoleUpdateInputModel(ChannelRole.GUEST.name))
             .exchange()
             .expectStatus()
             .isForbidden

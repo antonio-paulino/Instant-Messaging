@@ -2,12 +2,12 @@ package im.api.controllers
 
 import im.api.middlewares.authentication.Authenticated
 import im.api.model.input.body.ChannelCreationInputModel
+import im.api.model.input.body.ChannelRoleUpdateInputModel
 import im.api.model.input.path.ChannelIdentifierInputModel
 import im.api.model.input.path.UserIdentifierInputModel
 import im.api.model.input.query.NameInputModel
 import im.api.model.input.query.PaginationInputModel
 import im.api.model.input.query.SortInputModel
-import im.api.model.input.wrappers.ChannelRole
 import im.api.model.output.channel.ChannelCreationOutputModel
 import im.api.model.output.channel.ChannelOutputModel
 import im.api.model.output.channel.ChannelsPaginatedOutputModel
@@ -256,7 +256,7 @@ class ChannelsController(
     fun updateMemberRole(
         @Valid channelId: ChannelIdentifierInputModel,
         @Valid userId: UserIdentifierInputModel,
-        @RequestBody @Valid role: ChannelRole,
+        @RequestBody @Valid role: ChannelRoleUpdateInputModel,
         user: AuthenticatedUser,
     ): ResponseEntity<Any> =
         when (val res = channelService.updateMemberRole(channelId.toDomain(), userId.toDomain(), role.toDomain(), user.user)) {

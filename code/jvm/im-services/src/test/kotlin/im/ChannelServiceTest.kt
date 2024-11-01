@@ -133,10 +133,39 @@ abstract class ChannelServiceTest {
     }
 
     @Test
+    fun `update channel same name should succeed`() {
+        val result = channelService.createChannel("testChannel".toName(), ChannelRole.GUEST, true, testUser1)
+        assertIs<Success<Channel>>(result)
+        val channel = result.value
+
+        val result2 = channelService.updateChannel(channel.id, "testChannel".toName(), ChannelRole.MEMBER, false, testUser1)
+        assertIs<Success<Unit>>(result2)
+    }
+
+    @Test
+    fun `update channel, channel with name already exists`() {
+        val result = channelService.createChannel("testChannel".toName(), ChannelRole.GUEST, true, testUser1)
+        assertIs<Success<Channel>>(result)
+
+        val result2 = channelService.createChannel("testChannel2".toName(), ChannelRole.GUEST, true, testUser1)
+        assertIs<Success<Channel>>(result2)
+        val channel2 = result2.value
+
+        val result3 = channelService.updateChannel(channel2.id, "testChannel".toName(), ChannelRole.MEMBER, false, testUser1)
+        assertIs<Failure<ChannelError>>(result3)
+        assertIs<ChannelError.ChannelAlreadyExists>(result3.value)
+    }
+
+    @Test
     fun `update channel non existing channel`() {
-        val result = channelService.updateChannel(Identifier(1L), "newName".toName(), ChannelRole.MEMBER, false, testUser1)
-        assertIs<Failure<ChannelError>>(result)
-        assertIs<ChannelError.ChannelNotFound>(result.value)
+        val result = channelService.createChannel("testChannel".toName(), ChannelRole.GUEST, true, testUser1)
+        assertIs<Success<Channel>>(result)
+
+        val result2 = channelService.createChannel("testChannel2".toName(), ChannelRole.GUEST, true, testUser1)
+        assertIs<Success<Channel>>(result2)
+
+        val result3 = channelService.updateChannel(result.value.id, "testChannel2".toName(), ChannelRole.MEMBER, false, testUser1)
+        assertIs<Failure<ChannelError>>(result3)
     }
 
     @Test
@@ -266,7 +295,7 @@ abstract class ChannelServiceTest {
         val result3 = channelService.removeChannelMember(channel.id, testUser2.id, testUser1)
         assertIs<Success<Unit>>(result3)
 
-        val result4 = channelService.updateChannel(channel.id, "testChannel".toName(), ChannelRole.GUEST, false, testUser1)
+        val result4 = channelService.updateChannel(channel.id, "testChannel2".toName(), ChannelRole.GUEST, false, testUser1)
         assertIs<Success<Unit>>(result4)
 
         val result5 = channelService.getChannelById(channel.id, testUser2)

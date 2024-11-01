@@ -82,6 +82,10 @@ class ChannelServiceImpl(
                 return@run Failure(ChannelError.CannotUpdateChannel)
             }
 
+            if (name != channel.name && channelRepository.findByName(name, false) != null) {
+                return@run Failure(ChannelError.ChannelAlreadyExists("name"))
+            }
+
             channelRepository.save(channel.updateChannel(name, defaultRole, isPublic))
 
             success(Unit)

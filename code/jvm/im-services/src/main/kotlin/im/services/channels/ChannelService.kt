@@ -81,7 +81,7 @@ interface ChannelService {
     /**
      * Joins a channel.
      *
-     * - The channel must be public or the user must have an invitation to join it.
+     * - The channel must be public to join it directly.
      *
      * @param channelId the unique identifier of the channel
      * @param userId the unique identifier of the user
