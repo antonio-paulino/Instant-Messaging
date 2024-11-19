@@ -42,6 +42,9 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '409':
           $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
 
   /api/auth/login:
     post:
@@ -66,6 +69,9 @@ paths:
             $ref: '#/components/responses/BadRequest'
         '401':
             $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
   /api/auth/refresh:
     post:
       tags:
@@ -80,6 +86,9 @@ paths:
                 $ref: '#/components/schemas/CredentialsOutputModel'
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
 
   /api/auth/logout:
     post:
@@ -93,6 +102,9 @@ paths:
           description: User logged out successfully
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
   /api/auth/invitations:
     post:
       tags:
@@ -116,6 +128,9 @@ paths:
                 $ref: '#/components/schemas/ImInvitationOutputModel'
         '400':
             $ref: '#/components/responses/BadRequest'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
   /api/users:
     get:
       tags:
@@ -124,8 +139,8 @@ paths:
       security:
         - bearerAuth: []
       parameters:
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/Size'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
         - $ref: '#/components/parameters/Sort'
         - $ref: '#/components/parameters/Name'
         - $ref: '#/components/parameters/GetCount'
@@ -145,6 +160,9 @@ paths:
                 $ref: '#/components/schemas/UsersPaginatedOutputModel'
         '401':
             $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
   /api/users/{userID}:
     get:
       tags:
@@ -165,22 +183,28 @@ paths:
             $ref: '#/components/responses/Unauthorized'
         '404':
             $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
   /api/users/{userID}/channels:
     get:
       tags:
         - Users
-      summary: Get a list of all channels a user is a member of
+      summary: Get a list of channels the user is a member of
       security:
         - bearerAuth: []
       parameters:
         - $ref: '#/components/parameters/UserID'
         - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/GetCount'
         - name: sortBy
           in: query
           required: false
           schema:
             type: string
-            enum: [ id, name, createdAt ]
+            enum: [ id, name ]
             default: name
       responses:
         '200':
@@ -188,13 +212,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ChannelsOutputModel'
+                $ref: '#/components/schemas/ChannelsPaginatedOutputModel'
         '401':
             $ref: '#/components/responses/Unauthorized'
         '403':
             $ref: '#/components/responses/Forbidden'
         '404':
             $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
   /api/channels:
     post:
       tags:
@@ -220,6 +247,9 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
     get:
         tags:
             - Channels
@@ -227,8 +257,8 @@ paths:
         security:
           - bearerAuth: []
         parameters:
-          - $ref: '#/components/parameters/Page'
-          - $ref: '#/components/parameters/Size'
+          - $ref: '#/components/parameters/Offset'
+          - $ref: '#/components/parameters/Limit'
           - $ref: '#/components/parameters/GetCount'
           - $ref: '#/components/parameters/Sort'
           - $ref: '#/components/parameters/Name'
@@ -248,6 +278,9 @@ paths:
                     $ref: '#/components/schemas/ChannelsPaginatedOutputModel'
           '401':
               $ref: '#/components/responses/Unauthorized'
+          '429':
+            $ref: '#/components/responses/TooManyRequests'
+
   /api/channels/{channelID}:
     get:
       tags:
@@ -270,6 +303,9 @@ paths:
             $ref: '#/components/responses/Forbidden'
         '404':
             $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
     put:
       tags:
         - Channels
@@ -296,6 +332,9 @@ paths:
             $ref: '#/components/responses/Forbidden'
         '404':
             $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
     delete:
       tags:
         - Channels
@@ -313,6 +352,9 @@ paths:
             $ref: '#/components/responses/Forbidden'
         '404':
             $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
   /api/channels/{channelID}/members/{userID}:
     put:
       tags:
@@ -334,6 +376,9 @@ paths:
             $ref: '#/components/responses/Forbidden'
         '404':
             $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
     delete:
       tags:
         - Channels
@@ -352,6 +397,9 @@ paths:
             $ref: '#/components/responses/Forbidden'
         '404':
             $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
     patch:
         tags:
             - Channels
@@ -379,6 +427,9 @@ paths:
                 $ref: '#/components/responses/Forbidden'
             '404':
                 $ref: '#/components/responses/NotFound'
+            '429':
+              $ref: '#/components/responses/TooManyRequests'
+
 
   /api/channels/{channelID}/messages:
     get:
@@ -389,8 +440,8 @@ paths:
         - bearerAuth: []
       parameters:
         - $ref: '#/components/parameters/ChannelID'
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/Size'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
         - $ref: '#/components/parameters/GetCount'
         - $ref: '#/components/parameters/Sort'
         - name: sortBy
@@ -416,6 +467,9 @@ paths:
             $ref: '#/components/responses/Forbidden'
         '404':
             $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
 
     post:
       tags:
@@ -444,6 +498,9 @@ paths:
             $ref: '#/components/responses/Unauthorized'
         '404':
             $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
 
   /api/channels/{channelID}/messages/{messageID}:
     get:
@@ -468,6 +525,9 @@ paths:
             $ref: '#/components/responses/Forbidden'
         '404':
             $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
     put:
       tags:
         - Messaging
@@ -498,6 +558,9 @@ paths:
             $ref: '#/components/responses/Forbidden'
         '404':
             $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
     delete:
       tags:
         - Messaging
@@ -518,6 +581,9 @@ paths:
             $ref: '#/components/responses/Forbidden'
         '404':
             $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
 
   /api/channels/{channelID}/invitations:
     get:
@@ -528,8 +594,8 @@ paths:
         - bearerAuth: []
       parameters:
         - $ref: '#/components/parameters/ChannelID'
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/Size'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
         - $ref: '#/components/parameters/GetCount'
         - $ref: '#/components/parameters/Sort'
         - name: sortBy
@@ -552,6 +618,9 @@ paths:
             $ref: '#/components/responses/Forbidden'
         '404':
             $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
 
     post:
       tags:
@@ -581,6 +650,9 @@ paths:
             $ref: '#/components/responses/Unauthorized'
         '403':
             $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
 
   /api/channels/{channelID}/invitations/{invitationID}:
     patch:
@@ -626,6 +698,8 @@ paths:
             $ref: '#/components/responses/Forbidden'
         '404':
             $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
 
   /api/users/{userID}/invitations:
     get:
@@ -636,8 +710,8 @@ paths:
         - bearerAuth: []
       parameters:
         - $ref: '#/components/parameters/UserID'
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/Size'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
         - $ref: '#/components/parameters/GetCount'
         - $ref: '#/components/parameters/Sort'
         - name: sortBy
@@ -662,6 +736,8 @@ paths:
             $ref: '#/components/responses/Forbidden'
         '404':
             $ref: '#/components/responses/NotFound'
+        '429':
+            $ref: '#/components/responses/TooManyRequests'
 
   /api/users/{userID}/invitations/{invitationID}:
     patch:
@@ -691,6 +767,8 @@ paths:
             $ref: '#/components/responses/Forbidden'
         '404':
             $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
     get:
         tags:
             - Invitations
@@ -711,6 +789,8 @@ paths:
                 $ref: '#/components/responses/Forbidden'
             '404':
                 $ref: '#/components/responses/NotFound'
+            '429':
+              $ref: '#/components/responses/TooManyRequests'
 
 components:
 
@@ -1122,6 +1202,13 @@ components:
             schema:
                 $ref: '#/components/schemas/Problem'
 
+    TooManyRequests:
+        description: Too many requests
+        content:
+          application/json:
+            schema:
+                $ref: '#/components/schemas/Problem'
+
     NotFound:
         description: Not found
         content:
@@ -1138,17 +1225,17 @@ components:
 
   parameters:
 
-    Page:
-      name: page
+    Offset:
+      name: offset
       in: query
       required: false
       schema:
         type: integer
-        default: 1
-        minimum: 1
+        default: 0
+        minimum: 0
 
-    Size:
-      name: size
+    Limit:
+      name: limit
       in: query
       required: false
       schema:
