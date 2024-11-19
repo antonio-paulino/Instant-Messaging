@@ -1,13 +1,13 @@
 package im.repository.jpa.transactions
 
-import im.repository.jpa.repositories.AccessTokenRepositoryImpl
-import im.repository.jpa.repositories.ChannelInvitationRepositoryImpl
-import im.repository.jpa.repositories.ChannelRepositoryImpl
-import im.repository.jpa.repositories.ImInvitationRepositoryImpl
-import im.repository.jpa.repositories.MessageRepositoryImpl
-import im.repository.jpa.repositories.RefreshTokenRepositoryImpl
-import im.repository.jpa.repositories.SessionRepositoryImpl
-import im.repository.jpa.repositories.UserRepositoryImpl
+import im.repository.jpa.repositories.jpa.channels.ChannelRepositoryImpl
+import im.repository.jpa.repositories.jpa.invitations.ChannelInvitationRepositoryImpl
+import im.repository.jpa.repositories.jpa.invitations.ImInvitationRepositoryImpl
+import im.repository.jpa.repositories.jpa.messages.MessageRepositoryImpl
+import im.repository.jpa.repositories.jpa.session.SessionRepositoryImpl
+import im.repository.jpa.repositories.jpa.tokens.AccessTokenRepositoryImpl
+import im.repository.jpa.repositories.jpa.tokens.RefreshTokenRepositoryImpl
+import im.repository.jpa.repositories.jpa.user.UserRepositoryImpl
 import im.repository.repositories.transactions.Transaction
 import im.repository.repositories.transactions.TransactionIsolation
 import im.repository.repositories.transactions.TransactionManager

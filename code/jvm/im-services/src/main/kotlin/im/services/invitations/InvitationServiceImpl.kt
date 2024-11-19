@@ -174,6 +174,7 @@ class InvitationServiceImpl(
             }
 
             channelInvitationRepository.save(invitation.copy(expiresAt = expirationDate, role = role))
+
             success(Unit)
         }
 

@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
+import org.springframework.context.annotation.Profile
 import org.springframework.test.web.reactive.server.WebTestClient
 import java.time.LocalDateTime
 import java.util.UUID
@@ -29,6 +30,7 @@ import java.util.UUID
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
 )
+@Profile("!rateLimit")
 abstract class MessageControllerTests {
     @LocalServerPort
     protected var port: Int = 0
@@ -280,7 +282,7 @@ abstract class MessageControllerTests {
                 messageRepository.save(
                     Message(
                         0L,
-                        testChannel,
+                        testChannel.id.value,
                         testUser,
                         "test message",
                         LocalDateTime.now(),
@@ -312,7 +314,7 @@ abstract class MessageControllerTests {
                 assertEquals(testUser.id.value, msg.author.id)
                 assertEquals(testUser.name.value, msg.author.name)
                 assertNotNull(info)
-                assertEquals(1, info!!.total)
+                assertEquals(1, info.total)
                 assertEquals(1, info.totalPages)
                 assertEquals(1, info.current)
                 assertNull(info.next)
@@ -327,7 +329,7 @@ abstract class MessageControllerTests {
                 messageRepository.save(
                     Message(
                         0L,
-                        testChannel,
+                        testChannel.id.value,
                         testUser,
                         "test message 1",
                         LocalDateTime.now(),
@@ -340,7 +342,7 @@ abstract class MessageControllerTests {
             messageRepository.save(
                 Message(
                     1L,
-                    testChannel,
+                    testChannel.id.value,
                     testUser,
                     "test message 2",
                     LocalDateTime.now(),
@@ -353,7 +355,7 @@ abstract class MessageControllerTests {
 
         client
             .get()
-            .uri("api/channels/${testChannel.id}/messages?page=1&size=1")
+            .uri("api/channels/${testChannel.id}/messages?offset=0&limit=1")
             .cookie("access_token", accessToken1.token.toString())
             .exchange()
             .expectStatus()
@@ -370,10 +372,11 @@ abstract class MessageControllerTests {
                 assertNull(msg.editedAt)
                 assertEquals(message1.content, msg.content)
                 assertEquals(message1.id.value, msg.id)
+                assertEquals(message1.channelId.value, msg.channelId)
                 assertEquals(testUser.id.value, msg.author.id)
                 assertEquals(testUser.name.value, msg.author.name)
                 assertNotNull(info)
-                assertEquals(2, info!!.total)
+                assertEquals(2, info.total)
                 assertEquals(2, info.totalPages)
                 assertEquals(1, info.current)
                 assertEquals(2, info.next)
@@ -388,7 +391,7 @@ abstract class MessageControllerTests {
                 messageRepository.save(
                     Message(
                         0L,
-                        testChannel,
+                        testChannel.id.value,
                         testUser,
                         "test message 1",
                         LocalDateTime.now(),
@@ -403,7 +406,7 @@ abstract class MessageControllerTests {
                     Message(
                         // avoid id collision, would update instead of insert
                         message1.id.value + 1,
-                        testChannel,
+                        testChannel.id.value,
                         testUser,
                         "test message 2",
                         LocalDateTime.now(),
@@ -416,7 +419,7 @@ abstract class MessageControllerTests {
 
         client
             .get()
-            .uri("api/channels/${testChannel.id}/messages?page=1&size=1&sort=desc")
+            .uri("api/channels/${testChannel.id}/messages?offset=0&limit=1&sort=desc")
             .cookie("access_token", accessToken1.token.toString())
             .exchange()
             .expectStatus()
@@ -436,7 +439,7 @@ abstract class MessageControllerTests {
                 assertEquals(testUser.id.value, msg.author.id)
                 assertEquals(testUser.name.value, msg.author.name)
                 assertNotNull(info)
-                assertEquals(2, info!!.total)
+                assertEquals(2, info.total)
                 assertEquals(2, info.totalPages)
                 assertEquals(1, info.current)
                 assertEquals(2, info.next)
@@ -451,7 +454,7 @@ abstract class MessageControllerTests {
                 messageRepository.save(
                     Message(
                         1L,
-                        testChannel,
+                        testChannel.id.value,
                         testUser,
                         "test message 1",
                         LocalDateTime.now(),
@@ -465,7 +468,7 @@ abstract class MessageControllerTests {
                 Message(
                     // avoid id collision, would update instead of insert
                     message1.id.value + 1,
-                    testChannel,
+                    testChannel.id.value,
                     testUser,
                     "test message 2",
                     LocalDateTime.now(),
@@ -478,7 +481,7 @@ abstract class MessageControllerTests {
 
         client
             .get()
-            .uri("api/channels/${testChannel.id}/messages?page=2&size=1&sort=desc")
+            .uri("api/channels/${testChannel.id}/messages?offset=1&limit=1&sort=desc")
             .cookie("access_token", accessToken1.token.toString())
             .exchange()
             .expectStatus()
@@ -497,7 +500,7 @@ abstract class MessageControllerTests {
                 assertEquals(message1.id.value, msg.id)
                 assertEquals(testUser.id.value, msg.author.id)
                 assertEquals(testUser.name.value, msg.author.name)
-                assertEquals(2, info!!.total)
+                assertEquals(2, info.total)
                 assertEquals(2, info.totalPages)
                 assertEquals(2, info.current)
                 assertNull(info.next)
@@ -512,7 +515,7 @@ abstract class MessageControllerTests {
                 messageRepository.save(
                     Message(
                         0L,
-                        testChannel,
+                        testChannel.id.value,
                         testUser,
                         "test message 1",
                         LocalDateTime.now(),
@@ -525,7 +528,7 @@ abstract class MessageControllerTests {
             messageRepository.save(
                 Message(
                     1L,
-                    testChannel,
+                    testChannel.id.value,
                     testUser,
                     "test message 2",
                     LocalDateTime.now(),
@@ -538,7 +541,7 @@ abstract class MessageControllerTests {
 
         client
             .get()
-            .uri("api/channels/${testChannel.id}/messages?page=1&size=1&getCount=false")
+            .uri("api/channels/${testChannel.id}/messages?offset=0&limit=1&getCount=false")
             .cookie("access_token", accessToken1.token.toString())
             .exchange()
             .expectStatus()
@@ -558,7 +561,7 @@ abstract class MessageControllerTests {
                 assertEquals(testUser.id.value, msg.author.id)
                 assertEquals(testUser.name.value, msg.author.name)
                 assertNotNull(info)
-                assertNull(info!!.total)
+                assertNull(info.total)
                 assertNull(info.totalPages)
                 assertEquals(1, info.current)
                 assertEquals(2, info.next)
@@ -640,7 +643,7 @@ abstract class MessageControllerTests {
                 messageRepository.save(
                     Message(
                         0L,
-                        testChannel,
+                        testChannel.id.value,
                         testUser,
                         "test message",
                         LocalDateTime.now(),
@@ -674,7 +677,7 @@ abstract class MessageControllerTests {
                 messageRepository.save(
                     Message(
                         0L,
-                        testChannel,
+                        testChannel.id.value,
                         testUser,
                         "test message",
                         LocalDateTime.now(),
@@ -768,7 +771,7 @@ abstract class MessageControllerTests {
                 messageRepository.save(
                     Message(
                         0L,
-                        testChannel,
+                        testChannel.id.value,
                         testUser,
                         "test message",
                         LocalDateTime.now(),
@@ -801,7 +804,7 @@ abstract class MessageControllerTests {
                 messageRepository.save(
                     Message(
                         0L,
-                        testChannel,
+                        testChannel.id.value,
                         testUser,
                         "test message",
                         LocalDateTime.now(),
@@ -829,7 +832,7 @@ abstract class MessageControllerTests {
                 messageRepository.save(
                     Message(
                         0L,
-                        testChannel,
+                        testChannel.id.value,
                         testUser2,
                         "test message",
                         LocalDateTime.now(),
@@ -869,7 +872,7 @@ abstract class MessageControllerTests {
                 messageRepository.save(
                     Message(
                         0L,
-                        testChannel,
+                        testChannel.id.value,
                         testUser,
                         "test message",
                         LocalDateTime.now(),
@@ -949,7 +952,7 @@ abstract class MessageControllerTests {
                 messageRepository.save(
                     Message(
                         0L,
-                        testChannel,
+                        testChannel.id.value,
                         testUser,
                         "test message",
                         LocalDateTime.now(),
@@ -984,7 +987,7 @@ abstract class MessageControllerTests {
                 messageRepository.save(
                     Message(
                         0L,
-                        testChannel2,
+                        testChannel.id.value,
                         testUser,
                         "test message",
                         LocalDateTime.now(),
@@ -997,7 +1000,7 @@ abstract class MessageControllerTests {
 
         client
             .get()
-            .uri("api/channels/${testChannel.id}/messages/${createdMessage.id.value}")
+            .uri("api/channels/${testChannel2.id}/messages/${createdMessage.id.value}")
             .headers {
                 it.setBearerAuth(accessToken1.token.toString())
             }.exchange()

@@ -4,10 +4,12 @@ import im.domain.channel.Channel
 import im.domain.wrappers.identifier.toIdentifier
 import im.domain.wrappers.name.toName
 import im.repository.jpa.model.user.UserDTO
+import im.repository.jpa.repositories.jpa.channels.ChannelRepositoryListenerJpa
 import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column
 import jakarta.persistence.ElementCollection
 import jakarta.persistence.Entity
+import jakarta.persistence.EntityListeners
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
@@ -35,6 +37,7 @@ import java.time.LocalDateTime
  * @property members The members of the channel and their roles.
  */
 @Entity
+@EntityListeners(ChannelRepositoryListenerJpa::class)
 @Table(name = "channel")
 open class ChannelDTO(
     @Id

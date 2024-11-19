@@ -355,9 +355,9 @@ abstract class ChannelServiceTest {
         val result3 = channelService.updateMemberRole(channel.id, testUser2.id, ChannelRole.GUEST, testUser1)
         assertIs<Success<Unit>>(result3)
 
-        val result4 = channelService.getUserChannels(testUser2.id, SortRequest("id"), testUser2)
-        assertIs<Success<Map<Channel, ChannelRole>>>(result4)
-        assertEquals(ChannelRole.GUEST, result4.value[channel])
+        val result4 = channelService.getUserChannels(testUser2.id, SortRequest("id"), PaginationRequest(0, 10), false, testUser2)
+        assertIs<Success<Pagination<Channel>>>(result4)
+        assertEquals(ChannelRole.GUEST, result4.value.items.first().members[testUser2])
     }
 
     @Test
@@ -412,7 +412,7 @@ abstract class ChannelServiceTest {
         assertIs<Success<Channel>>(result)
         val channel = result.value
 
-        val result2 = channelService.getChannels(null, PaginationRequest(1, 10), SortRequest("id"))
+        val result2 = channelService.getChannels(null, PaginationRequest(0, 10), SortRequest("id"))
         assertIs<Success<Pagination<Channel>>>(result2)
         val channels = result2.value
 
@@ -422,14 +422,14 @@ abstract class ChannelServiceTest {
 
     @Test
     fun `get channels invalid sort`() {
-        val result = channelService.getChannels(null, PaginationRequest(1, 10), SortRequest("invalid"))
+        val result = channelService.getChannels(null, PaginationRequest(0, 10), SortRequest("invalid"))
         assertIs<Failure<ChannelError>>(result)
         assertIs<ChannelError.InvalidSortField>(result.value)
     }
 
     @Test
     fun `get channels should return empty`() {
-        val result = channelService.getChannels(null, PaginationRequest(1, 10), SortRequest("id"))
+        val result = channelService.getChannels(null, PaginationRequest(0, 10), SortRequest("id"))
         assertIs<Success<Pagination<Channel>>>(result)
         val channels = result.value
         assertEquals(0, channels.items.size)
@@ -445,7 +445,7 @@ abstract class ChannelServiceTest {
         assertIs<Success<Channel>>(result2)
         val channel2 = result2.value
 
-        val result3 = channelService.getChannels("tes", PaginationRequest(1, 10), SortRequest("id"))
+        val result3 = channelService.getChannels("tes", PaginationRequest(0, 10), SortRequest("id"))
         assertIs<Success<Pagination<Channel>>>(result3)
         val channels = result3.value.items
         val pagination = result3.value.info
@@ -453,7 +453,7 @@ abstract class ChannelServiceTest {
         assertEquals(2, channels.size)
         assertEquals(channel, channels.first())
         assertEquals(channel2, channels.last())
-        assertEquals(2, pagination!!.total)
+        assertEquals(2, pagination.total)
         assertEquals(1, pagination.totalPages)
         assertEquals(1, pagination.currentPage)
         assertEquals(null, pagination.nextPage)
@@ -465,7 +465,7 @@ abstract class ChannelServiceTest {
         val result = channelService.createChannel("testChannel".toName(), ChannelRole.GUEST, true, testUser1)
         assertIs<Success<Channel>>(result)
 
-        val result2 = channelService.getChannels("NonExisting", PaginationRequest(1, 10), SortRequest("id"))
+        val result2 = channelService.getChannels("NonExisting", PaginationRequest(0, 10), SortRequest("id"))
         assertIs<Success<Pagination<Channel>>>(result2)
         val channels = result2.value
 
@@ -481,14 +481,14 @@ abstract class ChannelServiceTest {
         val result2 = channelService.createChannel("testChannel2".toName(), ChannelRole.GUEST, true, testUser1)
         assertIs<Success<Channel>>(result2)
 
-        val result3 = channelService.getChannels(null, PaginationRequest(1, 1), SortRequest("id"))
+        val result3 = channelService.getChannels(null, PaginationRequest(0, 1), SortRequest("id"))
         assertIs<Success<Pagination<Channel>>>(result3)
         val channels = result3.value.items
         val pagination = result3.value.info
 
         assertEquals(1, channels.size)
         assertEquals(channel, channels[0])
-        assertEquals(2, pagination!!.total)
+        assertEquals(2, pagination.total)
         assertEquals(2, pagination.totalPages)
         assertEquals(1, pagination.currentPage)
         assertEquals(2, pagination.nextPage)
@@ -505,15 +505,15 @@ abstract class ChannelServiceTest {
             transactionManager.run {
                 channelRepository.save(Channel(2L, "testChannel2", ChannelRole.MEMBER, testUser2, true))
             }
-        val result = channelService.getUserChannels(testUser1.id, SortRequest("id"), testUser1)
-        assertIs<Success<Map<Channel, ChannelRole>>>(result)
-        assertTrue(result.value.containsKey(testChannel1))
-        assertFalse(result.value.containsKey(testChannel2))
+        val result = channelService.getUserChannels(testUser1.id, SortRequest("id"), PaginationRequest(0, 10), false, testUser1)
+        assertIs<Success<Pagination<Channel>>>(result)
+        assertTrue(result.value.items.contains(testChannel1))
+        assertFalse(result.value.items.contains(testChannel2))
     }
 
     @Test
     fun `get user channels different user`() {
-        val result = channelService.getUserChannels(testUser2.id, SortRequest("id"), testUser1)
+        val result = channelService.getUserChannels(testUser2.id, SortRequest("id"), PaginationRequest(0, 10), false, testUser1)
         assertIs<Failure<ChannelError>>(result)
         assert(result.value == ChannelError.CannotAccessUserChannels)
     }

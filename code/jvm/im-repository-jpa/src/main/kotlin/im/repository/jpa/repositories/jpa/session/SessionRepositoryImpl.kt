@@ -1,10 +1,10 @@
-package im.repository.jpa.repositories
+package im.repository.jpa.repositories.jpa.session
 
 import im.domain.sessions.Session
 import im.domain.user.User
 import im.domain.wrappers.identifier.Identifier
 import im.repository.jpa.model.session.SessionDTO
-import im.repository.jpa.repositories.jpa.SessionRepositoryJpa
+import im.repository.jpa.repositories.jpa.JpaRepositoryUtils
 import im.repository.pagination.Pagination
 import im.repository.pagination.PaginationRequest
 import im.repository.pagination.SortRequest
@@ -24,13 +24,13 @@ class SessionRepositoryImpl(
         sessionRepositoryJpa.deleteAllByExpiresAtIsBefore()
     }
 
-    override fun save(entity: Session): Session = sessionRepositoryJpa.save(SessionDTO.fromDomain(entity)).toDomain()
+    override fun save(entity: Session): Session = sessionRepositoryJpa.save(SessionDTO.Companion.fromDomain(entity)).toDomain()
 
     override fun saveAll(entities: Iterable<Session>): List<Session> =
         sessionRepositoryJpa
             .saveAll(
                 entities.map {
-                    SessionDTO.fromDomain(it)
+                    SessionDTO.Companion.fromDomain(it)
                 },
             ).map { it.toDomain() }
 
@@ -78,11 +78,11 @@ class SessionRepositoryImpl(
     }
 
     override fun deleteAll(entities: Iterable<Session>) {
-        sessionRepositoryJpa.deleteAll(entities.map { SessionDTO.fromDomain(it) })
+        sessionRepositoryJpa.deleteAll(entities.map { SessionDTO.Companion.fromDomain(it) })
     }
 
     override fun delete(entity: Session) {
-        sessionRepositoryJpa.delete(SessionDTO.fromDomain(entity))
+        sessionRepositoryJpa.delete(SessionDTO.Companion.fromDomain(entity))
     }
 
     override fun deleteAllById(ids: Iterable<Identifier>) {

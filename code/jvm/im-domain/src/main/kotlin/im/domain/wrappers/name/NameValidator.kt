@@ -4,7 +4,10 @@ import im.domain.Either
 import im.domain.failure
 import im.domain.success
 
-class NameValidator {
+class NameValidator(
+    private val maxNameLength: Int = MAX_NAME_LENGTH,
+    private val minNameLength: Int = MIN_NAME_LENGTH,
+) {
     companion object {
         private const val MAX_NAME_LENGTH = 30
         private const val MIN_NAME_LENGTH = 3
@@ -17,8 +20,8 @@ class NameValidator {
             errors.add(NameValidationError.Blank)
         }
 
-        if (value.length !in MIN_NAME_LENGTH..MAX_NAME_LENGTH) {
-            errors.add(NameValidationError.InvalidLength(MIN_NAME_LENGTH, MAX_NAME_LENGTH))
+        if (value.length !in minNameLength..maxNameLength) {
+            errors.add(NameValidationError.InvalidLength(minNameLength, maxNameLength))
         }
 
         if (errors.isNotEmpty()) {

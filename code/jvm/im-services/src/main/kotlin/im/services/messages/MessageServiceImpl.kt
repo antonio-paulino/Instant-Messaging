@@ -12,7 +12,6 @@ import im.repository.pagination.PaginationRequest
 import im.repository.pagination.SortRequest
 import im.repository.repositories.transactions.TransactionManager
 import jakarta.inject.Named
-import java.time.LocalDateTime
 
 @Named
 class MessageServiceImpl(
@@ -66,9 +65,9 @@ class MessageServiceImpl(
                 return@run Failure(MessageError.NoWritePermission)
             }
 
-            val msg = messageRepository.save(Message(0L, channel = channel, user = user, content = message))
+            val message = messageRepository.save(Message(0L, channelId = channel.id.value, user = user, content = message))
 
-            success(msg)
+            success(message)
         }
 
     override fun updateMessage(
@@ -76,7 +75,7 @@ class MessageServiceImpl(
         messageId: Identifier,
         message: String,
         user: User,
-    ): Either<MessageError, LocalDateTime> =
+    ): Either<MessageError, Message> =
         transactionManager.run {
             val channel =
                 channelRepository.findById(channelId)
@@ -97,7 +96,7 @@ class MessageServiceImpl(
 
             messageRepository.save(newMessage)
 
-            success(newMessage.editedAt!!)
+            success(newMessage)
         }
 
     override fun deleteMessage(

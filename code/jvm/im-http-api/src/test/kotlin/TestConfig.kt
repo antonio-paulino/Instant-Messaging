@@ -2,6 +2,7 @@ package im
 
 import im.api.middlewares.authentication.AuthInterceptor
 import im.api.middlewares.logging.LoggingInterceptor
+import im.api.middlewares.ratelimit.RateLimiter
 import im.api.middlewares.resolvers.AuthenticatedUserArgumentResolver
 import im.api.utils.RequestHelper
 import im.repository.jpa.transactions.TransactionManagerJpa
@@ -59,6 +60,7 @@ class TestConfig(
 }
 
 @Component
+@Profile("!rateLimit")
 class WebMvcConfig(
     private val authService: AuthService,
 ) : WebMvcConfigurer {
@@ -66,6 +68,24 @@ class WebMvcConfig(
 
     override fun addInterceptors(registry: InterceptorRegistry) {
         registry.addInterceptor(LoggingInterceptor(reqHelper))
+        registry.addInterceptor(AuthInterceptor(authService, reqHelper))
+    }
+
+    override fun addArgumentResolvers(resolvers: MutableList<HandlerMethodArgumentResolver>) {
+        resolvers.add(AuthenticatedUserArgumentResolver(reqHelper))
+    }
+}
+
+@Component
+@Profile("rateLimit")
+class WebMvcConfigRateLimit(
+    private val authService: AuthService,
+) : WebMvcConfigurer {
+    private val reqHelper = RequestHelper()
+
+    override fun addInterceptors(registry: InterceptorRegistry) {
+        registry.addInterceptor(LoggingInterceptor(reqHelper))
+        registry.addInterceptor(RateLimiter(reqHelper))
         registry.addInterceptor(AuthInterceptor(authService, reqHelper))
     }
 

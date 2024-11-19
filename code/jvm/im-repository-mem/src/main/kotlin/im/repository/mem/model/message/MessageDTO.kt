@@ -1,13 +1,12 @@
 package im.repository.mem.model.message
 
 import im.domain.messages.Message
-import im.repository.mem.model.channel.ChannelDTO
 import im.repository.mem.model.user.UserDTO
 import java.time.LocalDateTime
 
 data class MessageDTO(
     val id: Long,
-    val channel: ChannelDTO,
+    val channelId: Long,
     val user: UserDTO,
     val content: String = "",
     val createdAt: LocalDateTime = LocalDateTime.now(),
@@ -17,7 +16,7 @@ data class MessageDTO(
         fun fromDomain(message: Message): MessageDTO =
             MessageDTO(
                 id = message.id.value,
-                channel = ChannelDTO.fromDomain(message.channel),
+                channelId = message.channelId.value,
                 user = UserDTO.fromDomain(message.user),
                 content = message.content,
                 createdAt = message.createdAt,
@@ -28,7 +27,7 @@ data class MessageDTO(
     fun toDomain(): Message =
         Message(
             id = id,
-            channel = channel.toDomain(),
+            channelId = channelId,
             user = user.toDomain(),
             content = content,
             createdAt = createdAt,

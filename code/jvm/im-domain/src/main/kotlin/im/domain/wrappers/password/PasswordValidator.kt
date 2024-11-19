@@ -4,7 +4,13 @@ import im.domain.Either
 import im.domain.failure
 import im.domain.success
 
-class PasswordValidator {
+class PasswordValidator(
+    private val minLength: Int = MIN_LENGTH,
+    private val maxLength: Int = MAX_LENGTH,
+    private val minLowercase: Int = MIN_LOWERCASE,
+    private val minUppercase: Int = MIN_UPPERCASE,
+    private val minDigits: Int = MIN_DIGITS,
+) {
     companion object {
         private const val MIN_LENGTH = 8
         private const val MAX_LENGTH = 80
@@ -21,20 +27,24 @@ class PasswordValidator {
             errors.add(PasswordValidationError.Blank)
         }
 
-        if (value.length !in MIN_LENGTH..MAX_LENGTH) {
-            errors.add(PasswordValidationError.InvalidLength(MIN_LENGTH, MAX_LENGTH))
+        if (value.any { it.isWhitespace() }) {
+            errors.add(PasswordValidationError.CannotContainWhitespace)
         }
 
-        if (value.count { it.isLowerCase() } < MIN_LOWERCASE) {
-            errors.add(PasswordValidationError.NotEnoughLowercaseLetters(MIN_LOWERCASE))
+        if (value.length !in minLength..maxLength) {
+            errors.add(PasswordValidationError.InvalidLength(minLength, maxLength))
         }
 
-        if (value.count { it.isUpperCase() } < MIN_UPPERCASE) {
-            errors.add(PasswordValidationError.NotEnoughUppercaseLetters(MIN_UPPERCASE))
+        if (value.count { it.isLowerCase() } < minLowercase) {
+            errors.add(PasswordValidationError.NotEnoughLowercaseLetters(minLowercase))
         }
 
-        if (value.count { it.isDigit() } < MIN_DIGITS) {
-            errors.add(PasswordValidationError.NotEnoughDigits(MIN_DIGITS))
+        if (value.count { it.isUpperCase() } < minUppercase) {
+            errors.add(PasswordValidationError.NotEnoughUppercaseLetters(minUppercase))
+        }
+
+        if (value.count { it.isDigit() } < minDigits) {
+            errors.add(PasswordValidationError.NotEnoughDigits(minDigits))
         }
 
         if (errors.isNotEmpty()) {

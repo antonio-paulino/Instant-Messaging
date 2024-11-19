@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
+import org.springframework.context.annotation.Profile
 import org.springframework.test.web.reactive.server.WebTestClient
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
@@ -31,6 +32,7 @@ import java.util.UUID
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
 )
+@Profile("!rateLimit")
 abstract class InvitationsControllerTests {
     @LocalServerPort
     protected var port: Int = 0

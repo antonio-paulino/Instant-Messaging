@@ -147,9 +147,9 @@ abstract class RefreshTokenRepositoryTest {
         transactionManager.run {
             refreshTokenRepository.save(testRefreshToken)
             refreshTokenRepository.save(testRefreshToken2)
-            val (tokens, pagination) = refreshTokenRepository.find(PaginationRequest(1, 1), SortRequest("token", Sort.ASC))
+            val (tokens, pagination) = refreshTokenRepository.find(PaginationRequest(0, 1), SortRequest("token", Sort.ASC))
 
-            assertEquals(1, pagination!!.currentPage)
+            assertEquals(1, pagination.currentPage)
             assertEquals(2, pagination.nextPage)
             assertEquals(2, pagination.total)
             assertEquals(2, pagination.totalPages)
@@ -183,7 +183,7 @@ abstract class RefreshTokenRepositoryTest {
             refreshTokenRepository.save(testRefreshToken2)
             val (tokens, pagination) =
                 refreshTokenRepository.find(
-                    PaginationRequest(1, 1, getCount = false),
+                    PaginationRequest(0, 1, getCount = false),
                     SortRequest("token", Sort.ASC),
                 )
 
@@ -205,13 +205,13 @@ abstract class RefreshTokenRepositoryTest {
             val (tokens, pagination) =
                 refreshTokenRepository.find(
                     PaginationRequest(
-                        1,
+                        0,
                         1,
                     ),
                     SortRequest("token", Sort.DESC),
                 )
 
-            assertEquals(1, pagination!!.currentPage)
+            assertEquals(1, pagination.currentPage)
             assertEquals(2, pagination.nextPage)
             assertEquals(2, pagination.total)
             assertEquals(2, pagination.totalPages)

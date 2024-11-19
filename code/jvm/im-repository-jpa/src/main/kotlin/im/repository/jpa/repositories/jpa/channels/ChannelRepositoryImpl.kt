@@ -1,4 +1,4 @@
-package im.repository.jpa.repositories
+package im.repository.jpa.repositories.jpa.channels
 
 import im.domain.channel.Channel
 import im.domain.channel.ChannelRole
@@ -8,8 +8,7 @@ import im.domain.wrappers.name.Name
 import im.repository.jpa.model.channel.ChannelDTO
 import im.repository.jpa.model.channel.ChannelMemberId
 import im.repository.jpa.model.channel.ChannelRoleDTO
-import im.repository.jpa.repositories.jpa.ChannelMemberRepositoryJpa
-import im.repository.jpa.repositories.jpa.ChannelRepositoryJpa
+import im.repository.jpa.repositories.jpa.JpaRepositoryUtils
 import im.repository.pagination.Pagination
 import im.repository.pagination.PaginationRequest
 import im.repository.pagination.SortRequest
@@ -69,16 +68,33 @@ class ChannelRepositoryImpl(
 
     override fun findByOwner(
         user: User,
+        pagination: PaginationRequest,
         sortRequest: SortRequest,
-    ): List<Channel> = channelRepositoryJpa.findByOwnerId(user.id.value, utils.toSort(sortRequest)).map { it.toDomain() }
+    ): Pagination<Channel> {
+        val pageable = utils.toPageRequest(pagination, sortRequest)
+        val res =
+            if (pagination.getCount) {
+                channelRepositoryJpa.findByOwnerId(user.id.value, pageable)
+            } else {
+                channelRepositoryJpa.findByOwnerIdSliced(user.id.value, pageable)
+            }
+        return Pagination(res.content.map { it.toDomain() }, utils.getPaginationInfo(res))
+    }
 
     override fun findByMember(
         user: User,
+        pagination: PaginationRequest,
         sortRequest: SortRequest,
-    ): Map<Channel, ChannelRole> =
-        channelMemberRepositoryJpa
-            .findByMember(user.id.value, utils.toSort(sortRequest))
-            .associate { it.channel.toDomain() to it.role.toDomain() }
+    ): Pagination<Channel> {
+        val pageable = utils.toPageRequest(pagination, sortRequest)
+        val res =
+            if (pagination.getCount) {
+                channelMemberRepositoryJpa.findByUserId(user.id.value, pageable)
+            } else {
+                channelMemberRepositoryJpa.findByUserIdSliced(user.id.value, pageable)
+            }
+        return Pagination(res.content.map { it.toDomain() }, utils.getPaginationInfo(res))
+    }
 
     override fun addMember(
         channel: Channel,

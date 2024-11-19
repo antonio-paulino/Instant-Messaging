@@ -4,7 +4,10 @@ import im.domain.Either
 import im.domain.failure
 import im.domain.success
 
-class MessageValidator {
+class MessageValidator(
+    private val minLength: Int = MIN_LENGTH,
+    private val maxLength: Int = MAX_LENGTH,
+) {
     companion object {
         private const val MIN_LENGTH = 1
         private const val MAX_LENGTH = 300
@@ -17,8 +20,8 @@ class MessageValidator {
             errors.add(MessageValidationError.ContentBlank)
         }
 
-        if (message.length !in MIN_LENGTH..MAX_LENGTH) {
-            errors.add(MessageValidationError.ContentLength(MIN_LENGTH, MAX_LENGTH))
+        if (message.length !in minLength..maxLength) {
+            errors.add(MessageValidationError.ContentLength(minLength, maxLength))
         }
 
         if (errors.isNotEmpty()) {

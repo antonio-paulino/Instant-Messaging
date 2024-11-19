@@ -30,7 +30,7 @@ class MessageTest {
         val message =
             Message(
                 id = 1L,
-                channel = channel,
+                channelId = channel.id.value,
                 user = user,
                 content = "Test message",
                 createdAt = LocalDateTime.now(),
@@ -58,7 +58,7 @@ class MessageTest {
         val message =
             Message(
                 id = 1L,
-                channel = channel,
+                channelId = channel.id.value,
                 user = user,
                 content = "Test message",
                 createdAt = LocalDateTime.now(),
@@ -88,7 +88,7 @@ class MessageTest {
         assertFailsWith<IllegalArgumentException> {
             Message(
                 id = 1L,
-                channel = channel,
+                channelId = channel.id.value,
                 user = user,
                 content = "",
                 createdAt = LocalDateTime.now(),
@@ -116,7 +116,7 @@ class MessageTest {
         assertFailsWith<IllegalArgumentException> {
             Message(
                 id = 1L,
-                channel = channel,
+                channelId = channel.id.value,
                 user = user,
                 content = "a".repeat(301),
                 createdAt = LocalDateTime.now(),

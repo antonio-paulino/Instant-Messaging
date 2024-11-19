@@ -1,4 +1,4 @@
-package im.repository.jpa.repositories.jpa
+package im.repository.jpa.repositories.jpa.user
 
 import im.repository.jpa.model.user.UserDTO
 import org.springframework.data.domain.Page

@@ -7,7 +7,6 @@ import im.domain.wrappers.identifier.Identifier
 import im.repository.pagination.Pagination
 import im.repository.pagination.PaginationRequest
 import im.repository.pagination.SortRequest
-import java.time.LocalDateTime
 
 interface MessageService {
     /**
@@ -36,7 +35,6 @@ interface MessageService {
      * @param channelId the unique identifier of the channel
      * @param message the content of the message
      * @param user the user that is creating the message
-     * @return the created message
      */
     fun createMessage(
         channelId: Identifier,
@@ -53,14 +51,14 @@ interface MessageService {
      * @param messageId the unique identifier of the message
      * @param message the new content of the message
      * @param user the user that is updating the message
-     * @return the date and time when the message was updated
+     * @return the updated message
      */
     fun updateMessage(
         channelId: Identifier,
         messageId: Identifier,
         message: String,
         user: User,
-    ): Either<MessageError, LocalDateTime>
+    ): Either<MessageError, Message>
 
     /**
      * Deletes a message from a channel.
@@ -70,7 +68,6 @@ interface MessageService {
      * @param channelId the unique identifier of the channel
      * @param messageId the unique identifier of the message
      * @param user the user that is deleting the message
-     * @return a unit value
      */
     fun deleteMessage(
         channelId: Identifier,

@@ -22,7 +22,7 @@ class MemMessageRepositoryImpl(
         paginationRequest: PaginationRequest,
         sortRequest: SortRequest,
     ): Pagination<Message> {
-        val filteredMessages = messages.values.filter { (it.channel.id) == channel.id.value }
+        val filteredMessages = messages.values.filter { (it.channelId) == channel.id.value }
         val page = utils.paginate(filteredMessages, paginationRequest, sortRequest)
         return Pagination(page.items.map { it.toDomain() }, page.info)
     }
@@ -30,7 +30,7 @@ class MemMessageRepositoryImpl(
     override fun findByChannelAndId(
         channel: Channel,
         id: Identifier,
-    ): Message? = messages.values.find { it.id == id.value && it.channel.id == channel.id.value }?.toDomain()
+    ): Message? = messages.values.find { it.id == id.value && it.channelId == channel.id.value }?.toDomain()
 
     override fun save(entity: Message): Message {
         val conflict = messages.values.find { it.id == entity.id.value }
@@ -99,7 +99,7 @@ class MemMessageRepositoryImpl(
     }
 
     fun deleteAllByChannel(channel: Channel) {
-        messages.values.filter { it.channel.id == channel.id.value }.forEach { delete(it.toDomain()) }
+        messages.values.filter { it.channelId == channel.id.value }.forEach { delete(it.toDomain()) }
     }
 
     fun deleteAllByAuthor(author: User) {

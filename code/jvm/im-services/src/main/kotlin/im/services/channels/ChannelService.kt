@@ -128,13 +128,18 @@ interface ChannelService {
      * @param userId the user identifier
      * @param user the authenticated user that is requesting the channels
      * @param sortRequest the sort request
+     * @param pagination the pagination request
+     * @param filterOwned whether to filter the channels to only those owned by the user
+     *
      * @return a map of channels and their roles if the search is successful, or an [UserError] otherwise
      */
     fun getUserChannels(
         userId: Identifier,
         sortRequest: SortRequest,
+        pagination: PaginationRequest,
+        filterOwned: Boolean,
         user: User,
-    ): Either<ChannelError, Map<Channel, ChannelRole>>
+    ): Either<ChannelError, Pagination<Channel>>
 
     /**
      * Updates the role of a member in a channel.
@@ -155,4 +160,12 @@ interface ChannelService {
         role: ChannelRole,
         user: User,
     ): Either<ChannelError, Unit>
+
+    /**
+     * Retrieves the members of a channel.
+     *
+     * @param channelId the unique identifier of the channel
+     * @return a list of users if the search is successful, or a [ChannelError] otherwise
+     */
+    fun getChannelMembers(channelId: Identifier): Either<ChannelError, Map<User, ChannelRole>>
 }

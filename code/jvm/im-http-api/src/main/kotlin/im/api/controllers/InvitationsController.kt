@@ -1,6 +1,7 @@
 package im.api.controllers
 
 import im.api.middlewares.authentication.Authenticated
+import im.api.middlewares.ratelimit.RateLimit
 import im.api.model.input.body.ChannelInvitationCreationInputModel
 import im.api.model.input.body.ChannelInvitationUpdateInputModel
 import im.api.model.input.body.InvitationAcceptInputModel
@@ -30,6 +31,7 @@ import java.net.URI
 
 @RestController
 @Authenticated
+@RateLimit(limitSeconds = 10)
 @RequestMapping("/api")
 class InvitationsController(
     private val invitationService: InvitationService,
@@ -73,10 +75,11 @@ class InvitationsController(
                     user.user,
                 )
         ) {
-            is Success ->
+            is Success -> {
                 ResponseEntity
                     .created(URI("/api/channels/${channelId.channelId.value}/invitations/${res.value.id.value}"))
                     .body(ChannelInvitationCreationOutputModel.fromDomain(res.value))
+            }
 
             is Failure -> handleInvitationFailure(res.value)
         }
@@ -233,7 +236,7 @@ class InvitationsController(
         }
 
     /**
-     * Get a list of invitations for a user.
+     * Get a list of received invitations for a user.
      *
      * Possible status codes:
      *  - 200 OK: Invitations successfully retrieved.

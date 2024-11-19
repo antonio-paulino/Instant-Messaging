@@ -218,13 +218,13 @@ abstract class ChannelInvitationRepositoryTest {
             val (invitations, pagination) =
                 channelInvitationRepository.find(
                     PaginationRequest(
-                        1,
+                        0,
                         1,
                     ),
                     SortRequest("id"),
                 )
 
-            assertEquals(1, pagination!!.currentPage)
+            assertEquals(1, pagination.currentPage)
             assertEquals(2, pagination.nextPage)
             assertEquals(2, pagination.total)
             assertEquals(2, pagination.totalPages)
@@ -247,7 +247,7 @@ abstract class ChannelInvitationRepositoryTest {
                         testChannel,
                         ChannelInvitationStatus.PENDING,
                         SortRequest("id"),
-                        PaginationRequest(1, 1),
+                        PaginationRequest(0, 1),
                     ).items
             assertTrue(invitations.isEmpty())
         }
@@ -263,7 +263,7 @@ abstract class ChannelInvitationRepositoryTest {
                     testChannel,
                     ChannelInvitationStatus.PENDING,
                     SortRequest("id"),
-                    PaginationRequest(1, 1),
+                    PaginationRequest(0, 1),
                 )
             assertEquals(1, invitations.items.size)
         }
@@ -279,11 +279,11 @@ abstract class ChannelInvitationRepositoryTest {
                     testChannel,
                     ChannelInvitationStatus.PENDING,
                     SortRequest("id"),
-                    PaginationRequest(1, 1, getCount = false),
+                    PaginationRequest(0, 1, getCount = false),
                 )
             assertEquals(1, invitations.size)
             assertNotNull(pagination)
-            assertEquals(1, pagination!!.currentPage)
+            assertEquals(1, pagination.currentPage)
             assertNull(pagination.nextPage)
             assertNull(pagination.total)
             assertNull(pagination.totalPages)
@@ -312,14 +312,12 @@ abstract class ChannelInvitationRepositoryTest {
     @Test
     open fun `get invitations by user should return empty list`() {
         transactionManager.run {
-            channelInvitationRepository.save(testInvitation1)
-
             val channels =
                 channelInvitationRepository.findByInvitee(
                     testInviter,
                     ChannelInvitationStatus.PENDING,
                     SortRequest("id"),
-                    PaginationRequest(1, 1),
+                    PaginationRequest(0, 1),
                 )
             assertTrue(channels.items.none())
         }
@@ -336,7 +334,7 @@ abstract class ChannelInvitationRepositoryTest {
                         testInvitee,
                         ChannelInvitationStatus.PENDING,
                         SortRequest("id"),
-                        PaginationRequest(1, 1),
+                        PaginationRequest(0, 1),
                     ).items
             assertEquals(1, channels.size)
             assertEquals(testChannel, channels.first().channel)
@@ -353,11 +351,11 @@ abstract class ChannelInvitationRepositoryTest {
                     testInvitee,
                     ChannelInvitationStatus.PENDING,
                     SortRequest("id"),
-                    PaginationRequest(1, 1, getCount = false),
+                    PaginationRequest(0, 1, getCount = false),
                 )
             assertEquals(1, invitations.size)
             assertNotNull(pagination)
-            assertEquals(1, pagination!!.currentPage)
+            assertEquals(1, pagination.currentPage)
             assertNull(pagination.nextPage)
             assertNull(pagination.total)
             assertNull(pagination.totalPages)
@@ -379,10 +377,10 @@ abstract class ChannelInvitationRepositoryTest {
         transactionManager.run {
             channelInvitationRepository.save(testInvitation1)
             channelInvitationRepository.save(testInvitation2)
-            val (invitations, pagination) = channelInvitationRepository.find(PaginationRequest(1, 1, getCount = false), SortRequest("id"))
+            val (invitations, pagination) = channelInvitationRepository.find(PaginationRequest(0, 1, getCount = false), SortRequest("id"))
             assertEquals(1, invitations.size)
             assertNotNull(pagination)
-            assertEquals(1, pagination!!.currentPage)
+            assertEquals(1, pagination.currentPage)
             assertEquals(2, pagination.nextPage)
             assertNull(pagination.total)
             assertNull(pagination.totalPages)
@@ -402,23 +400,23 @@ abstract class ChannelInvitationRepositoryTest {
                         1,
                         2,
                     ),
-                    SortRequest("id", Sort.DESC),
+                    SortRequest("id", Sort.ASC),
                 )
 
             // pagination
-            assertEquals(1, pagination!!.currentPage)
+            assertEquals(1, pagination.currentPage)
             assertEquals(2, pagination.nextPage)
             assertEquals(3, pagination.total)
             assertEquals(2, pagination.totalPages)
             assertEquals(null, pagination.prevPage)
 
             assertEquals(2, lastInvitations.size)
-            assertEquals(testInvitation3.role, lastInvitations.first().role)
-            assertEquals(testInvitation3.expiresAt, lastInvitations.first().expiresAt)
-            assertEquals(testInvitation3.invitee, lastInvitations.first().invitee)
-            assertEquals(testInvitation2.role, lastInvitations.last().role)
-            assertEquals(testInvitation2.expiresAt, lastInvitations.last().expiresAt)
-            assertEquals(testInvitation2.invitee, lastInvitations.last().invitee)
+            assertEquals(testInvitation2.role, lastInvitations.first().role)
+            assertEquals(testInvitation2.expiresAt, lastInvitations.first().expiresAt)
+            assertEquals(testInvitation2.invitee, lastInvitations.first().invitee)
+            assertEquals(testInvitation3.role, lastInvitations.last().role)
+            assertEquals(testInvitation3.expiresAt, lastInvitations.last().expiresAt)
+            assertEquals(testInvitation3.invitee, lastInvitations.last().invitee)
         }
     }
 

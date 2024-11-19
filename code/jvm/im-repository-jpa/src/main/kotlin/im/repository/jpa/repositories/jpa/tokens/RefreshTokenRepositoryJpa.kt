@@ -1,4 +1,4 @@
-package im.repository.jpa.repositories.jpa
+package im.repository.jpa.repositories.jpa.tokens
 
 import im.repository.jpa.model.token.RefreshTokenDTO
 import org.springframework.data.domain.Pageable

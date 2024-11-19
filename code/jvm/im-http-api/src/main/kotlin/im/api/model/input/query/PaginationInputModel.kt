@@ -9,25 +9,25 @@ import jakarta.validation.constraints.Min
 /**
  * Input model for pagination query.
  *
- * @property page The page number.
- * @property size The number of items per page.
+ * @property limit The number of items to return.
+ * @property offset The number of items to skip.
  * @property sort The sort order, either "ASC" or "DESC".
  */
 data class PaginationInputModel(
-    @field:Min(1, message = "Page must be greater or equal to 1")
-    @field:IsNumber("Page must be a number")
-    val page: String = "1",
-    @field:Min(1, message = "Size must be greater than 0")
-    @field:Max(100, message = "Size must be less or equal to 100")
-    @field:IsNumber("Size must be a number")
-    val size: String = "50",
+    @field:Min(0, message = "Offset must be greater or equal to 0")
+    @field:IsNumber("Offset must be a number")
+    val offset: String = "0",
+    @field:Min(1, message = "limit must be greater or equal to 1")
+    @field:Max(100, message = "limit must be less than or equal to 100")
+    @field:IsNumber("limit must be a number")
+    val limit: String = "10",
     @field:IsBool("Get count must be true or false")
     val getCount: String = "true",
 ) {
     fun toRequest(): PaginationRequest =
         PaginationRequest(
-            page = page.toInt(),
-            size = size.toInt(),
-            getCount = getCount.toBoolean(),
+            offset.toLong(),
+            limit.toInt(),
+            getCount.toBoolean(),
         )
 }

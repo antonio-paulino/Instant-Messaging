@@ -1,8 +1,8 @@
-package im.repository.jpa.repositories
+package im.repository.jpa.repositories.jpa.invitations
 
 import im.domain.invitations.ImInvitation
 import im.repository.jpa.model.invitation.ImInvitationDTO
-import im.repository.jpa.repositories.jpa.ImInvitationRepositoryJpa
+import im.repository.jpa.repositories.jpa.JpaRepositoryUtils
 import im.repository.pagination.Pagination
 import im.repository.pagination.PaginationRequest
 import im.repository.pagination.SortRequest

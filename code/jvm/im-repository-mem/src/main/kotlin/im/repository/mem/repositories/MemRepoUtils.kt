@@ -22,15 +22,15 @@ class MemRepoUtils {
         val sortedChannels = handleSort(items, sortRequest)
 
         val total = items.size
-        val currentPage = pagination.page
-        val totalPages = if (total == 0) 0 else ((total + pagination.size - 1) / pagination.size)
-        val nextPage = if (pagination.page < totalPages) pagination.page + 1 else null
-        val prevPage = if (pagination.page > 1) pagination.page - 1 else null
+        val currentPage = (pagination.offset / pagination.limit + 1).toInt()
+        val totalPages = (total + pagination.limit - 1) / pagination.limit
+        val nextPage = if (totalPages > currentPage) currentPage + 1 else null
+        val prevPage = if (currentPage > 1) currentPage - 1 else null
 
-        val fromIndex = (pagination.page - 1) * pagination.size
-        val toIndex = (fromIndex + pagination.size).coerceAtMost(total)
+        val startIndex = pagination.offset.coerceAtMost(sortedChannels.size.toLong())
+        val endIndex = (pagination.offset + pagination.limit).coerceAtMost(sortedChannels.size.toLong())
 
-        val paginatedChannels = sortedChannels.subList(fromIndex, toIndex)
+        val paginatedChannels = sortedChannels.subList(startIndex.toInt(), endIndex.toInt())
 
         val info =
             PaginationInfo(

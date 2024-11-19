@@ -6,7 +6,7 @@ import im.repository.pagination.Pagination
 
 data class UsersPaginatedOutputModel(
     val users: List<UserOutputModel>,
-    val pagination: PaginationOutputModel?,
+    val pagination: PaginationOutputModel,
 ) {
     companion object {
         fun fromDomain(users: Pagination<User>): UsersPaginatedOutputModel =

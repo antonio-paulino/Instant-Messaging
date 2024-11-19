@@ -1,10 +1,11 @@
 package im.repository.jpa.model.message
 
 import im.domain.messages.Message
-import im.repository.jpa.model.channel.ChannelDTO
 import im.repository.jpa.model.user.UserDTO
+import im.repository.jpa.repositories.jpa.messages.MessageRepositoryListenerJpa
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.EntityListeners
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
@@ -22,7 +23,7 @@ import java.time.LocalDateTime
  * - A message is associated to a single user (many-to-one relationship).
  *
  * @property id The unique identifier of the message.
- * @property channel The channel that the message belongs to.
+ * @property channelId The unique identifier of the channel where the message was sent.
  * @property user The user that sent the message.
  * @property content The content of the message.
  * @property createdAt The date and time when the message was created.
@@ -30,14 +31,13 @@ import java.time.LocalDateTime
  */
 @Entity
 @Table(name = "Message")
+@EntityListeners(MessageRepositoryListenerJpa::class)
 open class MessageDTO(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     open val id: Long = 0,
-    @ManyToOne
-    @JoinColumn(name = "channel_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    open val channel: ChannelDTO? = null,
+    @Column(name = "channel_id", nullable = false)
+    open val channelId: Long = 0,
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
@@ -53,7 +53,7 @@ open class MessageDTO(
         fun fromDomain(message: Message): MessageDTO =
             MessageDTO(
                 id = message.id.value,
-                channel = ChannelDTO.fromDomain(message.channel),
+                channelId = message.channelId.value,
                 user = UserDTO.fromDomain(message.user),
                 content = message.content,
                 createdAt = message.createdAt,
@@ -64,7 +64,7 @@ open class MessageDTO(
     fun toDomain(): Message =
         Message(
             id = id,
-            channel = channel!!.toDomain(),
+            channelId = channelId,
             user = user!!.toDomain(),
             content = content,
             createdAt = createdAt,

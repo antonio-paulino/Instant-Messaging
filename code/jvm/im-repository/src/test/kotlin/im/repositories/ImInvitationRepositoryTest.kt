@@ -114,7 +114,7 @@ abstract class ImInvitationRepositoryTest {
             val (invitations, pagination) =
                 imInvitationRepository.find(
                     PaginationRequest(
-                        1,
+                        0,
                         1,
                     ),
                     SortRequest(
@@ -122,7 +122,7 @@ abstract class ImInvitationRepositoryTest {
                     ),
                 )
 
-            assertEquals(1, pagination!!.currentPage)
+            assertEquals(1, pagination.currentPage)
             assertEquals(2, pagination.nextPage)
             assertEquals(3, pagination.total)
             assertEquals(3, pagination.totalPages)
@@ -151,15 +151,15 @@ abstract class ImInvitationRepositoryTest {
                     ),
                 )
 
-            assertEquals(1, pagination!!.currentPage)
+            assertEquals(1, pagination.currentPage)
             assertEquals(2, pagination.nextPage)
             assertEquals(3, pagination.total)
             assertEquals(2, pagination.totalPages)
             assertEquals(null, pagination.prevPage)
 
             assertEquals(2, invitations.size)
-            assertEquals(testInvitation1.token, invitations.first().token)
-            assertEquals(testInvitation2.token, invitations.last().token)
+            assertEquals(testInvitation2.token, invitations.first().token)
+            assertEquals(testInvitation3.token, invitations.last().token)
         }
     }
 
@@ -172,7 +172,7 @@ abstract class ImInvitationRepositoryTest {
             val (invitations, pagination) =
                 imInvitationRepository.find(
                     PaginationRequest(
-                        1,
+                        0,
                         1,
                         getCount = false,
                     ),
@@ -182,7 +182,7 @@ abstract class ImInvitationRepositoryTest {
                 )
 
             assertNotNull(pagination)
-            assertEquals(1, pagination!!.currentPage)
+            assertEquals(1, pagination.currentPage)
             assertEquals(2, pagination.nextPage)
             assertNull(pagination.prevPage)
             assertNull(pagination.total)

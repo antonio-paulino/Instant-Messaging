@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
+import org.springframework.context.annotation.Profile
 import org.springframework.http.HttpStatus
 import org.springframework.test.web.reactive.server.WebTestClient
 import java.time.LocalDateTime
@@ -28,6 +29,7 @@ import java.util.UUID
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
 )
+@Profile("!rateLimit")
 abstract class ChannelControllerTests {
     @LocalServerPort
     protected var port: Int = 0
@@ -438,7 +440,7 @@ abstract class ChannelControllerTests {
     }
 
     @Test
-    fun `join channel should join the channel 204`() {
+    fun `join channel should join the channel 201`() {
         val client = getClient()
 
         val channel =
@@ -1028,7 +1030,7 @@ abstract class ChannelControllerTests {
 
         client
             .get()
-            .uri("api/channels?page=1&size=1")
+            .uri("api/channels?offset=0&limit=1")
             .cookie("access_token", accessToken1.token.toString())
             .exchange()
             .expectStatus()
@@ -1051,7 +1053,7 @@ abstract class ChannelControllerTests {
 
         client
             .get()
-            .uri("api/channels?page=-1&size=1")
+            .uri("api/channels?offset=-1&limit=1")
             .cookie("access_token", accessToken1.token.toString())
             .exchange()
             .expectStatus()

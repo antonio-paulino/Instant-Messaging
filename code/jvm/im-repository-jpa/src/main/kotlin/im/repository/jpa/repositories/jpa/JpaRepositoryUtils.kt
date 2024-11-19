@@ -1,5 +1,6 @@
-package im.repository.jpa.repositories
+package im.repository.jpa.repositories.jpa
 
+import OffsetPageable
 import im.repository.pagination.PaginationInfo
 import im.repository.pagination.PaginationRequest
 import im.repository.pagination.SortRequest
@@ -39,7 +40,12 @@ class JpaRepositoryUtils {
     fun toPageRequest(
         request: PaginationRequest,
         sort: SortRequest,
-    ): PageRequest = PageRequest.of(request.page - 1, request.size, sort.direction.toSpringSortDirection(), sort.sortBy)
+    ): OffsetPageable =
+        OffsetPageable(
+            request.offset,
+            request.limit,
+            toSort(sort),
+        )
 
     fun toSort(sort: SortRequest): Sort = Sort.by(sort.direction.toSpringSortDirection(), sort.sortBy)
 

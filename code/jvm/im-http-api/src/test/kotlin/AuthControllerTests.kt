@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
+import org.springframework.context.annotation.Profile
 import org.springframework.http.HttpStatus
 import org.springframework.test.web.reactive.server.WebTestClient
 import java.time.LocalDateTime
@@ -32,6 +33,7 @@ import java.util.UUID
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
 )
+@Profile("!rateLimit")
 abstract class AuthControllerTests {
     @LocalServerPort
     protected var port: Int = 0
@@ -590,9 +592,9 @@ abstract class AuthControllerTests {
 
         assertNotNull(credentials)
         assertNotNull(credentials2)
-        assertNotEquals(credentials!!.accessToken, credentials2!!.accessToken)
-        assertNotEquals(credentials!!.refreshToken, credentials2!!.refreshToken)
-        assertEquals(credentials!!.sessionID, credentials2!!.sessionID)
+        assertNotEquals(credentials.accessToken, credentials2!!.accessToken)
+        assertNotEquals(credentials.refreshToken, credentials2.refreshToken)
+        assertEquals(credentials.sessionID, credentials2.sessionID)
     }
 
     @Test

@@ -38,7 +38,7 @@ class RequestHelper {
                 ?: req.cookies?.find { it.name == REFRESH_TOKEN_COOKIE_NAME }?.value ?: return null
         return try {
             UUID.fromString(refreshToken)
-        } catch (e: IllegalArgumentException) {
+        } catch (_: IllegalArgumentException) {
             null
         }
     }
@@ -49,7 +49,7 @@ class RequestHelper {
                 ?: request.cookies?.find { it.name == ACCESS_TOKEN_COOKIE_NAME }?.value ?: return null
         return try {
             UUID.fromString(token)
-        } catch (e: IllegalArgumentException) {
+        } catch (_: IllegalArgumentException) {
             null
         }
     }
@@ -123,6 +123,10 @@ class RequestHelper {
         controller: String,
     ) {
         req.setAttribute(CONTROLLER_NAME_ATTRIBUTE, controller)
+    }
+
+    fun getClientIp(req: HttpServletRequest): String {
+        return req.remoteAddr
     }
 
     fun getMethodAttribute(req: HttpServletRequest): String? {

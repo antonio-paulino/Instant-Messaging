@@ -64,18 +64,21 @@ class MemChannelRepositoryImpl(
 
     override fun findByOwner(
         user: User,
+        pagination: PaginationRequest,
         sortRequest: SortRequest,
-    ): List<Channel> = utils.handleSort(channels.values.filter { it.owner.toDomain() == user }.map { it.toDomain() }, sortRequest)
+    ): Pagination<Channel> {
+        val page = utils.paginate(channels.values.filter { it.owner.toDomain() == user }, pagination, sortRequest)
+        return Pagination(page.items.map { it.toDomain() }, page.info)
+    }
 
     override fun findByMember(
         user: User,
+        pagination: PaginationRequest,
         sortRequest: SortRequest,
-    ): Map<Channel, ChannelRole> =
-        utils
-            .handleSort(
-                channels.values.filter { it.members.keys.any { member -> member.toDomain() == user } },
-                sortRequest,
-            ).associate { it.toDomain() to findRole(it, user) }
+    ): Pagination<Channel> {
+        val page = utils.paginate(channels.values.filter { it.members.keys.any { it.toDomain() == user } }, pagination, sortRequest)
+        return Pagination(page.items.map { it.toDomain() }, page.info)
+    }
 
     override fun addMember(
         channel: Channel,

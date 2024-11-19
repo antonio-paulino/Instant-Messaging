@@ -6,12 +6,12 @@ import im.repository.pagination.PaginationInfo
 
 data class MessagesPaginatedOutputModel(
     val messages: List<MessageOutputModel>,
-    val pagination: PaginationOutputModel?,
+    val pagination: PaginationOutputModel,
 ) {
     companion object {
         fun fromMessages(
             messages: List<Message>,
-            pagination: PaginationInfo?,
+            pagination: PaginationInfo,
         ): MessagesPaginatedOutputModel =
             MessagesPaginatedOutputModel(
                 messages.map { MessageOutputModel.fromDomain(it) },

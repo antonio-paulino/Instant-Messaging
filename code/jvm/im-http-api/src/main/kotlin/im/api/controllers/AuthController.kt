@@ -1,6 +1,7 @@
 package im.api.controllers
 
 import im.api.middlewares.authentication.Authenticated
+import im.api.middlewares.ratelimit.RateLimit
 import im.api.model.input.body.AuthenticationInputModel
 import im.api.model.input.body.ImInvitationCreationInputModel
 import im.api.model.input.body.UserCreationInputModel
@@ -27,6 +28,7 @@ import java.net.URI
 import java.util.UUID
 
 @RestController
+@RateLimit(limitSeconds = 5)
 @RequestMapping("/api/auth")
 class AuthController(
     private val authService: AuthService,

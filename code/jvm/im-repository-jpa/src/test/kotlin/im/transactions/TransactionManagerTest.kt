@@ -3,8 +3,8 @@ package im.transactions
 import im.domain.channel.Channel
 import im.domain.channel.ChannelRole
 import im.domain.user.User
-import im.repository.jpa.repositories.ChannelRepositoryImpl
-import im.repository.jpa.repositories.UserRepositoryImpl
+import im.repository.jpa.repositories.jpa.channels.ChannelRepositoryImpl
+import im.repository.jpa.repositories.jpa.user.UserRepositoryImpl
 import im.repository.jpa.transactions.TransactionManagerJpa
 import im.repository.repositories.transactions.TransactionIsolation
 import org.hibernate.Hibernate

@@ -1,6 +1,6 @@
 package im
 
-import im.api.model.output.users.UserChannelsOutputModel
+import im.api.model.output.channel.ChannelsPaginatedOutputModel
 import im.api.model.output.users.UserOutputModel
 import im.api.model.output.users.UsersPaginatedOutputModel
 import im.api.model.problems.InputValidationProblemOutputModel
@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
+import org.springframework.context.annotation.Profile
 import org.springframework.test.web.reactive.server.WebTestClient
 import java.time.LocalDateTime
 import java.util.UUID
@@ -26,6 +27,7 @@ import java.util.UUID
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
 )
+@Profile("!rateLimit")
 abstract class UserControllerTests {
     @LocalServerPort
     protected var port: Int = 0
@@ -197,7 +199,7 @@ abstract class UserControllerTests {
                 assertEquals(2, users.size)
                 assertEquals(testUser1.id.value, users[0].id)
                 assertEquals(testUser2.id.value, users[1].id)
-                assertEquals(1, info!!.current)
+                assertEquals(1, info.current)
                 assertEquals(1, info.totalPages)
                 assertEquals(2, info.total)
                 assertEquals(null, info.next)
@@ -227,7 +229,7 @@ abstract class UserControllerTests {
                 assertEquals(testUser1.id.value, users[0].id)
                 assertEquals(testUser2.id.value, users[1].id)
                 assertNotNull(info)
-                assertEquals(1, info!!.current)
+                assertEquals(1, info.current)
                 assertEquals(1, info.totalPages)
                 assertEquals(2, info.total)
                 assertEquals(null, info.next)
@@ -255,7 +257,7 @@ abstract class UserControllerTests {
                 val info = it.pagination
                 assertNotNull(info)
                 assertEquals(0, users.size)
-                assertEquals(1, info!!.current)
+                assertEquals(1, info.current)
                 assertEquals(0, info.totalPages)
                 assertEquals(0, info.total)
                 assertEquals(null, info.next)
@@ -269,7 +271,7 @@ abstract class UserControllerTests {
 
         client
             .get()
-            .uri("/api/users?page=1&size=1")
+            .uri("/api/users?offset=0&limit=1")
             .cookie("access_token", validAccessToken.token.toString())
             .exchange()
             .expectStatus()
@@ -283,7 +285,7 @@ abstract class UserControllerTests {
                 assertEquals(1, users.size)
                 assertEquals(testUser1.id.value, users[0].id)
                 assertNotNull(info)
-                assertEquals(1, info!!.current)
+                assertEquals(1, info.current)
                 assertEquals(2, info.totalPages)
                 assertEquals(2, info.total)
                 assertEquals(2, info.next)
@@ -297,7 +299,7 @@ abstract class UserControllerTests {
 
         client
             .get()
-            .uri("/api/users?page=2&size=1")
+            .uri("/api/users?offset=1&limit=1")
             .cookie("access_token", validAccessToken.token.toString())
             .exchange()
             .expectStatus()
@@ -311,7 +313,7 @@ abstract class UserControllerTests {
                 assertEquals(1, users.size)
                 assertEquals(testUser2.id.value, users[0].id)
                 assertNotNull(info)
-                assertEquals(2, info!!.current)
+                assertEquals(2, info.current)
                 assertEquals(2, info.totalPages)
                 assertEquals(2, info.total)
                 assertEquals(null, info.next)
@@ -325,7 +327,7 @@ abstract class UserControllerTests {
 
         client
             .get()
-            .uri("/api/users?page=1&size=1&getCount=false")
+            .uri("/api/users?offset=0&limit=1&getCount=false")
             .cookie("access_token", validAccessToken.token.toString())
             .exchange()
             .expectStatus()
@@ -339,7 +341,7 @@ abstract class UserControllerTests {
                 assertEquals(1, users.size)
                 assertEquals(testUser1.id.value, users[0].id)
                 assertNotNull(info)
-                assertEquals(1, info!!.current)
+                assertEquals(1, info.current)
                 assertEquals(null, info.totalPages)
                 assertEquals(null, info.total)
                 assertEquals(2, info.next)
@@ -358,16 +360,127 @@ abstract class UserControllerTests {
             .exchange()
             .expectStatus()
             .isOk
-            .expectBody(UserChannelsOutputModel::class.java)
+            .expectBody(ChannelsPaginatedOutputModel::class.java)
             .returnResult()
             .responseBody
             .also {
-                val channels = it!!.ownedChannels
-                val memberChannels = it.memberChannels
+                val channels = it!!.channels
                 assertEquals(1, channels.size)
                 assertEquals(testChannel1.id.value, channels[0].id)
                 assertEquals(testChannel1.name.value, channels[0].name)
-                assertTrue(memberChannels.isEmpty())
+            }
+    }
+
+    @Test
+    fun `get user channels should return 2 channels`() {
+        val client = getClient()
+
+        transactionManager.run {
+            channelRepository.addMember(testChannel2, testUser1, ChannelRole.MEMBER)
+        }
+
+        client
+            .get()
+            .uri("/api/users/${testUser1.id}/channels")
+            .cookie("access_token", validAccessToken.token.toString())
+            .exchange()
+            .expectStatus()
+            .isOk
+            .expectBody(ChannelsPaginatedOutputModel::class.java)
+            .returnResult()
+            .responseBody
+            .also {
+                val channels = it!!.channels
+                assertEquals(2, channels.size)
+                assertTrue(channels.any { it.id == testChannel1.id.value })
+                assertTrue(channels.any { it.id == testChannel2.id.value })
+            }
+    }
+
+    @Test
+    fun `get user channels 2 channels first page`() {
+        val client = getClient()
+
+        transactionManager.run {
+            channelRepository.addMember(testChannel2, testUser1, ChannelRole.MEMBER)
+        }
+
+        client
+            .get()
+            .uri("/api/users/${testUser1.id}/channels?offset=0&limit=1&getCount=false")
+            .cookie("access_token", validAccessToken.token.toString())
+            .exchange()
+            .expectStatus()
+            .isOk
+            .expectBody(ChannelsPaginatedOutputModel::class.java)
+            .returnResult()
+            .responseBody
+            .also {
+                val channels = it!!.channels
+                val info = it.pagination
+                assertEquals(1, channels.size)
+                assertEquals(testChannel1.id.value, channels[0].id)
+                assertEquals(1, info.current)
+                assertEquals(null, info.totalPages)
+                assertEquals(null, info.total)
+                assertEquals(2, info.next)
+                assertEquals(null, info.previous)
+            }
+    }
+
+    @Test
+    fun `get user channels filter owned should return 1 channel`() {
+        val client = getClient()
+
+        transactionManager.run {
+            channelRepository.addMember(testChannel2, testUser1, ChannelRole.MEMBER)
+        }
+
+        client
+            .get()
+            .uri("/api/users/${testUser1.id}/channels?filterOwned=true")
+            .cookie("access_token", validAccessToken.token.toString())
+            .exchange()
+            .expectStatus()
+            .isOk
+            .expectBody(ChannelsPaginatedOutputModel::class.java)
+            .returnResult()
+            .responseBody
+            .also {
+                val channels = it!!.channels
+                assertEquals(1, channels.size)
+                assertEquals(testChannel1.id.value, channels[0].id)
+                assertEquals(testChannel1.name.value, channels[0].name)
+            }
+    }
+
+    @Test
+    fun `get user channels filter owned should return empty`() {
+        val client = getClient()
+
+        transactionManager.run {
+            channelRepository.delete(testChannel1)
+        }
+
+        client
+            .get()
+            .uri("/api/users/${testUser1.id}/channels?filterOwned=false")
+            .cookie("access_token", validAccessToken.token.toString())
+            .exchange()
+            .expectStatus()
+            .isOk
+            .expectBody(ChannelsPaginatedOutputModel::class.java)
+            .returnResult()
+            .responseBody
+            .also {
+                val channels = it!!.channels
+                val info = it.pagination
+                assertEquals(0, channels.size)
+                assertEquals(0, it.pagination.total)
+                assertEquals(1, info.current)
+                assertEquals(0, info.totalPages)
+                assertEquals(null, info.next)
+                assertEquals(null, info.previous)
             }
     }
 
@@ -390,7 +503,7 @@ abstract class UserControllerTests {
 
         client
             .get()
-            .uri("/api/users?page=-1&size=0")
+            .uri("/api/users?offset=-1&limit=0")
             .cookie("access_token", validAccessToken.token.toString())
             .exchange()
             .expectStatus()
@@ -409,7 +522,7 @@ abstract class UserControllerTests {
 
         client
             .get()
-            .uri("/api/users?page=2&size=iu")
+            .uri("/api/users?offset=2&limit=iu")
             .cookie("access_token", validAccessToken.token.toString())
             .exchange()
             .expectStatus()

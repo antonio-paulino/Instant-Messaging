@@ -2,7 +2,6 @@ package im.domain.messages
 
 import im.domain.Failure
 import im.domain.Success
-import im.domain.channel.Channel
 import im.domain.user.User
 import im.domain.wrappers.identifier.Identifier
 import im.domain.wrappers.identifier.toIdentifier
@@ -13,7 +12,7 @@ import java.time.temporal.ChronoUnit
  * Represents a message in a channel.
  *
  * @property id The unique identifier of the message.
- * @property channel The channel where the message was sent.
+ * @property channelId The unique identifier of the channel where the message was sent.
  * @property user The user that sent the message.
  * @property content The content of the message.
  * @property createdAt The date and time when the message was sent.
@@ -21,7 +20,7 @@ import java.time.temporal.ChronoUnit
  */
 data class Message(
     val id: Identifier = Identifier(0),
-    val channel: Channel,
+    val channelId: Identifier,
     val user: User,
     val content: String,
     val createdAt: LocalDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS),
@@ -32,7 +31,7 @@ data class Message(
 
         operator fun invoke(
             id: Long = 0,
-            channel: Channel,
+            channelId: Long,
             user: User,
             content: String,
             createdAt: LocalDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS),
@@ -40,7 +39,7 @@ data class Message(
         ): Message =
             Message(
                 id.toIdentifier(),
-                channel,
+                channelId.toIdentifier(),
                 user,
                 content,
                 createdAt,

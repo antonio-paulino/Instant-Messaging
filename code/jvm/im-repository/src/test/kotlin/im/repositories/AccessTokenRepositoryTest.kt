@@ -191,11 +191,11 @@ abstract class AccessTokenRepositoryTest {
 
             val (tokens, pagination) =
                 accessTokenRepository.find(
-                    PaginationRequest(1, 1),
+                    PaginationRequest(0, 1),
                     SortRequest("expiresAt", Sort.ASC),
                 )
 
-            assertEquals(2, pagination!!.totalPages)
+            assertEquals(2, pagination.totalPages)
             assertEquals(1, pagination.currentPage)
             assertEquals(2, pagination.total)
             assertEquals(null, pagination.prevPage)
@@ -214,22 +214,22 @@ abstract class AccessTokenRepositoryTest {
             testAccessToken = testAccessToken.copy(session = testSession)
             testAccessToken2 = testAccessToken2.copy(session = testSession)
 
-            accessTokenRepository.save(testAccessToken)
-            accessTokenRepository.save(testAccessToken2)
+            testAccessToken = accessTokenRepository.save(testAccessToken)
+            testAccessToken2 = accessTokenRepository.save(testAccessToken2)
             val (tokens, pagination) =
                 accessTokenRepository.find(
                     PaginationRequest(
                         1,
                         1,
                     ),
-                    SortRequest("expiresAt", Sort.DESC),
+                    SortRequest("expiresAt", Sort.ASC),
                 )
 
-            assertEquals(2, pagination!!.totalPages)
-            assertEquals(1, pagination.currentPage)
+            assertEquals(2, pagination.totalPages)
+            assertEquals(2, pagination.currentPage)
             assertEquals(2, pagination.total)
-            assertEquals(null, pagination.prevPage)
-            assertEquals(2, pagination.nextPage)
+            assertEquals(1, pagination.prevPage)
+            assertEquals(null, pagination.nextPage)
 
             assertEquals(1, tokens.size)
             val token = tokens.first()
@@ -251,7 +251,7 @@ abstract class AccessTokenRepositoryTest {
             val (tokens1, pagination1) =
                 accessTokenRepository.find(
                     PaginationRequest(
-                        1,
+                        0,
                         1,
                     ),
                     SortRequest("expiresAt", Sort.ASC),
@@ -259,14 +259,14 @@ abstract class AccessTokenRepositoryTest {
             val (tokens2, pagination2) =
                 accessTokenRepository.find(
                     PaginationRequest(
-                        2,
+                        1,
                         1,
                     ),
                     SortRequest("expiresAt", Sort.ASC),
                 )
 
-            assertEquals(1, pagination1!!.currentPage)
-            assertEquals(2, pagination2!!.currentPage)
+            assertEquals(1, pagination1.currentPage)
+            assertEquals(2, pagination2.currentPage)
             assertEquals(2, pagination1.totalPages)
             assertEquals(2, pagination2.totalPages)
             assertEquals(2, pagination1.total)
@@ -297,7 +297,7 @@ abstract class AccessTokenRepositoryTest {
             val (tokens1, pagination1) =
                 accessTokenRepository.find(
                     PaginationRequest(
-                        1,
+                        0,
                         1,
                         getCount = false,
                     ),
@@ -306,7 +306,7 @@ abstract class AccessTokenRepositoryTest {
             val (tokens2, pagination2) =
                 accessTokenRepository.find(
                     PaginationRequest(
-                        2,
+                        1,
                         1,
                         getCount = false,
                     ),
@@ -331,7 +331,7 @@ abstract class AccessTokenRepositoryTest {
     @Test
     open fun `pagination on empty repository should return empty list`() {
         transactionManager.run {
-            val tokens = accessTokenRepository.find(PaginationRequest(1, 1), SortRequest("expiresAt", Sort.ASC)).items
+            val tokens = accessTokenRepository.find(PaginationRequest(0, 1), SortRequest("expiresAt", Sort.ASC)).items
             assertEquals(0, tokens.size)
         }
     }

@@ -288,7 +288,7 @@ abstract class InvitationServiceTest {
                 channelId = testChannel.id,
                 user = testUser1,
                 SortRequest("id"),
-                PaginationRequest(1, 10),
+                PaginationRequest(0, 10),
             )
 
         assertIs<Success<Pagination<ChannelInvitation>>>(result2)
@@ -305,7 +305,7 @@ abstract class InvitationServiceTest {
                 channelId = testChannel.id,
                 user = testUser1,
                 SortRequest("invalid"),
-                PaginationRequest(1, 10),
+                PaginationRequest(0, 10),
             )
         assertIs<Failure<InvitationError>>(result)
         assertIs<InvitationError.InvalidSortField>(result.value)
@@ -318,7 +318,7 @@ abstract class InvitationServiceTest {
                 channelId = Identifier(999L),
                 user = testUser1,
                 SortRequest("id"),
-                PaginationRequest(1, 10),
+                PaginationRequest(0, 10),
             )
         assertIs<Failure<InvitationError>>(result)
         assertIs<InvitationError.ChannelNotFound>(result.value)
@@ -331,7 +331,7 @@ abstract class InvitationServiceTest {
                 channelId = testChannel.id,
                 user = testUser2,
                 SortRequest("id"),
-                PaginationRequest(1, 10),
+                PaginationRequest(0, 10),
             )
         assertIs<Failure<InvitationError>>(result)
         assertIs<InvitationError.UserCannotAccessInvitation>(result.value)
@@ -362,13 +362,11 @@ abstract class InvitationServiceTest {
 
         assertIs<Success<Unit>>(result)
         val updatedInvite =
-            invitationService.getInvitation(
-                channelId = testChannel.id,
-                inviteId = invite.value.id,
-                user = testUser1,
-            )
-        assertIs<Success<ChannelInvitation>>(updatedInvite)
-        assertEquals(ChannelRole.GUEST, updatedInvite.value.role)
+            transactionManager.run {
+                channelInvitationRepository.findById(invite.value.id)
+            }
+
+        assertEquals(ChannelRole.GUEST, updatedInvite!!.role)
     }
 
     @Test
@@ -562,7 +560,7 @@ abstract class InvitationServiceTest {
                 userId = testUser2.id,
                 user = testUser2,
                 SortRequest("id"),
-                PaginationRequest(1, 10),
+                PaginationRequest(0, 10),
             )
 
         assertIs<Success<Pagination<ChannelInvitation>>>(result2)
@@ -578,7 +576,7 @@ abstract class InvitationServiceTest {
                 userId = testUser2.id,
                 user = testUser2,
                 SortRequest("id"),
-                PaginationRequest(1, 10),
+                PaginationRequest(0, 10),
             )
 
         assertIs<Success<Pagination<ChannelInvitation>>>(result2)
@@ -593,7 +591,7 @@ abstract class InvitationServiceTest {
                 userId = testUser2.id,
                 user = testUser1,
                 SortRequest("id"),
-                PaginationRequest(1, 10),
+                PaginationRequest(0, 10),
             )
         assertIs<Failure<InvitationError>>(result)
         assertIs<InvitationError.UserCannotAccessInvitation>(result.value)

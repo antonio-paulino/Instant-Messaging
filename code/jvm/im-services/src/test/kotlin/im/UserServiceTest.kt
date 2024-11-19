@@ -98,7 +98,7 @@ abstract class UserServiceTest {
 
     @Test
     fun `get users should return users`() {
-        val result = userService.getUsers(null, PaginationRequest(1, 10), SortRequest("id"))
+        val result = userService.getUsers(null, PaginationRequest(0, 10), SortRequest("id"))
         assertIs<Success<Pagination<User>>>(result)
         assert(result.value.items.contains(testUser1))
         assert(result.value.items.contains(testUser2))
@@ -106,7 +106,7 @@ abstract class UserServiceTest {
 
     @Test
     fun `get users should return users with name`() {
-        val result = userService.getUsers("test", PaginationRequest(1, 10), SortRequest("id"))
+        val result = userService.getUsers("test", PaginationRequest(0, 10), SortRequest("id"))
         assertIs<Success<Pagination<User>>>(result)
         assertTrue(result.value.items.contains(testUser1))
         assertTrue(result.value.items.contains(testUser2))
@@ -114,18 +114,18 @@ abstract class UserServiceTest {
 
     @Test
     fun `get users non existing name should return empty`() {
-        val result = userService.getUsers("nonExistingName", PaginationRequest(1, 10), SortRequest("id"))
+        val result = userService.getUsers("nonExistingName", PaginationRequest(0, 10), SortRequest("id"))
         assertIs<Success<Pagination<User>>>(result)
         assertTrue(result.value.items.isEmpty())
     }
 
     @Test
     fun `get users paginated should return users`() {
-        val result = userService.getUsers(null, PaginationRequest(1, 1), SortRequest("id"))
+        val result = userService.getUsers(null, PaginationRequest(0, 1), SortRequest("id"))
         assertIs<Success<Pagination<User>>>(result)
         assertEquals(1, result.value.items.size)
         val pagination = result.value.info
-        assertEquals(1, pagination!!.currentPage)
+        assertEquals(1, pagination.currentPage)
         assertEquals(2, pagination.totalPages)
         assertEquals(2, pagination.total)
         assertEquals(2, pagination.nextPage)
@@ -134,18 +134,18 @@ abstract class UserServiceTest {
 
     @Test
     fun `get users invalid sort should return error`() {
-        val result = userService.getUsers(null, PaginationRequest(1, 1), SortRequest("invalid"))
+        val result = userService.getUsers(null, PaginationRequest(0, 1), SortRequest("invalid"))
         assertIs<Failure<UserError>>(result)
         assertIs<UserError.InvalidSortField>(result.value)
     }
 
     @Test
     fun `get users last page should return users`() {
-        val result = userService.getUsers(null, PaginationRequest(2, 1), SortRequest("id"))
+        val result = userService.getUsers(null, PaginationRequest(1, 1), SortRequest("id"))
         assertIs<Success<Pagination<User>>>(result)
         assertEquals(1, result.value.items.size)
         val pagination = result.value.info
-        assertEquals(2, pagination!!.currentPage)
+        assertEquals(2, pagination.currentPage)
         assertEquals(2, pagination.totalPages)
         assertEquals(2, pagination.total)
         assertNull(pagination.nextPage)

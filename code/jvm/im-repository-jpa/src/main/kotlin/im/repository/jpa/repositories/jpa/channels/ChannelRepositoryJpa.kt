@@ -1,10 +1,9 @@
-package im.repository.jpa.repositories.jpa
+package im.repository.jpa.repositories.jpa.channels
 
 import im.repository.jpa.model.channel.ChannelDTO
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Slice
-import org.springframework.data.domain.Sort
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
@@ -60,6 +59,14 @@ interface ChannelRepositoryJpa : JpaRepository<ChannelDTO, Long> {
 
     fun findByOwnerId(
         ownerId: Long,
-        sort: Sort,
-    ): List<ChannelDTO>
+        page: Pageable,
+    ): Page<ChannelDTO>
+
+    @Query(
+        value = "SELECT c FROM ChannelDTO c WHERE c.owner.id = :ownerId",
+    )
+    fun findByOwnerIdSliced(
+        ownerId: Long,
+        page: Pageable,
+    ): Slice<ChannelDTO>
 }

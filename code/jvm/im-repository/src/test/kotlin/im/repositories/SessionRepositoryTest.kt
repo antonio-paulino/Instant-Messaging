@@ -133,11 +133,11 @@ abstract class SessionRepositoryTest {
             sessionRepository.save(testSession2)
             val (sessions, pagination) =
                 sessionRepository.find(
-                    PaginationRequest(1, 1),
+                    PaginationRequest(0, 1),
                     SortRequest("expiresAt", Sort.ASC),
                 )
 
-            assertEquals(1, pagination!!.currentPage)
+            assertEquals(1, pagination.currentPage)
             assertEquals(2, pagination.nextPage)
             assertEquals(2, pagination.total)
             assertEquals(2, pagination.totalPages)
@@ -158,14 +158,11 @@ abstract class SessionRepositoryTest {
 
             val (sessions, pagination) =
                 sessionRepository.find(
-                    PaginationRequest(
-                        1,
-                        1,
-                    ),
+                    PaginationRequest(0, 1),
                     SortRequest("expiresAt", Sort.DESC),
                 )
 
-            assertEquals(1, pagination!!.currentPage)
+            assertEquals(1, pagination.currentPage)
             assertEquals(2, pagination.nextPage)
             assertEquals(2, pagination.total)
             assertEquals(2, pagination.totalPages)
@@ -185,12 +182,12 @@ abstract class SessionRepositoryTest {
             sessionRepository.save(testSession2)
             val (sessions, pagination) =
                 sessionRepository.find(
-                    PaginationRequest(1, 1, getCount = false),
+                    PaginationRequest(0, 1, getCount = false),
                     SortRequest("expiresAt", Sort.ASC),
                 )
 
             assertNotNull(pagination)
-            assertEquals(1, pagination!!.currentPage)
+            assertEquals(1, pagination.currentPage)
             assertEquals(2, pagination.nextPage)
             assertEquals(null, pagination.prevPage)
             assertNull(pagination.total)

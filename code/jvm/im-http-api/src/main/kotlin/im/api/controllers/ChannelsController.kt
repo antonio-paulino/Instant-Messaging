@@ -1,6 +1,7 @@
 package im.api.controllers
 
 import im.api.middlewares.authentication.Authenticated
+import im.api.middlewares.ratelimit.RateLimit
 import im.api.model.input.body.ChannelCreationInputModel
 import im.api.model.input.body.ChannelRoleUpdateInputModel
 import im.api.model.input.path.ChannelIdentifierInputModel
@@ -30,6 +31,7 @@ import java.net.URI
 
 @RestController
 @Authenticated
+@RateLimit(limitSeconds = 10)
 @RequestMapping("/api/channels")
 class ChannelsController(
     private val channelService: ChannelService,
@@ -186,7 +188,9 @@ class ChannelsController(
         user: AuthenticatedUser,
     ): ResponseEntity<Any> =
         when (val res = channelService.deleteChannel(channelId.toDomain(), user.user)) {
-            is Success -> ResponseEntity.noContent().build()
+            is Success -> {
+                ResponseEntity.noContent().build()
+            }
             is Failure -> handleChannelFailure(res.value)
         }
 
@@ -215,11 +219,10 @@ class ChannelsController(
         user: AuthenticatedUser,
     ): ResponseEntity<Any> =
         when (val res = channelService.joinChannel(channelId.toDomain(), userId.toDomain(), user.user)) {
-            is Success ->
-                ResponseEntity
-                    .created(URI("/api/channels/${channelId.channelId}/members/${userId.userId}"))
+            is Success -> {
+                ResponseEntity.created(URI("/api/channels/${channelId.channelId.value}/members/${userId.userId.value}"))
                     .build()
-
+            }
             is Failure -> handleChannelFailure(res.value)
         }
 
@@ -248,7 +251,9 @@ class ChannelsController(
         user: AuthenticatedUser,
     ): ResponseEntity<Any> =
         when (val res = channelService.removeChannelMember(channelId.toDomain(), userId.toDomain(), user.user)) {
-            is Success -> ResponseEntity.noContent().build()
+            is Success -> {
+                ResponseEntity.noContent().build()
+            }
             is Failure -> handleChannelFailure(res.value)
         }
 

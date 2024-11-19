@@ -1,6 +1,7 @@
 package im.api.controllers
 
 import im.api.middlewares.authentication.Authenticated
+import im.api.middlewares.ratelimit.RateLimit
 import im.api.model.input.body.MessageCreationInputModel
 import im.api.model.input.path.ChannelIdentifierInputModel
 import im.api.model.input.path.MessageIdentifierInputModel
@@ -26,8 +27,9 @@ import org.springframework.web.bind.annotation.RestController
 import java.net.URI
 
 @RestController
-@Authenticated
 @RequestMapping("/api/channels/{channelId}/messages")
+@RateLimit(limitSeconds = 10)
+@Authenticated
 class MessagesController(
     private val messageService: MessageService,
     private val errorHandler: ErrorHandler,
@@ -133,10 +135,11 @@ class MessagesController(
     ): ResponseEntity<Any> =
         when (val res = messageService.createMessage(channelId.toDomain(), messageInput.content, user.user)) {
             is Failure -> handleMessagesFailure(res.value)
-            is Success ->
+            is Success -> {
                 ResponseEntity
                     .created(URI("/api/channels/${channelId.channelId}/messages/${res.value.id.value}"))
                     .body(MessageCreationOutputModel.fromDomain(res.value))
+            }
         }
 
     /**
@@ -177,7 +180,7 @@ class MessagesController(
                 )
         ) {
             is Failure -> handleMessagesFailure(res.value)
-            is Success -> ResponseEntity.ok(MessageUpdateOutputModel(res.value))
+            is Success -> ResponseEntity.ok(MessageUpdateOutputModel(res.value.editedAt!!))
         }
 
     /**

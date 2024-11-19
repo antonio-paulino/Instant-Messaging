@@ -1,9 +1,9 @@
-package im.repository.jpa.repositories
+package im.repository.jpa.repositories.jpa.tokens
 
 import im.domain.sessions.Session
 import im.domain.tokens.AccessToken
 import im.repository.jpa.model.token.AccessTokenDTO
-import im.repository.jpa.repositories.jpa.AccessTokenRepositoryJpa
+import im.repository.jpa.repositories.jpa.JpaRepositoryUtils
 import im.repository.pagination.Pagination
 import im.repository.pagination.PaginationRequest
 import im.repository.pagination.SortRequest

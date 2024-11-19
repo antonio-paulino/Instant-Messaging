@@ -10,10 +10,7 @@ data class PaginationOutputModel(
     val previous: Int?,
 ) {
     companion object {
-        fun fromPagination(pagination: PaginationInfo?): PaginationOutputModel? {
-            if (pagination == null) {
-                return null
-            }
+        fun fromPagination(pagination: PaginationInfo): PaginationOutputModel {
             return PaginationOutputModel(
                 total = pagination.total,
                 totalPages = pagination.totalPages,

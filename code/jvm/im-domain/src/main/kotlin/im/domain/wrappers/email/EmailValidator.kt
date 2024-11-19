@@ -4,7 +4,11 @@ import im.domain.Either
 import im.domain.failure
 import im.domain.success
 
-class EmailValidator {
+class EmailValidator(
+    private val maxEmailLength: Int = MAX_EMAIL_LENGTH,
+    private val minEmailLength: Int = MIN_EMAIL_LENGTH,
+    private val emailRegex: String = EMAIL_REGEX,
+) {
     companion object {
         private const val MAX_EMAIL_LENGTH = 50
         private const val MIN_EMAIL_LENGTH = 8
@@ -18,12 +22,12 @@ class EmailValidator {
             errors.add(EmailValidationError.Blank)
         }
 
-        if (!email.matches(Regex(EMAIL_REGEX))) {
+        if (!email.matches(Regex(emailRegex))) {
             errors.add(EmailValidationError.InvalidFormat)
         }
 
-        if (email.length !in MIN_EMAIL_LENGTH..MAX_EMAIL_LENGTH) {
-            errors.add(EmailValidationError.InvalidLength(MIN_EMAIL_LENGTH, MAX_EMAIL_LENGTH))
+        if (email.length !in minEmailLength..maxEmailLength) {
+            errors.add(EmailValidationError.InvalidLength(minEmailLength, maxEmailLength))
         }
 
         if (errors.isNotEmpty()) {

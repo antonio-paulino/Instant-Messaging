@@ -1,4 +1,4 @@
-package im.repository.jpa.repositories.jpa
+package im.repository.jpa.repositories.jpa.messages
 
 import im.repository.jpa.model.message.MessageDTO
 import org.springframework.data.domain.Page
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository
 @Repository
 interface MessageRepositoryJpa : JpaRepository<MessageDTO, Long> {
     @Query(
-        value = "SELECT m FROM MessageDTO m JOIN FETCH m.user where m.channel.id = :channelId",
+        value = "SELECT m FROM MessageDTO m JOIN FETCH m.user where m.channelId = :channelId",
     )
     fun findByChannelId(
         channelId: Long,
@@ -19,7 +19,7 @@ interface MessageRepositoryJpa : JpaRepository<MessageDTO, Long> {
     ): Page<MessageDTO>
 
     @Query(
-        value = "SELECT m FROM MessageDTO m JOIN FETCH m.user WHERE m.channel.id = :channelId",
+        value = "SELECT m FROM MessageDTO m JOIN FETCH m.user WHERE m.channelId = :channelId",
     )
     fun findByChannelIdSliced(
         channelId: Long,

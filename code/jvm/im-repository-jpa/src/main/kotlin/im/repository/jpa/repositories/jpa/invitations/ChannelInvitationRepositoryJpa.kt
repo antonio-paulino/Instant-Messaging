@@ -1,9 +1,8 @@
-package im.repository.jpa.repositories.jpa
+package im.repository.jpa.repositories.jpa.invitations
 
 import im.repository.jpa.model.invitation.ChannelInvitationDTO
 import im.repository.jpa.model.invitation.ChannelInvitationStatusDTO
 import org.springframework.data.domain.Page
-import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Slice
 import org.springframework.data.jpa.repository.JpaRepository
@@ -57,7 +56,7 @@ interface ChannelInvitationRepositoryJpa : JpaRepository<ChannelInvitationDTO, L
         AND ci.expiresAt > CURRENT_TIMESTAMP
         """,
     )
-    fun findByInviteeIdSliced(
+    fun findByInviteeSliced(
         userId: Long,
         status: ChannelInvitationStatusDTO,
         pagination: Pageable,
@@ -72,11 +71,11 @@ interface ChannelInvitationRepositoryJpa : JpaRepository<ChannelInvitationDTO, L
         AND ci.expiresAt > CURRENT_TIMESTAMP
         """,
     )
-    fun findByInviteeId(
+    fun findByInvitee(
         userId: Long,
         status: ChannelInvitationStatusDTO,
         pagination: Pageable,
     ): Page<ChannelInvitationDTO>
 
-    fun findBy(pageable: PageRequest): Slice<ChannelInvitationDTO>
+    fun findBy(pageable: Pageable): Slice<ChannelInvitationDTO>
 }

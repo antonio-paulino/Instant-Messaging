@@ -2,6 +2,7 @@ package im.configs
 
 import im.api.middlewares.authentication.AuthInterceptor
 import im.api.middlewares.logging.LoggingInterceptor
+import im.api.middlewares.ratelimit.RateLimiter
 import im.api.middlewares.resolvers.AuthenticatedUserArgumentResolver
 import im.api.utils.RequestHelper
 import im.services.auth.AuthService
@@ -18,6 +19,7 @@ open class WebMvcConfig(
 
     override fun addInterceptors(registry: InterceptorRegistry) {
         registry.addInterceptor(LoggingInterceptor(requestHelper))
+        registry.addInterceptor(RateLimiter(requestHelper))
         registry.addInterceptor(AuthInterceptor(authService, requestHelper))
     }
 

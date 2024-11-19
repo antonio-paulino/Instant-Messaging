@@ -1,4 +1,4 @@
-package im.repository.jpa.repositories.jpa
+package im.repository.jpa.repositories.jpa.invitations
 
 import im.repository.jpa.model.invitation.ImInvitationDTO
 import im.repository.jpa.model.invitation.ImInvitationStatus

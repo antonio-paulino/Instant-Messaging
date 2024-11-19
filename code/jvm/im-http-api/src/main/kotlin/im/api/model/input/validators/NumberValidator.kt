@@ -22,5 +22,5 @@ class NumberValidator : ConstraintValidator<IsNumber, String> {
     override fun isValid(
         value: String?,
         context: ConstraintValidatorContext?,
-    ): Boolean = value?.toIntOrNull() != null
+    ): Boolean = value?.toLongOrNull() != null
 }

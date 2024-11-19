@@ -1,10 +1,10 @@
-package im.repository.jpa.repositories
+package im.repository.jpa.repositories.jpa.messages
 
 import im.domain.channel.Channel
 import im.domain.messages.Message
 import im.domain.wrappers.identifier.Identifier
 import im.repository.jpa.model.message.MessageDTO
-import im.repository.jpa.repositories.jpa.MessageRepositoryJpa
+import im.repository.jpa.repositories.jpa.JpaRepositoryUtils
 import im.repository.pagination.Pagination
 import im.repository.pagination.PaginationRequest
 import im.repository.pagination.SortRequest

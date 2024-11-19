@@ -71,8 +71,9 @@ interface ChannelRepository : Repository<Channel, Identifier> {
      */
     fun findByOwner(
         user: User,
+        pagination: PaginationRequest,
         sortRequest: SortRequest,
-    ): List<Channel>
+    ): Pagination<Channel>
 
     /**
      * Finds all channels for a user.
@@ -82,8 +83,9 @@ interface ChannelRepository : Repository<Channel, Identifier> {
      */
     fun findByMember(
         user: User,
+        pagination: PaginationRequest,
         sortRequest: SortRequest,
-    ): Map<Channel, ChannelRole>
+    ): Pagination<Channel>
 
     /**
      * Adds a member to a channel.

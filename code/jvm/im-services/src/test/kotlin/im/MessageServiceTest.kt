@@ -19,7 +19,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -86,7 +85,7 @@ abstract class MessageServiceTest {
         assertIs<Success<Message>>(message)
         val msg = message.value
         assertEquals("test message", msg.content)
-        assertEquals(testChannel.id, msg.channel.id)
+        assertEquals(testChannel.id, msg.channelId)
         assertEquals(testUser.id, msg.user.id)
     }
 
@@ -131,7 +130,7 @@ abstract class MessageServiceTest {
 
     @Test
     fun `test get channel messages channel not found`() {
-        val messages = messageService.getChannelMessages(1L.toIdentifier(), PaginationRequest(1, 10), SortRequest("createdAt"), testUser)
+        val messages = messageService.getChannelMessages(1L.toIdentifier(), PaginationRequest(0, 10), SortRequest("createdAt"), testUser)
         assertIs<Failure<MessageError>>(messages)
         val error = messages.value
         assertIs<MessageError.ChannelNotFound>(error)
@@ -142,7 +141,7 @@ abstract class MessageServiceTest {
         val messages =
             messageService.getChannelMessages(
                 testChannel.id,
-                PaginationRequest(1, 10),
+                PaginationRequest(0, 10),
                 SortRequest("createdAt"),
                 User(1L, "testUser2", "Password123", "test@daw.isel.pt"),
             )
@@ -153,11 +152,11 @@ abstract class MessageServiceTest {
 
     @Test
     fun `test get channel messages should return empty`() {
-        val messages = messageService.getChannelMessages(testChannel.id, PaginationRequest(1, 10), SortRequest("createdAt"), testUser)
+        val messages = messageService.getChannelMessages(testChannel.id, PaginationRequest(0, 10), SortRequest("createdAt"), testUser)
         assertIs<Success<Pagination<Message>>>(messages)
         assertTrue(messages.value.items.isEmpty())
         val pagination = messages.value.info
-        assertEquals(0, pagination!!.total)
+        assertEquals(0, pagination.total)
         assertNull(pagination.nextPage)
         assertNull(pagination.prevPage)
         assertEquals(1, pagination.currentPage)
@@ -171,16 +170,16 @@ abstract class MessageServiceTest {
             "test message 1",
             testUser,
         )
-        val messages = messageService.getChannelMessages(testChannel.id, PaginationRequest(1, 10), SortRequest("createdAt"), testUser)
+        val messages = messageService.getChannelMessages(testChannel.id, PaginationRequest(0, 10), SortRequest("createdAt"), testUser)
         assertIs<Success<Pagination<Message>>>(messages)
         val result = messages.value
         assertEquals(1, result.items.size)
         val msg = result.items[0]
         assertEquals("test message 1", msg.content)
-        assertEquals(testChannel.id, msg.channel.id)
+        assertEquals(testChannel.id, msg.channelId)
         assertEquals(testUser.id, msg.user.id)
         val pagination = result.info
-        assertEquals(1, pagination!!.total)
+        assertEquals(1, pagination.total)
         assertNull(pagination.nextPage)
         assertNull(pagination.prevPage)
         assertEquals(1, pagination.currentPage)
@@ -202,7 +201,7 @@ abstract class MessageServiceTest {
         val messages =
             messageService.getChannelMessages(
                 testChannel.id,
-                PaginationRequest(1, 1),
+                PaginationRequest(0, 1),
                 SortRequest("createdAt"),
                 testUser,
             )
@@ -211,10 +210,10 @@ abstract class MessageServiceTest {
         assertEquals(1, result.items.size)
         val msg = result.items[0]
         assertEquals("test message 1", msg.content)
-        assertEquals(testChannel.id, msg.channel.id)
+        assertEquals(testChannel.id, msg.channelId)
         assertEquals(testUser.id, msg.user.id)
         val pagination = result.info
-        assertEquals(2, pagination!!.total)
+        assertEquals(2, pagination.total)
         assertEquals(2, pagination.totalPages)
         assertEquals(1, pagination.currentPage)
         assertEquals(2, pagination.nextPage)
@@ -226,7 +225,7 @@ abstract class MessageServiceTest {
         val messages =
             messageService.getChannelMessages(
                 testChannel.id,
-                PaginationRequest(1, 1),
+                PaginationRequest(0, 1),
                 SortRequest("invalid"),
                 testUser,
             )
@@ -251,7 +250,7 @@ abstract class MessageServiceTest {
         val messages =
             messageService.getChannelMessages(
                 testChannel.id,
-                PaginationRequest(1, 1),
+                PaginationRequest(0, 1),
                 SortRequest("createdAt", Sort.DESC),
                 testUser,
             )
@@ -260,10 +259,10 @@ abstract class MessageServiceTest {
         assertEquals(1, result.items.size)
         val msg = result.items[0]
         assertEquals("test message 2", msg.content)
-        assertEquals(testChannel.id, msg.channel.id)
+        assertEquals(testChannel.id, msg.channelId)
         assertEquals(testUser.id, msg.user.id)
         val pagination = result.info
-        assertEquals(2, pagination!!.total)
+        assertEquals(2, pagination.total)
         assertEquals(2, pagination.totalPages)
         assertEquals(1, pagination.currentPage)
         assertEquals(2, pagination.nextPage)
@@ -286,7 +285,7 @@ abstract class MessageServiceTest {
         val messages =
             messageService.getChannelMessages(
                 testChannel.id,
-                PaginationRequest(2, 1),
+                PaginationRequest(1, 1),
                 SortRequest("createdAt", Sort.DESC),
                 testUser,
             )
@@ -295,10 +294,10 @@ abstract class MessageServiceTest {
         assertEquals(1, result.items.size)
         val msg = result.items[0]
         assertEquals("test message 1", msg.content)
-        assertEquals(testChannel.id, msg.channel.id)
+        assertEquals(testChannel.id, msg.channelId)
         assertEquals(testUser.id, msg.user.id)
         val pagination = result.info
-        assertEquals(2, pagination!!.total)
+        assertEquals(2, pagination.total)
         assertEquals(2, pagination.totalPages)
         assertEquals(2, pagination.currentPage)
         assertNull(pagination.nextPage)
@@ -371,14 +370,14 @@ abstract class MessageServiceTest {
                 "updated message",
                 testUser,
             )
-        assertIs<Success<LocalDateTime>>(update)
+        assertIs<Success<Message>>(update)
         val updated = update.value
         val updatedMessage = messageService.getMessageById(testChannel.id, message.value.id, testUser)
         assertIs<Success<Message>>(updatedMessage)
         val msg = updatedMessage.value
         assertEquals("updated message", msg.content)
         assertNotNull(msg.editedAt)
-        assertEquals(updated.truncatedTo(ChronoUnit.MILLIS), msg.editedAt!!.truncatedTo(ChronoUnit.MILLIS))
+        assertEquals(updated.editedAt!!.truncatedTo(ChronoUnit.MILLIS), msg.editedAt!!.truncatedTo(ChronoUnit.MILLIS))
     }
 
     @Test

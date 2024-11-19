@@ -59,7 +59,7 @@ abstract class MessageRepositoryTest {
             testMessage1 =
                 Message(
                     1L,
-                    testChannel,
+                    testChannel.id.value,
                     testUser,
                     "Test message 1",
                     LocalDateTime.now().minusDays(1).truncatedTo(ChronoUnit.MILLIS),
@@ -67,7 +67,7 @@ abstract class MessageRepositoryTest {
             testMessage2 =
                 Message(
                     testMessage1.id.value + 1,
-                    testChannel,
+                    testChannel.id.value,
                     testUser,
                     "Another message",
                     LocalDateTime.now().minusHours(1).truncatedTo(ChronoUnit.MILLIS),
@@ -75,7 +75,7 @@ abstract class MessageRepositoryTest {
             testMessage3 =
                 Message(
                     testMessage2.id.value + 1,
-                    testChannel2,
+                    testChannel2.id.value,
                     testUser,
                     "Last message",
                     LocalDateTime.now().truncatedTo(
@@ -103,11 +103,11 @@ abstract class MessageRepositoryTest {
             val (latestMessages, pagination) =
                 messageRepository.findByChannel(
                     testChannel,
-                    PaginationRequest(1, 2),
+                    PaginationRequest(0, 2),
                     SortRequest("createdAt", Sort.DESC),
                 )
 
-            assertEquals(1, pagination!!.currentPage)
+            assertEquals(1, pagination.currentPage)
             assertNull(pagination.nextPage)
             assertNull(pagination.prevPage)
             assertEquals(2, pagination.total)
@@ -128,11 +128,11 @@ abstract class MessageRepositoryTest {
             val (latestMessages, pagination) =
                 messageRepository.findByChannel(
                     testChannel,
-                    PaginationRequest(1, 2, false),
+                    PaginationRequest(0, 2, false),
                     SortRequest("createdAt", Sort.DESC),
                 )
 
-            assertEquals(1, pagination!!.currentPage)
+            assertEquals(1, pagination.currentPage)
             assertNull(pagination.nextPage)
             assertNull(pagination.prevPage)
             assertNull(pagination.total)
@@ -179,7 +179,7 @@ abstract class MessageRepositoryTest {
 
             val (firstPage, pagination1) =
                 messageRepository.find(
-                    PaginationRequest(1, 2),
+                    PaginationRequest(0, 2),
                     SortRequest("createdAt", Sort.ASC),
                 )
             val (secondPage, pagination2) =
@@ -188,13 +188,13 @@ abstract class MessageRepositoryTest {
                     SortRequest("createdAt", Sort.ASC),
                 )
 
-            assertEquals(1, pagination1!!.currentPage)
+            assertEquals(1, pagination1.currentPage)
             assertEquals(2, pagination1.nextPage)
             assertEquals(3, pagination1.total)
             assertEquals(2, pagination1.totalPages)
             assertNull(pagination1.prevPage)
 
-            assertEquals(2, pagination2!!.currentPage)
+            assertEquals(2, pagination2.currentPage)
             assertNull(pagination2.nextPage)
             assertEquals(3, pagination2.total)
             assertEquals(2, pagination2.totalPages)
@@ -205,10 +205,32 @@ abstract class MessageRepositoryTest {
         }
     }
 
+//    @Test
+//    fun `pagination should return last message`() {
+//        transactionManager.run {
+//            messageRepository.save(testMessage1)
+//            messageRepository.save(testMessage2)
+//            messageRepository.save(testMessage3)
+//            val (messages, pagination) =
+//                messageRepository.find(
+//                    PaginationRequest(2, 2),
+//                    SortRequest("createdAt", Sort.ASC),
+//                )
+//
+//            assertEquals(2, pagination.currentPage)
+//            assertNull(pagination.nextPage)
+//            assertEquals(3, pagination.total)
+//            assertEquals(2, pagination.totalPages)
+//            assertEquals(1, pagination.prevPage)
+//            assertEquals(1, messages.size)
+//            assertEquals(testMessage3.content, messages.first().content)
+//        }
+//    }
+
     @Test
     fun `pagination on empty repository should return empty list`() {
         transactionManager.run {
-            val (messages) = messageRepository.find(PaginationRequest(1, 2), SortRequest("createdAt", Sort.ASC))
+            val (messages) = messageRepository.find(PaginationRequest(0, 2), SortRequest("createdAt", Sort.ASC))
             assertTrue(messages.isEmpty())
         }
     }

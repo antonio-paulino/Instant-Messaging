@@ -153,7 +153,7 @@ abstract class UserRepositoryTest {
     @Test
     fun `should return empty when user not found by name`() {
         transactionManager.run {
-            val user = userRepository.findByPartialName("non-existing", PaginationRequest(1, 1), SortRequest("id"))
+            val user = userRepository.findByPartialName("non-existing", PaginationRequest(0, 1), SortRequest("id"))
             assertTrue(user.items.isEmpty())
         }
     }
@@ -264,11 +264,11 @@ abstract class UserRepositoryTest {
             userRepository.save(user2)
             userRepository.save(user3)
             userRepository.save(user4)
-            val users = userRepository.findByPartialName("j", PaginationRequest(1, 2), SortRequest("id"))
+            val users = userRepository.findByPartialName("j", PaginationRequest(0, 2), SortRequest("id"))
             assertEquals(2, users.items.size)
             assertEquals(user1.name, users.items[0].name)
             assertEquals(user2.name, users.items[1].name)
-            assertEquals(3, users.info!!.total)
+            assertEquals(3, users.info.total)
         }
     }
 
@@ -300,7 +300,7 @@ abstract class UserRepositoryTest {
             val user2 = User(name = "jane.doe", password = "Password2", email = "user2@daw.isel.pt")
             userRepository.save(user1)
             userRepository.save(user2)
-            val users = userRepository.findByPartialName("doe", PaginationRequest(1, 1), SortRequest("id"))
+            val users = userRepository.findByPartialName("doe", PaginationRequest(0, 1), SortRequest("id"))
             assertTrue(users.items.isEmpty())
         }
     }
@@ -310,7 +310,7 @@ abstract class UserRepositoryTest {
         transactionManager.run {
             userRepository.save(testUser)
             userRepository.save(testUser2)
-            val (users, pagination) = userRepository.find(PaginationRequest(1, 1, getCount = false), SortRequest("id"))
+            val (users, pagination) = userRepository.find(PaginationRequest(0, 1, getCount = false), SortRequest("id"))
 
             assertNotNull(pagination)
             assertEquals(1, pagination.currentPage)
@@ -371,8 +371,8 @@ abstract class UserRepositoryTest {
         transactionManager.run {
             userRepository.save(testUser)
             userRepository.save(testUser2)
-            val (users, pagination) = userRepository.find(PaginationRequest(1, 1), SortRequest("id"))
-            assertEquals(1, pagination!!.currentPage)
+            val (users, pagination) = userRepository.find(PaginationRequest(0, 1), SortRequest("id"))
+            assertEquals(1, pagination.currentPage)
             assertEquals(2, pagination.nextPage)
             assertEquals(2, pagination.total)
             assertEquals(2, pagination.totalPages)
@@ -388,8 +388,8 @@ abstract class UserRepositoryTest {
         transactionManager.run {
             userRepository.save(testUser)
             userRepository.save(testUser2)
-            val (users, pagination) = userRepository.find(PaginationRequest(1, 1), SortRequest("id", Sort.DESC))
-            assertEquals(1, pagination!!.currentPage)
+            val (users, pagination) = userRepository.find(PaginationRequest(0, 1), SortRequest("id", Sort.DESC))
+            assertEquals(1, pagination.currentPage)
             assertEquals(2, pagination.nextPage)
             assertEquals(2, pagination.total)
             assertEquals(2, pagination.totalPages)

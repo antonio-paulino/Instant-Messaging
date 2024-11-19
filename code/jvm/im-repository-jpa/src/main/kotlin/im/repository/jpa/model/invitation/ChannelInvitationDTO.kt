@@ -5,8 +5,10 @@ import im.domain.invitations.ChannelInvitation
 import im.domain.wrappers.identifier.toIdentifier
 import im.repository.jpa.model.channel.ChannelDTO
 import im.repository.jpa.model.user.UserDTO
+import im.repository.jpa.repositories.jpa.invitations.ChannelInvitationRepositoryListenerJpa
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.EntityListeners
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
@@ -35,6 +37,7 @@ import java.time.LocalDateTime
  * @property expiresAt The date and time when the invitation expires.
  */
 @Entity
+@EntityListeners(ChannelInvitationRepositoryListenerJpa::class)
 @Table(name = "channel_invitation")
 open class ChannelInvitationDTO(
     @Id

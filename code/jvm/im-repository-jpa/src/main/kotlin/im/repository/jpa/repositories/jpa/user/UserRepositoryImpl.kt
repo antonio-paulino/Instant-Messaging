@@ -1,4 +1,4 @@
-package im.repository.jpa.repositories
+package im.repository.jpa.repositories.jpa.user
 
 import im.domain.user.User
 import im.domain.wrappers.email.Email
@@ -6,7 +6,7 @@ import im.domain.wrappers.identifier.Identifier
 import im.domain.wrappers.name.Name
 import im.domain.wrappers.password.Password
 import im.repository.jpa.model.user.UserDTO
-import im.repository.jpa.repositories.jpa.UserRepositoryJpa
+import im.repository.jpa.repositories.jpa.JpaRepositoryUtils
 import im.repository.pagination.Pagination
 import im.repository.pagination.PaginationRequest
 import im.repository.pagination.SortRequest

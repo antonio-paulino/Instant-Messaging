@@ -20,8 +20,8 @@ class ChannelServiceImpl(
     private val transactionManager: TransactionManager,
 ) : ChannelService {
     companion object {
-        private val validSortFields = setOf("id", "name", "createdAt")
-        private const val DEFAULT_SORT = "createdAt"
+        private val validSortFields = setOf("id", "name")
+        private const val DEFAULT_SORT = "id"
         private val validDefaultRoles = setOf(ChannelRole.MEMBER, ChannelRole.GUEST)
     }
 
@@ -156,8 +156,9 @@ class ChannelServiceImpl(
                 return@run Failure(ChannelError.CannotRemoveMember)
             }
 
-            channelRepository.getMember(channel, toRemoveUser)
-                ?: return@run Failure(ChannelError.UserNotMember)
+            if (!channel.members.containsKey(toRemoveUser)) {
+                return@run Failure(ChannelError.UserNotMember)
+            }
 
             channelRepository.removeMember(channel, toRemoveUser)
 
@@ -192,8 +193,10 @@ class ChannelServiceImpl(
     override fun getUserChannels(
         userId: Identifier,
         sortRequest: SortRequest,
+        pagination: PaginationRequest,
+        filterOwned: Boolean,
         user: User,
-    ): Either<ChannelError, Map<Channel, ChannelRole>> =
+    ): Either<ChannelError, Pagination<Channel>> =
         transactionManager.run {
             if (user.id != userId) {
                 return@run failure(ChannelError.CannotAccessUserChannels)
@@ -205,8 +208,15 @@ class ChannelServiceImpl(
                 return@run failure(ChannelError.InvalidSortField(sort, validSortFields.toList()))
             }
 
-            val joinedChannels = channelRepository.findByMember(user, sortRequest.copy(sortBy = sort))
-            joinedChannels.keys.forEach { it.members } // Load members
+            val joinedChannels =
+                if (filterOwned) {
+                    channelRepository.findByOwner(user, pagination, sortRequest.copy(sortBy = sort))
+                } else {
+                    channelRepository.findByMember(user, pagination, sortRequest.copy(sortBy = sort))
+                }
+
+            joinedChannels.items.forEach { it.members } // Load members
+
             success(joinedChannels)
         }
 
@@ -236,4 +246,13 @@ class ChannelServiceImpl(
 
             success(Unit)
         }
+
+    override fun getChannelMembers(channelId: Identifier): Either<ChannelError, Map<User, ChannelRole>> {
+        return transactionManager.run {
+            val channel =
+                channelRepository.findById(channelId)
+                    ?: return@run failure(ChannelError.ChannelNotFound)
+            success(channel.members)
+        }
+    }
 }

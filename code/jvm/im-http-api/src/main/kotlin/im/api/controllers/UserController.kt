@@ -1,10 +1,13 @@
 package im.api.controllers
 
 import im.api.middlewares.authentication.Authenticated
+import im.api.middlewares.ratelimit.RateLimit
 import im.api.model.input.path.UserIdentifierInputModel
 import im.api.model.input.query.NameInputModel
 import im.api.model.input.query.PaginationInputModel
 import im.api.model.input.query.SortInputModel
+import im.api.model.input.query.UserChannelsFilterInputModel
+import im.api.model.output.channel.ChannelsPaginatedOutputModel
 import im.api.model.output.users.UserChannelsOutputModel
 import im.api.model.output.users.UserOutputModel
 import im.api.model.output.users.UsersPaginatedOutputModel
@@ -21,8 +24,9 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@Authenticated
 @RequestMapping("/api/users")
+@RateLimit(limitSeconds = 10)
+@Authenticated
 class UserController(
     private val userService: UserService,
     private val channelService: ChannelService,
@@ -104,10 +108,21 @@ class UserController(
     fun getUserChannels(
         @Valid userId: UserIdentifierInputModel,
         @Valid sort: SortInputModel,
+        @Valid pagination: PaginationInputModel,
+        @Valid filter: UserChannelsFilterInputModel,
         user: AuthenticatedUser,
     ): ResponseEntity<Any> =
-        when (val result = channelService.getUserChannels(userId.toDomain(), sort.toRequest(), user.user)) {
-            is Success -> ResponseEntity.ok(UserChannelsOutputModel.fromUserChannels(result.value))
+        when (
+            val result =
+                channelService.getUserChannels(
+                    userId.toDomain(),
+                    sort.toRequest(),
+                    pagination.toRequest(),
+                    filter.filterOwned.toBoolean(),
+                    user.user,
+                )
+        ) {
+            is Success -> ResponseEntity.ok(ChannelsPaginatedOutputModel.fromDomain(result.value))
             is Failure -> handleChannelFailure(result.value)
         }
 }

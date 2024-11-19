@@ -1,4 +1,4 @@
-package im.repository.jpa.repositories
+package im.repository.jpa.repositories.jpa.invitations
 
 import im.domain.channel.Channel
 import im.domain.invitations.ChannelInvitation
@@ -7,7 +7,7 @@ import im.domain.user.User
 import im.domain.wrappers.identifier.Identifier
 import im.repository.jpa.model.invitation.ChannelInvitationDTO
 import im.repository.jpa.model.invitation.ChannelInvitationStatusDTO
-import im.repository.jpa.repositories.jpa.ChannelInvitationRepositoryJpa
+import im.repository.jpa.repositories.jpa.JpaRepositoryUtils
 import im.repository.pagination.Pagination
 import im.repository.pagination.PaginationRequest
 import im.repository.pagination.SortRequest
@@ -54,9 +54,9 @@ class ChannelInvitationRepositoryImpl(
         val pagination = utils.toPageRequest(paginationRequest, sortRequest)
         val res =
             if (paginationRequest.getCount) {
-                channelInvitationRepositoryJpa.findByInviteeId(user.id.value, ChannelInvitationStatusDTO.fromDomain(status), pagination)
+                channelInvitationRepositoryJpa.findByInvitee(user.id.value, ChannelInvitationStatusDTO.fromDomain(status), pagination)
             } else {
-                channelInvitationRepositoryJpa.findByInviteeIdSliced(
+                channelInvitationRepositoryJpa.findByInviteeSliced(
                     user.id.value,
                     ChannelInvitationStatusDTO.fromDomain(status),
                     pagination,
