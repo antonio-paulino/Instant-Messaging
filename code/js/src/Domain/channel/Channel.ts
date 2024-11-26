@@ -23,7 +23,6 @@ export interface Channel {
     defaultRole: ChannelRole;
     owner: User;
     isPublic: boolean;
-    createdAt: Date;
     members: ChannelMember[];
 }
 
@@ -34,7 +33,6 @@ export function channelFromDto(dto: ChannelOutputModel): Channel {
         defaultRole: dto.defaultRole,
         owner: userFromDto(dto.owner),
         isPublic: dto.isPublic,
-        createdAt: new Date(dto.createdAt),
         members: dto.members.map(channelMemberFromDto),
     };
 }
@@ -52,7 +50,6 @@ export function channelFromCreation(
         defaultRole,
         owner,
         isPublic,
-        createdAt: new Date(dto.createdAt),
         members: [{ id: owner.id, name: owner.name, role: ChannelRole.OWNER }],
     };
 }

@@ -19,6 +19,6 @@ export class AccessToken {
     }
 
     isExpired(): boolean {
-        return this.expiresAt < new Date();
+        return new Date(this.expiresAt) < new Date();
     }
 }

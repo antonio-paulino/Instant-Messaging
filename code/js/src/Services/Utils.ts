@@ -1,5 +1,6 @@
 import { PaginationRequest } from '../Domain/pagination/PaginationRequest';
 import { SortRequest } from '../Domain/pagination/SortRequest';
+import { Identifier } from '../Domain/wrappers/identifier/Identifier';
 
 export function buildQuery(
     uri: string,
@@ -7,15 +8,23 @@ export function buildQuery(
     paginationRequest: PaginationRequest | null,
     sortRequest: SortRequest | null,
     filterOwned: boolean | null = null,
+    after: Identifier | null = null,
+    before: Date | null = null,
 ): string {
     const query = new URLSearchParams();
     if (name) {
         query.set('name', name);
     }
     if (paginationRequest) {
-        query.set('offset', paginationRequest.offset.toString());
-        query.set('limit', paginationRequest.limit.toString());
-        query.set('getCount', paginationRequest.getCount.toString());
+        paginationRequest.offset
+            ? query.set('offset', paginationRequest.offset.toString())
+            : null;
+        paginationRequest.limit
+            ? query.set('limit', paginationRequest.limit.toString())
+            : null;
+        paginationRequest.getCount
+            ? query.set('getCount', paginationRequest.getCount.toString())
+            : null;
     }
     if (sortRequest) {
         query.set('sort', sortRequest.direction);
@@ -23,6 +32,12 @@ export function buildQuery(
     }
     if (filterOwned !== null) {
         query.set('filterOwned', filterOwned.toString());
+    }
+    if (after) {
+        query.set('after', after.value.toString());
+    }
+    if (before) {
+        query.set('before', before.toISOString());
     }
     return `${uri}?${query.toString()}`;
 }

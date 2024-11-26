@@ -14,7 +14,7 @@ import { ChannelsPaginatedOutputModel } from '../../Dto/output/channels/Channels
 
 const BASE_URI = 'http://localhost:8080';
 
-namespace UserService {
+export namespace UserService {
     import get = BaseHTTPService.get;
     import USER_ROUTE = Uri.USER_ROUTE;
     import USER_ID_PARAM = Uri.USER_ID_PARAM;
@@ -77,6 +77,7 @@ namespace UserService {
      * @param filterOwned Whether to filter the channels to only those owned by the user.
      * @param sort The sort request.
      * @param pagination The pagination request.
+     * @param after The identifier of the last item in the previous page.
      * @param abortSignal The signal to abort the request.
      */
     export async function getUserChannels(
@@ -84,6 +85,7 @@ namespace UserService {
         filterOwned: boolean = false,
         sort?: SortRequest,
         pagination?: PaginationRequest,
+        after?: Identifier,
         abortSignal?: AbortSignal,
     ): ApiResult<Pagination<Channel>> {
         return await handle(
@@ -96,6 +98,7 @@ namespace UserService {
                         pagination,
                         sort,
                         filterOwned,
+                        after,
                     ).replace(USER_ID_PARAM, user.id.value.toString()),
                 abortSignal: abortSignal,
             }),

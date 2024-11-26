@@ -23,5 +23,7 @@ export namespace Uri {
 
     export const USER_ROUTE = `/api/users/${USER_ID_PARAM}`;
     export const USER_CHANNELS_ROUTE = `/api/users/${USER_ID_PARAM}/channels`;
+    export const USER_INVITATIONS_ROUTE = `/api/users/${USER_ID_PARAM}/invitations`;
+    export const USER_INVITATION_ROUTE = `/api/users/${USER_ID_PARAM}/invitations/${INVITATION_ID_PARAM}`;
     export const USERS_ROUTE = '/api/users';
 }

@@ -22,7 +22,7 @@ import { ChannelInvitationUpdateInputModel } from '../../Dto/input/ChannelInvita
 import { InvitationAcceptInputModel } from '../../Dto/input/InvitationAcceptInputModel';
 import { ChannelInvitationStatus } from '../../Domain/invitations/ChannelInvitationStatus';
 
-namespace InvitationService {
+export namespace InvitationService {
     import post = BaseHTTPService.post;
     import get = BaseHTTPService.get;
     import patch = BaseHTTPService.patch;
@@ -32,6 +32,9 @@ namespace InvitationService {
     import CHANNEL_ID_PARAM = Uri.CHANNEL_ID_PARAM;
     import INVITATION_ID_PARAM = Uri.INVITATION_ID_PARAM;
     import CHANNEL_INVITATION_ROUTE = Uri.CHANNEL_INVITATION_ROUTE;
+    import USER_INVITATIONS_ROUTE = Uri.USER_INVITATIONS_ROUTE;
+    import USER_ID_PARAM = Uri.USER_ID_PARAM;
+    import USER_INVITATION_ROUTE = Uri.USER_INVITATION_ROUTE;
 
     /**
      * Creates a channel invitation.
@@ -110,6 +113,7 @@ namespace InvitationService {
      * @param channel - The channel the invitations belong to.
      * @param pagination - The pagination request.
      * @param sort - The sort request.
+     * @param after - The identifier of the last item in the previous page.
      * @param abortSignal - The signal to abort the request.
      *
      * @returns The list of channel invitations.
@@ -118,6 +122,7 @@ namespace InvitationService {
         channel: Channel,
         pagination?: PaginationRequest,
         sort?: SortRequest,
+        after?: Identifier,
         abortSignal?: AbortSignal,
     ): ApiResult<Pagination<ChannelInvitation>> {
         return await handle(
@@ -127,6 +132,8 @@ namespace InvitationService {
                     null,
                     pagination,
                     sort,
+                    false,
+                    after,
                 ).replace(CHANNEL_ID_PARAM, channel.id.value.toString()),
                 abortSignal: abortSignal,
             }),
@@ -190,6 +197,7 @@ namespace InvitationService {
      * @param user - The user to get the invitations for.
      * @param pagination - The pagination request.
      * @param sort - The sort request.
+     * @param after - The identifier of the last item in the previous page.
      * @param abortSignal - The signal to abort the request.
      *
      * @returns The list of invitations.
@@ -198,16 +206,21 @@ namespace InvitationService {
         user: User,
         pagination?: PaginationRequest,
         sort?: SortRequest,
+        after?: Identifier,
         abortSignal?: AbortSignal,
     ): ApiResult<Pagination<ChannelInvitation>> {
         return await handle(
             get<ChannelInvitationsPaginatedOutputModel>({
                 uri: buildQuery(
-                    CHANNEL_INVITATIONS_ROUTE,
+                    USER_INVITATIONS_ROUTE,
                     null,
                     pagination,
                     sort,
-                ).replace(CHANNEL_ID_PARAM, user.id.value.toString()),
+                    false,
+                    after,
+                )
+                    .replace(CHANNEL_ID_PARAM, user.id.value.toString())
+                    .replace(USER_ID_PARAM, user.id.value.toString()),
                 abortSignal: abortSignal,
             }),
             (outputModel) => ({
@@ -229,10 +242,12 @@ namespace InvitationService {
         abortSignal?: AbortSignal,
     ): ApiResult<void> {
         return await patch<InvitationAcceptInputModel>({
-            uri: CHANNEL_INVITATION_ROUTE.replace(
+            uri: USER_INVITATION_ROUTE.replace(
                 CHANNEL_ID_PARAM,
                 invitation.channel.id.value.toString(),
-            ).replace(INVITATION_ID_PARAM, invitation.id.value.toString()),
+            )
+                .replace(INVITATION_ID_PARAM, invitation.id.value.toString())
+                .replace(USER_ID_PARAM, invitation.invitee.id.value.toString()),
             requestBody: {
                 status: ChannelInvitationStatus.ACCEPTED,
             },
@@ -251,10 +266,12 @@ namespace InvitationService {
         abortSignal?: AbortSignal,
     ): ApiResult<void> {
         return await patch<InvitationAcceptInputModel>({
-            uri: CHANNEL_INVITATION_ROUTE.replace(
+            uri: USER_INVITATION_ROUTE.replace(
                 CHANNEL_ID_PARAM,
                 invitation.channel.id.value.toString(),
-            ).replace(INVITATION_ID_PARAM, invitation.id.value.toString()),
+            )
+                .replace(INVITATION_ID_PARAM, invitation.id.value.toString())
+                .replace(USER_ID_PARAM, invitation.invitee.id.value.toString()),
             requestBody: {
                 status: ChannelInvitationStatus.REJECTED,
             },

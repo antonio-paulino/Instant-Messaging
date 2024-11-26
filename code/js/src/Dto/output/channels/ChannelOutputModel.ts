@@ -11,7 +11,6 @@ import { ChannelRole } from '../../../Domain/channel/ChannelRole';
  * @param owner The owner of the channel.
  * @param isPublic Indicates whether the channel is public.
  * @param members The members of the channel
- * @param createdAt The date and time when the channel was created.
  */
 export interface ChannelOutputModel {
     id: number;
@@ -20,5 +19,4 @@ export interface ChannelOutputModel {
     owner: UserOutputModel;
     isPublic: boolean;
     members: ChannelMemberOutputModel[];
-    createdAt: string;
 }

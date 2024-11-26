@@ -104,6 +104,7 @@ export namespace ChannelService {
      * @param name the name of the channel
      * @param pagination the pagination request
      * @param sort the sort request
+     * @param after the identifier of the last item in the previous page
      * @param abortSignal the signal to abort the request
      *
      * @returns the Channels with pagination information
@@ -112,6 +113,7 @@ export namespace ChannelService {
         name?: string,
         pagination?: PaginationRequest,
         sort?: SortRequest,
+        after?: Identifier,
         abortSignal?: AbortSignal,
     ): ApiResult<Pagination<Channel>> {
         return handle(

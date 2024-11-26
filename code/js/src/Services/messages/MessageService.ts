@@ -30,6 +30,7 @@ export namespace MessageService {
      * @param channel - The channel to get the messages from.
      * @param pagination - The pagination request.
      * @param sort - The sort request.
+     * @param before - The date to get messages before.
      * @param abortSignal - The signal to abort the request.
      *
      * @returns The messages of the channel.
@@ -38,14 +39,20 @@ export namespace MessageService {
         channel: Channel,
         pagination?: PaginationRequest,
         sort?: SortRequest,
+        before?: Date,
         abortSignal?: AbortSignal,
     ): ApiResult<Pagination<Message>> {
         return await handle(
             get<MessagesPaginatedOutputModel>({
-                uri: buildQuery(MESSAGES_ROUTE, null, pagination, sort).replace(
-                    CHANNEL_ID_PARAM,
-                    channel.id.value.toString(),
-                ),
+                uri: buildQuery(
+                    MESSAGES_ROUTE,
+                    null,
+                    pagination,
+                    sort,
+                    false,
+                    null,
+                    before,
+                ).replace(CHANNEL_ID_PARAM, channel.id.value.toString()),
                 abortSignal: abortSignal,
             }),
             (outputModel) => ({

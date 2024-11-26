@@ -5,7 +5,7 @@
  * @param getCount Indicates whether to return the total count of items.
  */
 export interface PaginationRequest {
-    offset: number;
-    limit: number;
-    getCount: boolean;
+    offset: number | null;
+    limit: number | null;
+    getCount: boolean | null;
 }
