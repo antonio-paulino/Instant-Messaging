@@ -114,12 +114,15 @@ interface ChannelService {
      * @param name the name to search for
      * @param pagination the pagination request
      * @param sortRequest the sort request
+     * @param after the identifier of the last channel in the previous page
+     *
      * @return a [Pagination] of channels if the search is successful, or a [ChannelError] otherwise
      */
     fun getChannels(
         name: String?,
         pagination: PaginationRequest,
         sortRequest: SortRequest,
+        after: Identifier?,
     ): Either<ChannelError, Pagination<Channel>>
 
     /**
@@ -130,6 +133,7 @@ interface ChannelService {
      * @param sortRequest the sort request
      * @param pagination the pagination request
      * @param filterOwned whether to filter the channels to only those owned by the user
+     * @param after the identifier of the last channel in the previous page
      *
      * @return a map of channels and their roles if the search is successful, or an [UserError] otherwise
      */
@@ -138,6 +142,7 @@ interface ChannelService {
         sortRequest: SortRequest,
         pagination: PaginationRequest,
         filterOwned: Boolean,
+        after: Identifier?,
         user: User,
     ): Either<ChannelError, Pagination<Channel>>
 

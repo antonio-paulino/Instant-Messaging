@@ -21,9 +21,7 @@ data class ChannelRole(
     @field:Role
     val value: String,
 ) {
-    fun toDomain() =
-        im.domain.channel.ChannelRole
-            .valueOf(value)
+    fun toDomain() = im.domain.channel.ChannelRole.valueOf(value)
 }
 
 /**

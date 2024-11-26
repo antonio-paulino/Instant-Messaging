@@ -42,31 +42,38 @@ interface ChannelRepositoryJpa : JpaRepository<ChannelDTO, Long> {
     ): Slice<ChannelDTO>
 
     @Query(
-        value = "SELECT c FROM ChannelDTO c WHERE c.isPublic or NOT :filterPublic = true",
+        value = "SELECT c FROM ChannelDTO c WHERE (c.isPublic or NOT :filterPublic = true) AND c.id > :after",
     )
     fun findAll(
         page: Pageable,
         filterPublic: Boolean,
+        after: Long,
     ): Page<ChannelDTO>
 
     @Query(
-        value = "SELECT c FROM ChannelDTO c WHERE c.isPublic or NOT :filterPublic = true",
+        value = "SELECT c FROM ChannelDTO c WHERE  (c.isPublic or NOT :filterPublic = true) AND c.id > :after",
     )
     fun findBy(
         page: Pageable,
         filterPublic: Boolean,
+        after: Long,
     ): Slice<ChannelDTO>
 
+    @Query(
+        value = "SELECT c FROM ChannelDTO c WHERE c.owner.id = :ownerId AND c.id > :after",
+    )
     fun findByOwnerId(
         ownerId: Long,
         page: Pageable,
+        after: Long,
     ): Page<ChannelDTO>
 
     @Query(
-        value = "SELECT c FROM ChannelDTO c WHERE c.owner.id = :ownerId",
+        value = "SELECT c FROM ChannelDTO c WHERE c.owner.id = :ownerId AND c.id > :after",
     )
     fun findByOwnerIdSliced(
         ownerId: Long,
         page: Pageable,
+        after: Long,
     ): Slice<ChannelDTO>
 }

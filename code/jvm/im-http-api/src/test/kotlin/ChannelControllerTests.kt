@@ -1020,6 +1020,34 @@ abstract class ChannelControllerTests {
     }
 
     @Test
+    fun `get channels with after should return channels`() {
+        val client = getClient()
+
+        val channel =
+            transactionManager.run {
+                channelRepository.save(testChannel1)
+            }
+
+        client
+            .get()
+            .uri("api/channels?after=0")
+            .cookie("access_token", accessToken1.token.toString())
+            .exchange()
+            .expectStatus()
+            .isOk
+            .expectBody(ChannelsOutputModel::class.java)
+            .returnResult()
+            .responseBody
+            .also {
+                assertNotNull(it)
+                assertEquals(1, it!!.channels.size)
+                assertEquals(channel.id.value, it.channels.first().id)
+                assertEquals(channel.name.value, it.channels.first().name)
+                assertEquals(channel.isPublic, it.channels.first().isPublic)
+            }
+    }
+
+    @Test
     fun `get channels with pagination should return channels`() {
         val client = getClient()
 

@@ -5,6 +5,7 @@ import im.domain.channel.ChannelRole
 import im.domain.invitations.ChannelInvitation
 import im.domain.invitations.ChannelInvitationStatus
 import im.domain.user.User
+import im.domain.wrappers.identifier.Identifier
 import im.domain.wrappers.identifier.toIdentifier
 import im.repository.pagination.PaginationRequest
 import im.repository.pagination.Sort
@@ -248,6 +249,7 @@ abstract class ChannelInvitationRepositoryTest {
                         ChannelInvitationStatus.PENDING,
                         SortRequest("id"),
                         PaginationRequest(0, 1),
+                        Identifier(0),
                     ).items
             assertTrue(invitations.isEmpty())
         }
@@ -264,6 +266,7 @@ abstract class ChannelInvitationRepositoryTest {
                     ChannelInvitationStatus.PENDING,
                     SortRequest("id"),
                     PaginationRequest(0, 1),
+                    Identifier(0),
                 )
             assertEquals(1, invitations.items.size)
         }
@@ -280,6 +283,7 @@ abstract class ChannelInvitationRepositoryTest {
                     ChannelInvitationStatus.PENDING,
                     SortRequest("id"),
                     PaginationRequest(0, 1, getCount = false),
+                    Identifier(0),
                 )
             assertEquals(1, invitations.size)
             assertNotNull(pagination)
@@ -318,6 +322,7 @@ abstract class ChannelInvitationRepositoryTest {
                     ChannelInvitationStatus.PENDING,
                     SortRequest("id"),
                     PaginationRequest(0, 1),
+                    Identifier(0),
                 )
             assertTrue(channels.items.none())
         }
@@ -335,6 +340,7 @@ abstract class ChannelInvitationRepositoryTest {
                         ChannelInvitationStatus.PENDING,
                         SortRequest("id"),
                         PaginationRequest(0, 1),
+                        Identifier(0),
                     ).items
             assertEquals(1, channels.size)
             assertEquals(testChannel, channels.first().channel)
@@ -352,6 +358,7 @@ abstract class ChannelInvitationRepositoryTest {
                     ChannelInvitationStatus.PENDING,
                     SortRequest("id"),
                     PaginationRequest(0, 1, getCount = false),
+                    Identifier(0),
                 )
             assertEquals(1, invitations.size)
             assertNotNull(pagination)
@@ -359,6 +366,29 @@ abstract class ChannelInvitationRepositoryTest {
             assertNull(pagination.nextPage)
             assertNull(pagination.total)
             assertNull(pagination.totalPages)
+        }
+    }
+
+    @Test
+    fun `get invitations after id`() {
+        transactionManager.run {
+            testInvitation1 = channelInvitationRepository.save(testInvitation1)
+            testInvitation2 = channelInvitationRepository.save(testInvitation2)
+            val (invitations, pagination) =
+                channelInvitationRepository.findByChannel(
+                    testChannel,
+                    ChannelInvitationStatus.PENDING,
+                    SortRequest("id"),
+                    PaginationRequest(0, 2),
+                    testInvitation1.id,
+                )
+            assertEquals(1, invitations.size)
+            assertNotNull(pagination)
+            assertEquals(1, pagination.currentPage)
+            assertNull(pagination.nextPage)
+            assertEquals(1, pagination.total)
+            assertEquals(1, pagination.totalPages)
+            assertNull(pagination.prevPage)
         }
     }
 

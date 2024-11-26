@@ -231,12 +231,10 @@ class SSEController(
     }
 
     override fun onApplicationEvent(event: RepositoryHTTPEvent<*>) {
-        dispatch {
-            when (event.repositoryEvent) {
-                is RepositoryEvent.EntityPersisted -> handleEntityPersisted(event.repositoryEvent.entity)
-                is RepositoryEvent.EntityUpdated -> handleEntityUpdated(event.repositoryEvent.entity)
-                is RepositoryEvent.EntityRemoved -> handleEntityRemoved(event.repositoryEvent.entity)
-            }
+        when (event.repositoryEvent) {
+            is RepositoryEvent.EntityPersisted -> handleEntityPersisted(event.repositoryEvent.entity)
+            is RepositoryEvent.EntityUpdated -> handleEntityUpdated(event.repositoryEvent.entity)
+            is RepositoryEvent.EntityRemoved -> handleEntityRemoved(event.repositoryEvent.entity)
         }
     }
 

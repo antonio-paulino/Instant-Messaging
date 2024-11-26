@@ -3,6 +3,7 @@ package im.api.controllers
 import im.api.middlewares.authentication.Authenticated
 import im.api.middlewares.ratelimit.RateLimit
 import im.api.model.input.path.UserIdentifierInputModel
+import im.api.model.input.query.AfterIdInputModel
 import im.api.model.input.query.NameInputModel
 import im.api.model.input.query.PaginationInputModel
 import im.api.model.input.query.SortInputModel
@@ -19,6 +20,7 @@ import im.services.users.UserService
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -104,12 +106,14 @@ class UserController(
      * @see UserChannelsOutputModel
      *
      */
+    @CrossOrigin(origins = ["http://localhost:3000"])
     @GetMapping("/{userId}/channels")
     fun getUserChannels(
         @Valid userId: UserIdentifierInputModel,
         @Valid sort: SortInputModel,
         @Valid pagination: PaginationInputModel,
         @Valid filter: UserChannelsFilterInputModel,
+        @Valid after: AfterIdInputModel?,
         user: AuthenticatedUser,
     ): ResponseEntity<Any> =
         when (
@@ -119,6 +123,7 @@ class UserController(
                     sort.toRequest(),
                     pagination.toRequest(),
                     filter.filterOwned.toBoolean(),
+                    after?.after?.toDomain(),
                     user.user,
                 )
         ) {

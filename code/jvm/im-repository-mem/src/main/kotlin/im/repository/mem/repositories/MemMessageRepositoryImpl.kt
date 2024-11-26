@@ -9,6 +9,7 @@ import im.repository.pagination.Pagination
 import im.repository.pagination.PaginationRequest
 import im.repository.pagination.SortRequest
 import im.repository.repositories.messages.MessageRepository
+import java.time.LocalDateTime
 import java.util.concurrent.ConcurrentHashMap
 
 class MemMessageRepositoryImpl(
@@ -21,8 +22,9 @@ class MemMessageRepositoryImpl(
         channel: Channel,
         paginationRequest: PaginationRequest,
         sortRequest: SortRequest,
+        before: LocalDateTime,
     ): Pagination<Message> {
-        val filteredMessages = messages.values.filter { (it.channelId) == channel.id.value }
+        val filteredMessages = messages.values.filter { (it.channelId) == channel.id.value && it.createdAt < before }
         val page = utils.paginate(filteredMessages, paginationRequest, sortRequest)
         return Pagination(page.items.map { it.toDomain() }, page.info)
     }

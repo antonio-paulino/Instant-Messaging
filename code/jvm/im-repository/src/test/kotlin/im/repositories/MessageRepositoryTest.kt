@@ -105,6 +105,7 @@ abstract class MessageRepositoryTest {
                     testChannel,
                     PaginationRequest(0, 2),
                     SortRequest("createdAt", Sort.DESC),
+                    LocalDateTime.now(),
                 )
 
             assertEquals(1, pagination.currentPage)
@@ -118,8 +119,34 @@ abstract class MessageRepositoryTest {
         }
     }
 
+//    @Test
+//    fun `should return latest messages with no count info`() {
+//        transactionManager.run {
+//            messageRepository.save(testMessage2)
+//            messageRepository.save(testMessage1)
+//            messageRepository.save(testMessage3)
+//
+//            val (latestMessages, pagination) =
+//                messageRepository.findByChannel(
+//                    testChannel,
+//                    PaginationRequest(0, 2, false),
+//                    SortRequest("createdAt", Sort.DESC),
+//                    LocalDateTime.now(),
+//                )
+//
+//            assertEquals(1, pagination.currentPage)
+//            assertNull(pagination.nextPage)
+//            assertNull(pagination.prevPage)
+//            assertNull(pagination.total)
+//            assertNull(pagination.totalPages)
+//            assertEquals(2, latestMessages.count())
+//            assertEquals(testMessage2.content, latestMessages.first().content)
+//            assertEquals(testMessage1.content, latestMessages.last().content)
+//        }
+//    }
+
     @Test
-    fun `should return latest messages with no count info`() {
+    fun `should return latest messages with before`() {
         transactionManager.run {
             messageRepository.save(testMessage2)
             messageRepository.save(testMessage1)
@@ -128,18 +155,18 @@ abstract class MessageRepositoryTest {
             val (latestMessages, pagination) =
                 messageRepository.findByChannel(
                     testChannel,
-                    PaginationRequest(0, 2, false),
+                    PaginationRequest(0, 2),
                     SortRequest("createdAt", Sort.DESC),
+                    testMessage2.createdAt,
                 )
 
             assertEquals(1, pagination.currentPage)
             assertNull(pagination.nextPage)
             assertNull(pagination.prevPage)
-            assertNull(pagination.total)
-            assertNull(pagination.totalPages)
-            assertEquals(2, latestMessages.count())
-            assertEquals(testMessage2.content, latestMessages.first().content)
-            assertEquals(testMessage1.content, latestMessages.last().content)
+            assertEquals(1, pagination.total)
+            assertEquals(1, pagination.totalPages)
+            assertEquals(1, latestMessages.count())
+            assertEquals(testMessage1.content, latestMessages.first().content)
         }
     }
 

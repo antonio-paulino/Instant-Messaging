@@ -6,6 +6,7 @@ import im.api.model.input.body.ChannelCreationInputModel
 import im.api.model.input.body.ChannelRoleUpdateInputModel
 import im.api.model.input.path.ChannelIdentifierInputModel
 import im.api.model.input.path.UserIdentifierInputModel
+import im.api.model.input.query.AfterIdInputModel
 import im.api.model.input.query.NameInputModel
 import im.api.model.input.query.PaginationInputModel
 import im.api.model.input.query.SortInputModel
@@ -125,8 +126,9 @@ class ChannelsController(
         @Valid pagination: PaginationInputModel,
         @Valid sort: SortInputModel,
         @Valid partialName: NameInputModel?,
+        @Valid after: AfterIdInputModel?,
     ): ResponseEntity<Any> =
-        when (val res = channelService.getChannels(partialName?.name, pagination.toRequest(), sort.toRequest())) {
+        when (val res = channelService.getChannels(partialName?.name, pagination.toRequest(), sort.toRequest(), after?.after?.toDomain())) {
             is Success -> ResponseEntity.ok(ChannelsPaginatedOutputModel.fromDomain(res.value))
             is Failure -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
         }

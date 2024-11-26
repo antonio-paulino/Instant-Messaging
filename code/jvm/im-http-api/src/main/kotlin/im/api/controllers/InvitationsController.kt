@@ -8,6 +8,7 @@ import im.api.model.input.body.InvitationAcceptInputModel
 import im.api.model.input.path.ChannelIdentifierInputModel
 import im.api.model.input.path.InvitationIdentifierInputModel
 import im.api.model.input.path.UserIdentifierInputModel
+import im.api.model.input.query.AfterIdInputModel
 import im.api.model.input.query.PaginationInputModel
 import im.api.model.input.query.SortInputModel
 import im.api.model.output.invitations.ChannelInvitationCreationOutputModel
@@ -143,6 +144,7 @@ class InvitationsController(
         @Valid channelId: ChannelIdentifierInputModel,
         @Valid sort: SortInputModel,
         @Valid pagination: PaginationInputModel,
+        @Valid after: AfterIdInputModel?,
         user: AuthenticatedUser,
     ): ResponseEntity<Any> =
         when (
@@ -152,6 +154,7 @@ class InvitationsController(
                     user.user,
                     sort.toRequest(),
                     pagination.toRequest(),
+                    after?.after?.toDomain(),
                 )
         ) {
             is Success -> ResponseEntity.ok(ChannelInvitationsPaginatedOutputModel.fromDomain(res.value))
@@ -257,9 +260,19 @@ class InvitationsController(
         @Valid userId: UserIdentifierInputModel,
         @Valid sort: SortInputModel,
         @Valid pagination: PaginationInputModel,
+        @Valid after: AfterIdInputModel?,
         user: AuthenticatedUser,
     ): ResponseEntity<Any> =
-        when (val res = invitationService.getUserInvitations(userId.toDomain(), user.user, sort.toRequest(), pagination.toRequest())) {
+        when (
+            val res =
+                invitationService.getUserInvitations(
+                    userId.toDomain(),
+                    user.user,
+                    sort.toRequest(),
+                    pagination.toRequest(),
+                    after?.after?.toDomain(),
+                )
+        ) {
             is Success -> ResponseEntity.ok(ChannelInvitationsPaginatedOutputModel.fromDomain(res.value))
             is Failure -> handleInvitationFailure(res.value)
         }
@@ -288,7 +301,7 @@ class InvitationsController(
     fun acceptOrRejectInvitation(
         @Valid userId: UserIdentifierInputModel,
         @Valid invitationId: InvitationIdentifierInputModel,
-        @RequestBody @Valid accept: InvitationAcceptInputModel,
+        @RequestBody @Valid status: InvitationAcceptInputModel,
         user: AuthenticatedUser,
     ): ResponseEntity<Any> =
         when (
@@ -296,7 +309,7 @@ class InvitationsController(
                 invitationService.acceptOrRejectInvitation(
                     userId.toDomain(),
                     invitationId.toDomain(),
-                    ChannelInvitationStatus.valueOf(accept.status.uppercase()),
+                    ChannelInvitationStatus.valueOf(status.status.uppercase()),
                     user.user,
                 )
         ) {

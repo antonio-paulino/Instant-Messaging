@@ -199,6 +199,14 @@ paths:
         - $ref: '#/components/parameters/Offset'
         - $ref: '#/components/parameters/Limit'
         - $ref: '#/components/parameters/GetCount'
+        - name: after
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+            description: Get channels after this ID
         - name: sortBy
           in: query
           required: false
@@ -452,6 +460,13 @@ paths:
             enum: [ id, createdAt, editedAt ]
             default: createdAt
           description: Sort by field
+        - name: before
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+            description: Get messages created after this time
       responses:
         '200':
           description: List of messages
@@ -605,6 +620,14 @@ paths:
             type: string
             enum: [ id, expiresAt, role ]
             default: expiresAt
+        - name: after
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+            description: Get invitations after this ID
       responses:
         '200':
           description: List of channel invitations

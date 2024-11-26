@@ -44,7 +44,7 @@ open class MessageDTO(
     open val user: UserDTO? = null,
     @Column(nullable = false, columnDefinition = "TEXT")
     open val content: String = "",
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at")
     open val createdAt: LocalDateTime = LocalDateTime.now(),
     @Column(name = "edited_at")
     open val editedAt: LocalDateTime? = null,

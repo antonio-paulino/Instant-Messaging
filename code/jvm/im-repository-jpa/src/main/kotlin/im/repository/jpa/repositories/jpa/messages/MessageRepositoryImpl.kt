@@ -11,6 +11,7 @@ import im.repository.pagination.SortRequest
 import im.repository.repositories.messages.MessageRepository
 import org.springframework.context.annotation.Primary
 import org.springframework.stereotype.Component
+import java.time.LocalDateTime
 
 @Component
 @Primary
@@ -22,13 +23,14 @@ class MessageRepositoryImpl(
         channel: Channel,
         paginationRequest: PaginationRequest,
         sortRequest: SortRequest,
+        before: LocalDateTime,
     ): Pagination<Message> {
         val pagination = utils.toPageRequest(paginationRequest, sortRequest)
         val res =
             if (paginationRequest.getCount) {
-                messageRepositoryJpa.findByChannelId(channel.id.value, pagination)
+                messageRepositoryJpa.findByChannelId(channel.id.value, pagination, before)
             } else {
-                messageRepositoryJpa.findByChannelIdSliced(channel.id.value, pagination)
+                messageRepositoryJpa.findByChannelIdSliced(channel.id.value, pagination, before)
             }
         return Pagination(res.content.map { it.toDomain() }, utils.getPaginationInfo(res))
     }

@@ -29,7 +29,8 @@ class AuthInterceptor(
         val method = if (handler is HandlerMethod) handler.method else null
 
         if (controller?.isAnnotationPresent(Authenticated::class.java) == false &&
-            method?.isAnnotationPresent(Authenticated::class.java) == false
+            method?.isAnnotationPresent(Authenticated::class.java) == false ||
+            request.method == "OPTIONS"
         ) {
             return true
         }

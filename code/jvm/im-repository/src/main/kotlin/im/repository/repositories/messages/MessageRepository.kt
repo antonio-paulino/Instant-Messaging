@@ -7,6 +7,7 @@ import im.repository.pagination.Pagination
 import im.repository.pagination.PaginationRequest
 import im.repository.pagination.SortRequest
 import im.repository.repositories.Repository
+import java.time.LocalDateTime
 
 /**
  * [Repository] for [Message] entities.
@@ -17,12 +18,16 @@ interface MessageRepository : Repository<Message, Identifier> {
      *
      * @param channel the channel
      * @param paginationRequest the pagination request
+     * @param sortRequest the sort request
+     * @param before the date before which to retrieve messages
+     *
      * @return the latest messages in the channel
      */
     fun findByChannel(
         channel: Channel,
         paginationRequest: PaginationRequest,
         sortRequest: SortRequest,
+        before: LocalDateTime,
     ): Pagination<Message>
 
     /**

@@ -5,6 +5,7 @@ import im.api.middlewares.ratelimit.RateLimit
 import im.api.model.input.body.MessageCreationInputModel
 import im.api.model.input.path.ChannelIdentifierInputModel
 import im.api.model.input.path.MessageIdentifierInputModel
+import im.api.model.input.query.BeforeTimeInputModel
 import im.api.model.input.query.PaginationInputModel
 import im.api.model.input.query.SortInputModel
 import im.api.model.output.messages.MessageCreationOutputModel
@@ -25,6 +26,8 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.net.URI
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @RestController
 @RequestMapping("/api/channels/{channelId}/messages")
@@ -61,6 +64,7 @@ class MessagesController(
         @Valid paginationInput: PaginationInputModel,
         @Valid channelId: ChannelIdentifierInputModel,
         @Valid sort: SortInputModel,
+        @Valid before: BeforeTimeInputModel?,
         user: AuthenticatedUser,
     ): ResponseEntity<Any> =
         when (
@@ -69,6 +73,7 @@ class MessagesController(
                     channelId.toDomain(),
                     paginationInput.toRequest(),
                     sort.toRequest(),
+                    before?.before?.let { LocalDateTime.parse(it, DateTimeFormatter.ISO_DATE_TIME) }.also { time -> println(time) },
                     user.user,
                 )
         ) {

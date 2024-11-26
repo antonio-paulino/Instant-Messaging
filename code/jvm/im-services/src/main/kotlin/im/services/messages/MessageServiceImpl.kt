@@ -1,5 +1,6 @@
 package im.services.messages
 
+import com.sun.org.apache.xml.internal.serializer.utils.Utils.messages
 import im.domain.Either
 import im.domain.Failure
 import im.domain.channel.ChannelRole
@@ -12,6 +13,7 @@ import im.repository.pagination.PaginationRequest
 import im.repository.pagination.SortRequest
 import im.repository.repositories.transactions.TransactionManager
 import jakarta.inject.Named
+import java.time.LocalDateTime
 
 @Named
 class MessageServiceImpl(
@@ -26,6 +28,7 @@ class MessageServiceImpl(
         channelId: Identifier,
         pagination: PaginationRequest,
         sortRequest: SortRequest,
+        before: LocalDateTime?,
         user: User,
     ): Either<MessageError, Pagination<Message>> =
         transactionManager.run {
@@ -42,7 +45,13 @@ class MessageServiceImpl(
                 return@run Failure(MessageError.InvalidSortField(sort, validSortFields.toList()))
             }
 
-            val messages = messageRepository.findByChannel(channel, pagination, sortRequest.copy(sortBy = sort))
+            val messages =
+                messageRepository.findByChannel(
+                    channel,
+                    pagination,
+                    sortRequest.copy(sortBy = sort),
+                    before ?: LocalDateTime.now(),
+                )
 
             success(messages)
         }

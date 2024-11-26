@@ -7,6 +7,7 @@ import im.domain.invitations.ChannelInvitation
 import im.domain.invitations.ChannelInvitationStatus
 import im.domain.messages.Message
 import im.domain.user.User
+import im.domain.wrappers.identifier.Identifier
 import im.domain.wrappers.name.toName
 import im.repository.pagination.PaginationRequest
 import im.repository.pagination.Sort
@@ -150,7 +151,7 @@ abstract class ChannelRepositoryTest {
         transactionManager.run {
             channelRepository.save(testChannel1)
             channelRepository.save(testChannel2)
-            val (channels) = channelRepository.find(PaginationRequest(0, 10), true, SortRequest("id"))
+            val (channels) = channelRepository.find(PaginationRequest(0, 10), true, SortRequest("id"), Identifier(0))
             assertEquals(1, channels.size)
             assertEquals(testChannel1.name, channels.first().name)
         }
@@ -253,7 +254,7 @@ abstract class ChannelRepositoryTest {
             channelRepository.save(testChannel1)
             channelRepository.save(testChannel2)
 
-            val res = channelRepository.find(PaginationRequest(0, 1, getCount = false), false, SortRequest("id"))
+            val res = channelRepository.find(PaginationRequest(0, 1, getCount = false), false, SortRequest("id"), Identifier(0))
 
             val (firstChannels, pagination) = res
 
@@ -378,12 +379,80 @@ abstract class ChannelRepositoryTest {
     }
 
     @Test
+    fun `get channels after id`() {
+        transactionManager.run {
+            testChannel1 = channelRepository.save(testChannel1)
+            testChannel2 = channelRepository.save(testChannel2)
+
+            val (channels, pagination) = channelRepository.find(PaginationRequest(0, 1), false, SortRequest("id"), Identifier(0))
+
+            assertEquals(1, channels.size)
+            assertEquals(testChannel1.name, channels.first().name)
+            assertEquals(2, pagination.total)
+            assertEquals(1, pagination.currentPage)
+            assertEquals(2, pagination.nextPage)
+            assertEquals(2, pagination.totalPages)
+            assertNull(pagination.prevPage)
+
+            val (channels2, pagination2) = channelRepository.find(PaginationRequest(0, 1), false, SortRequest("id"), testChannel1.id)
+
+            assertEquals(1, channels2.size)
+            assertEquals(testChannel2.id, channels2.first().id)
+            assertEquals(1, pagination2.total)
+            assertEquals(1, pagination2.currentPage)
+            assertNull(pagination2.nextPage)
+            assertEquals(1, pagination2.totalPages)
+            assertNull(pagination2.prevPage)
+        }
+    }
+
+    @Test
+    fun `get channels by member after id`() {
+        transactionManager.run {
+            testChannel1 = channelRepository.save(testChannel1)
+            testChannel2 = channelRepository.save(testChannel2)
+
+            val (channels, pagination) =
+                channelRepository.findByMember(
+                    testOwner,
+                    PaginationRequest(0, 1),
+                    SortRequest("id"),
+                    Identifier(0),
+                )
+
+            assertEquals(1, channels.size)
+            assertEquals(testChannel1.name, channels.first().name)
+            assertEquals(2, pagination.total)
+            assertEquals(1, pagination.currentPage)
+            assertEquals(2, pagination.nextPage)
+            assertEquals(2, pagination.totalPages)
+            assertNull(pagination.prevPage)
+
+            val (channels2, pagination2) =
+                channelRepository.findByMember(
+                    testOwner,
+                    PaginationRequest(0, 1),
+                    SortRequest("id"),
+                    testChannel1.id,
+                )
+
+            assertEquals(1, channels2.size)
+            assertEquals(testChannel2.id, channels2.first().id)
+            assertEquals(1, pagination2.total)
+            assertEquals(1, pagination2.currentPage)
+            assertNull(pagination2.nextPage)
+            assertEquals(1, pagination2.totalPages)
+            assertNull(pagination2.prevPage)
+        }
+    }
+
+    @Test
     fun `pagination no count`() {
         transactionManager.run {
             channelRepository.save(testChannel1)
             channelRepository.save(testChannel2)
 
-            val res = channelRepository.find(PaginationRequest(0, 1, getCount = false), false, SortRequest("id"))
+            val res = channelRepository.find(PaginationRequest(0, 1, getCount = false), false, SortRequest("id"), Identifier(0))
 
             val (firstChannels, pagination) = res
 
@@ -418,7 +487,7 @@ abstract class ChannelRepositoryTest {
             testChannel1 = channelRepository.save(testChannel1)
             testChannel2 = channelRepository.save(testChannel2)
 
-            val channels = channelRepository.findByMember(testMember, PaginationRequest(0, 10), SortRequest("id"))
+            val channels = channelRepository.findByMember(testMember, PaginationRequest(0, 10), SortRequest("id"), Identifier(0))
             assertTrue(channels.info.total?.toInt() == 0)
         }
     }
@@ -433,7 +502,7 @@ abstract class ChannelRepositoryTest {
             testChannel1 = channelRepository.save(testChannel1)
             testChannel2 = channelRepository.save(testChannel2)
 
-            val channels = channelRepository.findByMember(testMember, PaginationRequest(0, 10), SortRequest("id"))
+            val channels = channelRepository.findByMember(testMember, PaginationRequest(0, 10), SortRequest("id"), Identifier(0))
             assertTrue(channels.info.total?.toInt() == 1)
             assertEquals(testChannel1, channels.items.first())
             assertEquals(ChannelRole.MEMBER, channels.items.first().members[testMember])
@@ -451,7 +520,7 @@ abstract class ChannelRepositoryTest {
             channelRepository.save(testChannel1)
             channelRepository.save(testChannel2)
 
-            val channels = channelRepository.findByOwner(testMember, PaginationRequest(0, 10), SortRequest("id"))
+            val channels = channelRepository.findByOwner(testMember, PaginationRequest(0, 10), SortRequest("id"), Identifier(0))
             assertTrue(channels.info.total?.toInt() == 0)
         }
     }
@@ -465,7 +534,7 @@ abstract class ChannelRepositoryTest {
             testChannel1 = channelRepository.save(testChannel1)
             testChannel2 = channelRepository.save(testChannel2)
 
-            val channels = channelRepository.findByOwner(testOwner, PaginationRequest(0, 10), SortRequest("id"))
+            val channels = channelRepository.findByOwner(testOwner, PaginationRequest(0, 10), SortRequest("id"), Identifier(0))
             assertEquals(1, channels.items.size)
             assertEquals(testChannel1, channels.items.first())
         }
@@ -474,7 +543,7 @@ abstract class ChannelRepositoryTest {
     @Test
     open fun `get owned channels should return empty list`() {
         transactionManager.run {
-            val channels = channelRepository.findByOwner(testOwner, PaginationRequest(0, 10), SortRequest("id"))
+            val channels = channelRepository.findByOwner(testOwner, PaginationRequest(0, 10), SortRequest("id"), Identifier(0))
             assertTrue(channels.items.isEmpty())
         }
     }

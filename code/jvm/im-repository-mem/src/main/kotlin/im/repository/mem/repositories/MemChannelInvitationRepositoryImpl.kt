@@ -38,9 +38,15 @@ class MemChannelInvitationRepositoryImpl(
         status: ChannelInvitationStatus,
         sortRequest: SortRequest,
         paginationRequest: PaginationRequest,
+        after: Identifier,
     ): Pagination<ChannelInvitation> =
         utils.paginate(
-            invitations.values.filter { it.channel.id == channel.id.value && it.status == status }.map { it.toDomain() },
+            invitations.values.filter {
+                it.channel.id == channel.id.value &&
+                    it.status == status &&
+                    it.id > after.value
+            }
+                .map { it.toDomain() },
             paginationRequest,
             sortRequest,
         )
@@ -50,9 +56,14 @@ class MemChannelInvitationRepositoryImpl(
         status: ChannelInvitationStatus,
         sortRequest: SortRequest,
         paginationRequest: PaginationRequest,
+        after: Identifier,
     ): Pagination<ChannelInvitation> =
         utils.paginate(
-            invitations.values.filter { it.invitee.id == user.id.value && it.status == status }.map { it.toDomain() },
+            invitations.values.filter {
+                it.invitee.id == user.id.value &&
+                    it.status == status &&
+                    it.id > after.value
+            }.map { it.toDomain() },
             paginationRequest,
             sortRequest,
         )

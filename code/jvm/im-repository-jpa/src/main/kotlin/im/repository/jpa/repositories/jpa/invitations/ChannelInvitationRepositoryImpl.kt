@@ -26,6 +26,7 @@ class ChannelInvitationRepositoryImpl(
         status: ChannelInvitationStatus,
         sortRequest: SortRequest,
         paginationRequest: PaginationRequest,
+        after: Identifier,
     ): Pagination<ChannelInvitation> {
         val pagination = utils.toPageRequest(paginationRequest, sortRequest)
         val res =
@@ -34,12 +35,14 @@ class ChannelInvitationRepositoryImpl(
                     channel.id.value,
                     ChannelInvitationStatusDTO.fromDomain(status),
                     pagination,
+                    after.value,
                 )
             } else {
                 channelInvitationRepositoryJpa.findByChannelIdAndStatusSliced(
                     channel.id.value,
                     ChannelInvitationStatusDTO.fromDomain(status),
                     pagination,
+                    after.value,
                 )
             }
         return Pagination(res.content.map { it.toDomain() }, utils.getPaginationInfo(res))
@@ -50,16 +53,23 @@ class ChannelInvitationRepositoryImpl(
         status: ChannelInvitationStatus,
         sortRequest: SortRequest,
         paginationRequest: PaginationRequest,
+        after: Identifier,
     ): Pagination<ChannelInvitation> {
         val pagination = utils.toPageRequest(paginationRequest, sortRequest)
         val res =
             if (paginationRequest.getCount) {
-                channelInvitationRepositoryJpa.findByInvitee(user.id.value, ChannelInvitationStatusDTO.fromDomain(status), pagination)
+                channelInvitationRepositoryJpa.findByInvitee(
+                    user.id.value,
+                    ChannelInvitationStatusDTO.fromDomain(status),
+                    pagination,
+                    after.value,
+                )
             } else {
                 channelInvitationRepositoryJpa.findByInviteeSliced(
                     user.id.value,
                     ChannelInvitationStatusDTO.fromDomain(status),
                     pagination,
+                    after.value,
                 )
             }
         return Pagination(res.content.map { it.toDomain() }, utils.getPaginationInfo(res))

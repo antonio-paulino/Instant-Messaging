@@ -7,6 +7,7 @@ import im.domain.wrappers.identifier.Identifier
 import im.repository.pagination.Pagination
 import im.repository.pagination.PaginationRequest
 import im.repository.pagination.SortRequest
+import java.time.LocalDateTime
 
 interface MessageService {
     /**
@@ -24,6 +25,7 @@ interface MessageService {
         channelId: Identifier,
         pagination: PaginationRequest,
         sortRequest: SortRequest,
+        before: LocalDateTime?,
         user: User,
     ): Either<MessageError, Pagination<Message>>
 

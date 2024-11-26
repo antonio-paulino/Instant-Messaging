@@ -289,6 +289,7 @@ abstract class InvitationServiceTest {
                 user = testUser1,
                 SortRequest("id"),
                 PaginationRequest(0, 10),
+                Identifier(0L),
             )
 
         assertIs<Success<Pagination<ChannelInvitation>>>(result2)
@@ -306,6 +307,7 @@ abstract class InvitationServiceTest {
                 user = testUser1,
                 SortRequest("invalid"),
                 PaginationRequest(0, 10),
+                Identifier(0L),
             )
         assertIs<Failure<InvitationError>>(result)
         assertIs<InvitationError.InvalidSortField>(result.value)
@@ -319,6 +321,7 @@ abstract class InvitationServiceTest {
                 user = testUser1,
                 SortRequest("id"),
                 PaginationRequest(0, 10),
+                Identifier(0L),
             )
         assertIs<Failure<InvitationError>>(result)
         assertIs<InvitationError.ChannelNotFound>(result.value)
@@ -332,6 +335,7 @@ abstract class InvitationServiceTest {
                 user = testUser2,
                 SortRequest("id"),
                 PaginationRequest(0, 10),
+                Identifier(0L),
             )
         assertIs<Failure<InvitationError>>(result)
         assertIs<InvitationError.UserCannotAccessInvitation>(result.value)
@@ -561,6 +565,7 @@ abstract class InvitationServiceTest {
                 user = testUser2,
                 SortRequest("id"),
                 PaginationRequest(0, 10),
+                Identifier(0L),
             )
 
         assertIs<Success<Pagination<ChannelInvitation>>>(result2)
@@ -577,6 +582,7 @@ abstract class InvitationServiceTest {
                 user = testUser2,
                 SortRequest("id"),
                 PaginationRequest(0, 10),
+                Identifier(0L),
             )
 
         assertIs<Success<Pagination<ChannelInvitation>>>(result2)
@@ -592,6 +598,7 @@ abstract class InvitationServiceTest {
                 user = testUser1,
                 SortRequest("id"),
                 PaginationRequest(0, 10),
+                Identifier(0L),
             )
         assertIs<Failure<InvitationError>>(result)
         assertIs<InvitationError.UserCannotAccessInvitation>(result.value)

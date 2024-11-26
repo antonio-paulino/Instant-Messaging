@@ -108,6 +108,7 @@ class InvitationServiceImpl(
         user: User,
         sortRequest: SortRequest,
         paginationRequest: PaginationRequest,
+        after: Identifier?,
     ): Either<InvitationError, Pagination<ChannelInvitation>> =
         transactionManager.run {
             val channel =
@@ -130,6 +131,7 @@ class InvitationServiceImpl(
                     ChannelInvitationStatus.PENDING,
                     sortRequest.copy(sortBy = sort),
                     paginationRequest,
+                    after ?: Identifier(0),
                 )
 
             success(invitations)
@@ -196,7 +198,7 @@ class InvitationServiceImpl(
                 return@run Failure(InvitationError.InvitationNotFound)
             }
 
-            if (invitation.inviter != user) {
+            if (invitation.inviter != user && channel.owner != user) {
                 return@run Failure(InvitationError.UserCannotDeleteInvitation)
             }
 
@@ -210,6 +212,7 @@ class InvitationServiceImpl(
         user: User,
         sortRequest: SortRequest,
         paginationRequest: PaginationRequest,
+        after: Identifier?,
     ): Either<InvitationError, Pagination<ChannelInvitation>> =
         transactionManager.run {
             if (userId != user.id) {
@@ -228,6 +231,7 @@ class InvitationServiceImpl(
                     ChannelInvitationStatus.PENDING,
                     sortRequest.copy(sortBy = sort),
                     paginationRequest,
+                    after ?: Identifier(0),
                 )
 
             success(invitations)

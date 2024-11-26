@@ -509,6 +509,68 @@ abstract class MessageControllerTests {
     }
 
     @Test
+    fun `get messages with before should return messages 200`() {
+        val message1 =
+            transactionManager.run {
+                messageRepository.save(
+                    Message(
+                        0L,
+                        testChannel.id.value,
+                        testUser,
+                        "test message 1",
+                        LocalDateTime.now(),
+                        null,
+                    ),
+                )
+            }
+        Thread.sleep(100) // ensure different timestamps
+        val message2 =
+            transactionManager.run {
+                messageRepository.save(
+                    Message(
+                        message1.id.value + 1,
+                        testChannel.id.value,
+                        testUser,
+                        "test message 2",
+                        LocalDateTime.now(),
+                        null,
+                    ),
+                )
+            }
+
+        val client = getClient()
+
+        client
+            .get()
+            .uri("api/channels/${testChannel.id}/messages?offset=0&limit=1&before=${message2.createdAt}")
+            .cookie("access_token", accessToken1.token.toString())
+            .exchange()
+            .expectStatus()
+            .isOk
+            .expectBody(MessagesPaginatedOutputModel::class.java)
+            .returnResult()
+            .responseBody
+            .also {
+                assertNotNull(it)
+                assertEquals(1, it!!.messages.size)
+                val msg = it.messages[0]
+                val info = it.pagination
+                assertEquals(message1.id.value, msg.id)
+                assertNull(msg.editedAt)
+                assertEquals(message1.content, msg.content)
+                assertEquals(message1.id.value, msg.id)
+                assertEquals(testUser.id.value, msg.author.id)
+                assertEquals(testUser.name.value, msg.author.name)
+                assertNotNull(info)
+                assertEquals(1, info.total)
+                assertEquals(1, info.totalPages)
+                assertEquals(1, info.current)
+                assertNull(info.next)
+                assertNull(info.previous)
+            }
+    }
+
+    @Test
     fun `get messages paginated no count 200`() {
         val message1 =
             transactionManager.run {

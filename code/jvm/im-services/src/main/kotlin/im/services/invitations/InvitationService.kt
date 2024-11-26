@@ -84,6 +84,7 @@ interface InvitationService {
         user: User,
         sortRequest: SortRequest,
         paginationRequest: PaginationRequest,
+        after: Identifier?,
     ): Either<InvitationError, Pagination<ChannelInvitation>>
 
     /**
@@ -144,6 +145,7 @@ interface InvitationService {
         user: User,
         sortRequest: SortRequest,
         paginationRequest: PaginationRequest,
+        after: Identifier?,
     ): Either<InvitationError, Pagination<ChannelInvitation>>
 
     /**

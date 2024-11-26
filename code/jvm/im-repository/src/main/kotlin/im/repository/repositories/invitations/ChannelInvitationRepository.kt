@@ -18,6 +18,11 @@ interface ChannelInvitationRepository : Repository<ChannelInvitation, Identifier
      * Finds all invitations for a channel.
      *
      * @param channel the channel
+     * @param status the status of the invitations
+     * @param sortRequest the sorting options
+     * @param paginationRequest the pagination options
+     * @param after the identifier of the last invitation from the previous page
+     *
      * @return the invitations for the channel
      */
     fun findByChannel(
@@ -25,12 +30,17 @@ interface ChannelInvitationRepository : Repository<ChannelInvitation, Identifier
         status: ChannelInvitationStatus,
         sortRequest: SortRequest,
         paginationRequest: PaginationRequest,
+        after: Identifier,
     ): Pagination<ChannelInvitation>
 
     /**
      * Finds all received invitations for a user.
      *
      * @param user the user
+     * @param status the status of the invitations
+     * @param sortRequest the sorting options
+     * @param paginationRequest the pagination options
+     * @param after the identifier of the last invitation from the previous page
      * @return the invitations for the user
      */
     fun findByInvitee(
@@ -38,6 +48,7 @@ interface ChannelInvitationRepository : Repository<ChannelInvitation, Identifier
         status: ChannelInvitationStatus,
         sortRequest: SortRequest,
         paginationRequest: PaginationRequest,
+        after: Identifier,
     ): Pagination<ChannelInvitation>
 
     /**

@@ -12,7 +12,7 @@ data class MessageCreationOutputModel(
         fun fromDomain(message: Message): MessageCreationOutputModel =
             MessageCreationOutputModel(
                 id = message.id.value,
-                createdAt = message.createdAt,
+                createdAt = message.createdAt!!,
                 editedAt = message.editedAt,
             )
     }

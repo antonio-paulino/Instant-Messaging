@@ -49,6 +49,7 @@ interface ChannelRepository : Repository<Channel, Identifier> {
         pagination: PaginationRequest,
         filterPublic: Boolean,
         sortRequest: SortRequest,
+        after: Identifier,
     ): Pagination<Channel>
 
     /**
@@ -73,6 +74,7 @@ interface ChannelRepository : Repository<Channel, Identifier> {
         user: User,
         pagination: PaginationRequest,
         sortRequest: SortRequest,
+        after: Identifier,
     ): Pagination<Channel>
 
     /**
@@ -85,6 +87,7 @@ interface ChannelRepository : Repository<Channel, Identifier> {
         user: User,
         pagination: PaginationRequest,
         sortRequest: SortRequest,
+        after: Identifier,
     ): Pagination<Channel>
 
     /**

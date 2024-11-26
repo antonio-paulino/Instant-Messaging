@@ -6,6 +6,7 @@ import im.domain.user.User
 import im.domain.wrappers.identifier.Identifier
 import im.domain.wrappers.name.Name
 import im.repository.jpa.model.channel.ChannelDTO
+import im.repository.jpa.model.channel.ChannelMemberDTO
 import im.repository.jpa.model.channel.ChannelMemberId
 import im.repository.jpa.model.channel.ChannelRoleDTO
 import im.repository.jpa.repositories.jpa.JpaRepositoryUtils
@@ -48,12 +49,13 @@ class ChannelRepositoryImpl(
         pagination: PaginationRequest,
         filterPublic: Boolean,
         sortRequest: SortRequest,
+        after: Identifier,
     ): Pagination<Channel> {
         val res =
             if (pagination.getCount) {
-                channelRepositoryJpa.findAll(utils.toPageRequest(pagination, sortRequest), filterPublic)
+                channelRepositoryJpa.findAll(utils.toPageRequest(pagination, sortRequest), filterPublic, after.value)
             } else {
-                channelRepositoryJpa.findBy(utils.toPageRequest(pagination, sortRequest), filterPublic)
+                channelRepositoryJpa.findBy(utils.toPageRequest(pagination, sortRequest), filterPublic, after.value)
             }
         return Pagination(res.content.map { it.toDomain() }, utils.getPaginationInfo(res))
     }
@@ -70,13 +72,14 @@ class ChannelRepositoryImpl(
         user: User,
         pagination: PaginationRequest,
         sortRequest: SortRequest,
+        after: Identifier,
     ): Pagination<Channel> {
         val pageable = utils.toPageRequest(pagination, sortRequest)
         val res =
             if (pagination.getCount) {
-                channelRepositoryJpa.findByOwnerId(user.id.value, pageable)
+                channelRepositoryJpa.findByOwnerId(user.id.value, pageable, after.value)
             } else {
-                channelRepositoryJpa.findByOwnerIdSliced(user.id.value, pageable)
+                channelRepositoryJpa.findByOwnerIdSliced(user.id.value, pageable, after.value)
             }
         return Pagination(res.content.map { it.toDomain() }, utils.getPaginationInfo(res))
     }
@@ -85,13 +88,14 @@ class ChannelRepositoryImpl(
         user: User,
         pagination: PaginationRequest,
         sortRequest: SortRequest,
+        after: Identifier,
     ): Pagination<Channel> {
         val pageable = utils.toPageRequest(pagination, sortRequest)
         val res =
             if (pagination.getCount) {
-                channelMemberRepositoryJpa.findByUserId(user.id.value, pageable)
+                channelMemberRepositoryJpa.findByUserId(user.id.value, pageable, after.value)
             } else {
-                channelMemberRepositoryJpa.findByUserIdSliced(user.id.value, pageable)
+                channelMemberRepositoryJpa.findByUserIdSliced(user.id.value, pageable, after.value)
             }
         return Pagination(res.content.map { it.toDomain() }, utils.getPaginationInfo(res))
     }
@@ -101,7 +105,7 @@ class ChannelRepositoryImpl(
         user: User,
         role: ChannelRole,
     ) {
-        channelMemberRepositoryJpa.addMember(channel.id.value, user.id.value, role.name)
+        channelMemberRepositoryJpa.save(ChannelMemberDTO.fromDomain(channel, user, role))
     }
 
     override fun removeMember(
@@ -147,7 +151,7 @@ class ChannelRepositoryImpl(
             val res = channelRepositoryJpa.findAll(pageable)
             return Pagination(res.content.map { it.toDomain() }, utils.getPaginationInfo(res))
         } else {
-            val res = channelRepositoryJpa.findBy(pageable, false)
+            val res = channelRepositoryJpa.findBy(pageable, false, 0)
             return Pagination(res.content.map { it.toDomain() }, utils.getPaginationInfo(res))
         }
     }

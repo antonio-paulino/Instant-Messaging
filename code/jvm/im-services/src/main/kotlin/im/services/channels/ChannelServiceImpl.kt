@@ -169,6 +169,7 @@ class ChannelServiceImpl(
         name: String?,
         pagination: PaginationRequest,
         sortRequest: SortRequest,
+        after: Identifier?,
     ): Either<ChannelError, Pagination<Channel>> =
         transactionManager.run {
             val sort = sortRequest.sortBy ?: DEFAULT_SORT
@@ -184,7 +185,7 @@ class ChannelServiceImpl(
                         sortRequest.copy(sortBy = sort),
                     )
                 } else {
-                    channelRepository.find(pagination, filterPublic = true, sortRequest.copy(sortBy = sort))
+                    channelRepository.find(pagination, filterPublic = true, sortRequest.copy(sortBy = sort), after ?: Identifier(0))
                 }
             channels.items.forEach { it.members }
             success(channels)
@@ -195,6 +196,7 @@ class ChannelServiceImpl(
         sortRequest: SortRequest,
         pagination: PaginationRequest,
         filterOwned: Boolean,
+        after: Identifier?,
         user: User,
     ): Either<ChannelError, Pagination<Channel>> =
         transactionManager.run {
@@ -210,9 +212,9 @@ class ChannelServiceImpl(
 
             val joinedChannels =
                 if (filterOwned) {
-                    channelRepository.findByOwner(user, pagination, sortRequest.copy(sortBy = sort))
+                    channelRepository.findByOwner(user, pagination, sortRequest.copy(sortBy = sort), after ?: Identifier(0))
                 } else {
-                    channelRepository.findByMember(user, pagination, sortRequest.copy(sortBy = sort))
+                    channelRepository.findByMember(user, pagination, sortRequest.copy(sortBy = sort), after ?: Identifier(0))
                 }
 
             joinedChannels.items.forEach { it.members } // Load members

@@ -20,31 +20,22 @@ interface ChannelMemberRepositoryJpa : JpaRepository<ChannelMemberDTO, ChannelMe
     ): ChannelMemberDTO?
 
     @Query(
-        value = "SELECT cm.channel FROM ChannelMemberDTO cm WHERE cm.user.id = :userId",
+        value = "SELECT cm.channel FROM ChannelMemberDTO cm WHERE cm.user.id = :userId AND cm.channel.id > :after",
     )
     fun findByUserId(
         userId: Long,
         page: Pageable,
+        after: Long,
     ): Page<ChannelDTO>
 
     @Query(
-        value = "SELECT cm.channel FROM ChannelMemberDTO cm WHERE cm.user.id = :userId",
+        value = "SELECT cm.channel FROM ChannelMemberDTO cm WHERE cm.user.id = :userId AND cm.channel.id > :after",
     )
     fun findByUserIdSliced(
         userId: Long,
         page: Pageable,
+        after: Long,
     ): Slice<ChannelDTO>
-
-    @Modifying
-    @Query(
-        value = "INSERT INTO channel_member (channel_id, user_id, role) VALUES (:channelId, :userId, :role)",
-        nativeQuery = true,
-    )
-    fun addMember(
-        channelId: Long,
-        userId: Long,
-        role: String,
-    )
 
     @Modifying
     @Query(

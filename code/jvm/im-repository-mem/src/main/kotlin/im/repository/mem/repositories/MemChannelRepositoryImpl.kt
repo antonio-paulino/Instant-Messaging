@@ -43,8 +43,9 @@ class MemChannelRepositoryImpl(
         pagination: PaginationRequest,
         filterPublic: Boolean,
         sortRequest: SortRequest,
+        after: Identifier,
     ): Pagination<Channel> {
-        val filteredChannels = channels.values.filter { !filterPublic || it.isPublic }
+        val filteredChannels = channels.values.filter { (!filterPublic || it.isPublic) && it.id > after.value }
         val page = utils.paginate(filteredChannels, pagination, sortRequest)
         return Pagination(page.items.map { it.toDomain() }, page.info)
     }
@@ -66,8 +67,9 @@ class MemChannelRepositoryImpl(
         user: User,
         pagination: PaginationRequest,
         sortRequest: SortRequest,
+        after: Identifier,
     ): Pagination<Channel> {
-        val page = utils.paginate(channels.values.filter { it.owner.toDomain() == user }, pagination, sortRequest)
+        val page = utils.paginate(channels.values.filter { it.owner.toDomain() == user && it.id > after.value }, pagination, sortRequest)
         return Pagination(page.items.map { it.toDomain() }, page.info)
     }
 
@@ -75,8 +77,16 @@ class MemChannelRepositoryImpl(
         user: User,
         pagination: PaginationRequest,
         sortRequest: SortRequest,
+        after: Identifier,
     ): Pagination<Channel> {
-        val page = utils.paginate(channels.values.filter { it.members.keys.any { it.toDomain() == user } }, pagination, sortRequest)
+        val page =
+            utils.paginate(
+                channels.values.filter {
+                    it.members.keys.any { it.toDomain() == user } && it.id > after.value
+                },
+                pagination,
+                sortRequest,
+            )
         return Pagination(page.items.map { it.toDomain() }, page.info)
     }
 
