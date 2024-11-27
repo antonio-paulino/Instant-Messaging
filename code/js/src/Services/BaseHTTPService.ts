@@ -1,6 +1,7 @@
 import { ApiResult } from './media/Problem';
 import { doAfterDelayWithResult } from '../Utils/Time';
 import { failure, success } from '../Domain/Either';
+import { delay } from './Utils';
 
 type RequestBody<B> = B | null;
 
@@ -55,7 +56,7 @@ export namespace BaseHTTPService {
         fetchResBody: boolean = true,
         abortSignal?: AbortSignal,
     ): ApiResult<T> {
-
+        await delay(250);
         const request: RequestInit = {
             method: method,
             headers: {

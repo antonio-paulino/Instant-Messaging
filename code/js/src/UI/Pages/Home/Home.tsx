@@ -23,7 +23,8 @@ export function Home() {
     const signal = useAbortSignal();
     const { showAlert } = useAlert();
 
-    const [selectedChannel, setSelectedChannel] = React.useState<Channel | null>(null);
+    const [selectedChannel, setSelectedChannel] =
+        React.useState<Channel | null>(null);
 
     const fetchChannels = async (page: PaginationRequest, items: Channel[]) => {
         return await sessionManager.executeWithRefresh(async () => {
@@ -92,12 +93,10 @@ export function Home() {
                         <SideMenu handleLogout={handleLogout} />
                         <Box
                             component={'main'}
-                            sx={(theme) => ({
+                            sx={{
                                 flexGrow: 1,
-                                backgroundColor:
-                                    theme.palette.background.default,
                                 overflow: 'auto',
-                            })}
+                            }}
                         >
                             <Outlet />
                         </Box>

@@ -7,7 +7,6 @@
     "@mui/icons-material": "^6.1.7",
     "@mui/material": "^6.1.7",
     "css-loader": "^7.1.2",
-    "react-awesome-reveal": "^4.2.14",
     "react-dom": "^18.2.0",
     "react-draggable": "^4.4.5",
     "react-router-dom": "^6.4.3",

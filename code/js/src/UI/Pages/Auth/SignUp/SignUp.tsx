@@ -64,10 +64,12 @@ export default function SignUp() {
                 emailValidator
                     .validate(value)
                     .map((error) => error.toErrorMessage()),
+
             [usernameKey]: (value) =>
                 usernameValidator
                     .validate(value)
                     .map((error) => error.toErrorMessage()),
+
             [passwordKey]: async (value) => {
                 const errors = passwordValidator
                     .validate(value)
@@ -84,6 +86,7 @@ export default function SignUp() {
                 }
                 return errors;
             },
+
             [tokenKey]: (value) => validateToken(value),
         },
         onSubmit: async (values) => {

@@ -45,8 +45,6 @@ export default function SignIn() {
 
     const sessionManager = useSessionManager();
 
-    const [loading, setLoading] = React.useState(false);
-
     const { state, handleChange, handleSubmit } = useForm({
         initialValues: {
             [usernameOrEmailKey]: '',
@@ -55,8 +53,6 @@ export default function SignIn() {
         onSubmit: async (values) => {
             const usernameOrEmail = values[usernameOrEmailKey];
             const password = values[passwordKey];
-
-            setLoading(true);
 
             const login = usernameOrEmail.includes('@')
                 ? await AuthService.login(
@@ -86,8 +82,6 @@ export default function SignIn() {
                     detail: 'Invalid credentials. Please try again.',
                 };
             }
-
-            setLoading(false);
 
             return error;
         },
@@ -148,7 +142,7 @@ export default function SignIn() {
                         variant="outlined"
                     />
                 </FormControl>
-                {loading ? (
+                {state.type == 'loading' ? (
                     <LoadingSpinner text="Logging in" />
                 ) : (
                     <Button

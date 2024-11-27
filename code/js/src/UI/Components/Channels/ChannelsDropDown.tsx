@@ -6,13 +6,8 @@ import { useEffect } from 'react';
 import { Identifier } from '../../../Domain/wrappers/identifier/Identifier';
 import DropDownMenu from '../DropDownMenu';
 import Typography from '@mui/material/Typography';
-import {
-    Button,
-    List,
-    ListItem,
-    ListItemText,
-    Stack,
-} from '@mui/material';
+
+import { Button, List, ListItem, ListItemText, Stack } from '@mui/material';
 import {
     Add,
     ChatBubbleOutline,
@@ -24,13 +19,13 @@ import { LoadingSpinner } from '../LoadingSpinner';
 import { Channel } from '../../../Domain/channel/Channel';
 import { ChannelRole } from '../../../Domain/channel/ChannelRole';
 import { useInfiniteScrollContextChannels } from '../Providers/InfiniteScrollProvider';
-import { Fade } from 'react-awesome-reveal';
 import { Link } from 'react-router-dom';
 
 export function ChannelsDropDown() {
     const eventManager = useEventManager();
     const { showAlert } = useAlert();
-    const { selectedChannel, setSelectedChannel } = useInfiniteScrollContextChannels();
+    const { selectedChannel, setSelectedChannel } =
+        useInfiniteScrollContextChannels();
     const limit = 10;
 
     const { state, loadMore, handleItemUpdate, handleItemDelete } =
@@ -54,7 +49,8 @@ export function ChannelsDropDown() {
             {
                 type: 'channel-deleted',
                 listener: (event: MessageEvent<string>) => {
-                    const channelId = eventManager.handleEvent(event).data as Identifier;
+                    const channelId = eventManager.handleEvent(event)
+                        .data as Identifier;
                     handleItemDelete(channelId);
                     if (selectedChannel?.id.value === channelId.value) {
                         setSelectedChannel(null);
@@ -95,7 +91,12 @@ export function ChannelsDropDown() {
             bottomScroll={true}
             startOpen={true}
             header={
-                <Stack direction={'row'} width={'100%'} alignItems={'center'} gap={1}>
+                <Stack
+                    direction={'row'}
+                    width={'100%'}
+                    alignItems={'center'}
+                    gap={1}
+                >
                     <Typography variant={'body1'}>Channels</Typography>
                 </Stack>
             }
@@ -174,22 +175,18 @@ function ChannelSideView({
         (member) => member.id.value === sessionManager.session.user.id.value,
     )?.role;
     return (
-        <Fade style={{ width: '100%' }} direction={'up'} triggerOnce>
-            <Stack direction={'row'} spacing={1} width={'100%'}>
-                <Button
-                    fullWidth
-                    onClick={() => setSelected(channel)}
-                    sx={{ justifyContent: 'flex-start' }}
-                    variant={selected ? 'outlined' : 'text'}
-                >
-                    {userRole === ChannelRole.OWNER && <GavelOutlined />}
-                    {userRole === ChannelRole.MEMBER && <ChatBubbleOutline />}
-                    {userRole === ChannelRole.GUEST && <MenuBookOutlined />}
-                    <Typography variant={'body1'}>
-                        {channel.name.value}
-                    </Typography>
-                </Button>
-            </Stack>
-        </Fade>
+        <Stack direction={'row'} spacing={1} width={'100%'}>
+            <Button
+                fullWidth
+                onClick={() => setSelected(channel)}
+                sx={{ justifyContent: 'flex-start' }}
+                variant={selected ? 'outlined' : 'text'}
+            >
+                {userRole === ChannelRole.OWNER && <GavelOutlined />}
+                {userRole === ChannelRole.MEMBER && <ChatBubbleOutline />}
+                {userRole === ChannelRole.GUEST && <MenuBookOutlined />}
+                <Typography variant={'body1'}>{channel.name.value}</Typography>
+            </Button>
+        </Stack>
     );
 }

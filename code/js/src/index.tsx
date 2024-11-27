@@ -6,6 +6,7 @@ import { App } from './App';
 import { Home } from './UI/Pages/Home/Home';
 import SignIn from './UI/Pages/Auth/SignIn/SignIn';
 import SignUp from './UI/Pages/Auth/SignUp/SignUp';
+import { CreateChannelWindow } from './UI/Pages/Home/CreateChannel';
 
 const root = createRoot(document.getElementById('root'));
 
@@ -28,9 +29,10 @@ const routes = createBrowserRouter([
                 children: [
                     {
                         path: 'create-channel',
-                        // TODO <CreateChannelWindow /> should be a pop-up window
-                        element: <div>Create Channel</div>,
+                        element: <CreateChannelWindow />,
                     },
+                    // TODO : create-invitation
+                    // TODO : search-channels
                 ],
             },
         ],

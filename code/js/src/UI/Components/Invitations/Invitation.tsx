@@ -4,7 +4,6 @@ import { useSessionManager } from '../Providers/Session';
 import { useAlert } from '../Providers/Alerts';
 import { InvitationService } from '../../../Services/invitations/InvitationService';
 import * as React from 'react';
-import { Fade } from 'react-awesome-reveal';
 import Stack from '@mui/material/Stack';
 import {
     ChatBubbleOutline,
@@ -75,40 +74,38 @@ export default function InvitationView(props: {
 
     return (
         <React.Fragment>
-            <Fade direction={'up'} delay={0.25} triggerOnce>
-                <Stack
-                    direction={'row'}
-                    alignItems={'center'}
-                    justifyContent={'space-between'}
-                    sx={{ gap: 2 }}
-                    width="100%"
+            <Stack
+                direction={'row'}
+                alignItems={'center'}
+                justifyContent={'space-between'}
+                sx={{ gap: 2 }}
+                width="100%"
+            >
+                {props.invitation.role === 'GUEST' ? (
+                    <MenuBookOutlined />
+                ) : (
+                    <ChatBubbleOutline />
+                )}
+                <ListItemText
+                    sx={{ overflow: 'hidden', textWrap: 'wrap' }}
+                    primary={props.invitation.channel.name.value}
+                    secondary={props.invitation.invitee.name.value}
+                />
+                <IconButton
+                    aria-label={'accept'}
+                    size={'small'}
+                    onClick={acceptInvitation}
                 >
-                    {props.invitation.role === 'GUEST' ? (
-                        <MenuBookOutlined />
-                    ) : (
-                        <ChatBubbleOutline />
-                    )}
-                    <ListItemText
-                        sx={{ overflow: 'hidden', textWrap: 'wrap' }}
-                        primary={props.invitation.channel.name.value}
-                        secondary={props.invitation.invitee.name.value}
-                    />
-                    <IconButton
-                        aria-label={'accept'}
-                        size={'small'}
-                        onClick={acceptInvitation}
-                    >
-                        <CheckRounded />
-                    </IconButton>
-                    <IconButton
-                        aria-label={'decline'}
-                        size={'small'}
-                        onClick={declineInvitation}
-                    >
-                        <CloseRounded />
-                    </IconButton>
-                </Stack>
-            </Fade>
+                    <CheckRounded />
+                </IconButton>
+                <IconButton
+                    aria-label={'decline'}
+                    size={'small'}
+                    onClick={declineInvitation}
+                >
+                    <CloseRounded />
+                </IconButton>
+            </Stack>
         </React.Fragment>
     );
 }

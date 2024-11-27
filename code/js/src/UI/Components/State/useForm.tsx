@@ -46,9 +46,9 @@ const reducer = (state: FormState, action: FormAction): FormState => {
             switch (action.type) {
                 case 'success':
                     return {
+                        ...state,
                         type: 'loaded',
                         values: action.payload,
-                        errors: {},
                         error: null,
                     };
                 case 'error':
@@ -132,7 +132,7 @@ export function useForm({
         }
         const timeout = doAfterDelay(250, () => {
             const nonBlankFields = Object.keys(state.values).filter(
-                (key) => state.values[key] !== '',
+                (key) => state.values[key] !== '' && validate[key],
             );
             const validationPromises = nonBlankFields.map((key) =>
                 validate[key](state.values[key]),

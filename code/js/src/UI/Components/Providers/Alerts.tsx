@@ -5,8 +5,7 @@ import React, {
     ReactNode,
     useEffect,
 } from 'react';
-import { Alert } from '@mui/material';
-import { Fade } from 'react-awesome-reveal';
+import { Alert, Fade } from '@mui/material';
 
 interface AlertMessage {
     message: string;
@@ -21,10 +20,15 @@ const AlertContext = createContext<AlertContextType | undefined>(undefined);
 
 export function AlertProvider({ children }: { children: ReactNode }) {
     const [alert, setAlert] = useState<AlertMessage | null>(null);
+    const [show, setShow] = useState(false);
 
     const showAlert = (alert: AlertMessage) => {
         setAlert(alert);
-        setTimeout(() => setAlert(null), 3000); // Auto-hide after 3 seconds
+        setShow(true);
+        setTimeout(() => {
+            setShow(false);
+            setAlert(null);
+        }, 3000);
     };
 
     useEffect(() => {
@@ -37,7 +41,7 @@ export function AlertProvider({ children }: { children: ReactNode }) {
         <AlertContext.Provider value={{ showAlert }}>
             {children}
             {alert && (
-                <Fade>
+                <Fade in={show} timeout={500}>
                     <Alert
                         severity={alert.severity}
                         sx={{
