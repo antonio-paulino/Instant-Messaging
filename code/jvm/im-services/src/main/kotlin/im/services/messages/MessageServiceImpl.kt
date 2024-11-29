@@ -1,6 +1,5 @@
 package im.services.messages
 
-import com.sun.org.apache.xml.internal.serializer.utils.Utils.messages
 import im.domain.Either
 import im.domain.Failure
 import im.domain.channel.ChannelRole
