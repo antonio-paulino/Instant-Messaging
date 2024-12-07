@@ -70,6 +70,8 @@ BEGIN
             owner_id := owner_ids[ceil(random() * array_length(owner_ids, 1))];
             INSERT INTO channel (name, owner, is_public)
             VALUES (random_channel, owner_id, is_public);
+            INSERT INTO channel_member (channel_id, user_id, role)
+            VALUES (currval('channel_id_seq'), owner_id, 'OWNER');
         END LOOP;
 END
 $$;
@@ -134,20 +136,86 @@ BEGIN
 END
 $$;
 
+CREATE OR REPLACE PROCEDURE populate_channel_messages(num_messages INT, channel_id BIGINT)
+    LANGUAGE plpgsql
+AS
+$$
+DECLARE
+    u_id           BIGINT;
+    i              INT;
+    random_message TEXT;
+    u_ids          BIGINT[];
+BEGIN
+    SELECT array_agg(id) INTO u_ids FROM users;
+    FOR i IN 1..num_messages
+            LOOP
+                u_id := u_ids[ceil(random() * array_length(u_ids, 1))];
+    random_message := 'Message number ' || i;
+    INSERT INTO message (channel_id, user_id, content, created_at)
+    VALUES (channel_id, u_id, random_message, NOW() - (i || ' seconds')::interval);
+    END LOOP;
+END
+$$;
+
+CREATE OR REPLACE PROCEDURE create_invitations(
+    num_invitations INT,
+    inviter_id BIGINT,
+    invitee_id BIGINT
+)
+    LANGUAGE plpgsql
+AS
+$$
+DECLARE
+    i INT;
+    rand_channel_id BIGINT;
+    channel_ids BIGINT[];
+BEGIN
+    -- Get all channel IDs
+    SELECT array_agg(id) INTO channel_ids FROM channel;
+
+    FOR i IN 1..num_invitations
+        LOOP
+            -- Select a random channel ID
+            rand_channel_id := channel_ids[ceil(random() * array_length(channel_ids, 1))];
+
+            IF NOT EXISTS(
+                SELECT 1
+                FROM channel_member
+                WHERE channel_id = rand_channel_id
+                AND user_id = inviter_id
+            )
+                THEN
+                    INSERT INTO channel_member (channel_id, user_id, role)
+                    VALUES (rand_channel_id, inviter_id, 'OWNER');
+            END IF;
+
+            -- Check if an invitation already exists
+            IF NOT EXISTS (
+                SELECT 1
+                FROM channel_invitation
+                WHERE rand_channel_id = channel_id
+                  AND inviter = inviter_id
+                  AND invitee = invitee_id
+            ) AND NOT EXISTS (
+                SELECT 1
+                FROM channel_member
+                WHERE channel_id = rand_channel_id
+                  AND user_id = invitee_id
+            )
+                THEN
+                    INSERT INTO channel_invitation (channel_id, inviter, invitee)
+                    VALUES (rand_channel_id, inviter_id, invitee_id);
+            END IF;
+        END LOOP;
+END
+$$;
+
+
 CALL populate_users(100000);
 CALL populate_sessions();
 CALL populate_tokens();
 CALL populate_channels(10000);
 CALL populate_channel_members(50000);
 CALL populate_messages(100000);
-
-insert into channel_member (channel_id, user_id, role) values (1, 1, 'OWNER');
-insert into channel_member (channel_id, user_id, role) values (2, 1, 'OWNER');
-insert into channel_member (channel_id, user_id, role) values (3, 1, 'OWNER');
-insert into channel_member (channel_id, user_id, role) values (4, 1, 'OWNER');
-insert into channel_member (channel_id, user_id, role) values (5, 1, 'OWNER');
-insert into channel_member (channel_id, user_id, role) values (6, 1, 'OWNER');
-insert into channel_member (channel_id, user_id, role) values (7, 1, 'OWNER');
-insert into channel_member (channel_id, user_id, role) values (8, 1, 'OWNER');
-insert into channel_member (channel_id, user_id, role) values (9, 1, 'OWNER');
-insert into channel_member (channel_id, user_id, role) values (10, 1, 'OWNER');
+CALL populate_channel_messages(1000, 1);
+CALL create_invitations(100, 2, 1);

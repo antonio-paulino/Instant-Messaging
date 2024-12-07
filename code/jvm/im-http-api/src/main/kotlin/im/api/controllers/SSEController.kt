@@ -7,6 +7,7 @@ import im.api.model.output.invitations.ChannelInvitationOutputModel
 import im.api.model.output.messages.MessageOutputModel
 import im.domain.Success
 import im.domain.channel.Channel
+import im.domain.channel.ChannelMember
 import im.domain.invitations.ChannelInvitation
 import im.domain.messages.Message
 import im.domain.user.AuthenticatedUser
@@ -14,12 +15,12 @@ import im.domain.wrappers.identifier.Identifier
 import im.repository.repositories.RepositoryEvent
 import im.services.channels.ChannelService
 import jakarta.annotation.PreDestroy
+import jdk.internal.net.http.common.Log.channel
 import org.springframework.context.ApplicationEvent
 import org.springframework.context.ApplicationListener
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestHeader
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter.SseEventBuilder
@@ -29,21 +30,6 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
-
-typealias EventType = String
-typealias Payload = Any?
-typealias EventId = String
-
-typealias Listener = (EventType, Payload, EventId) -> Unit
-
-typealias UserEvents = Pair<SseEventBuilder, List<Identifier>>
-
-/**
- * Event to be received by the SSE controller, wrapping a repository event.
- */
-class RepositoryHTTPEvent<T>(
-    val repositoryEvent: RepositoryEvent<T>,
-) : ApplicationEvent(repositoryEvent)
 
 @RestController
 @Authenticated
@@ -102,24 +88,15 @@ class SSEController(
         listeners.add(listener)
     }
 
-    private fun getLastEventId(
-        lastEventId: String?,
-        lastEventIdParam: String?,
-    ): String? {
-        if (lastEventId == null && lastEventIdParam == null) return null
-        return minOf(lastEventId ?: Long.MAX_VALUE.toString(), lastEventIdParam ?: Long.MAX_VALUE.toString())
-    }
-
     @GetMapping("/api/sse/listen")
     fun subscribeMessages(
         @RequestHeader("Last-Event-ID") lastEventId: String?,
-        @RequestParam("lastEventId") lastEventIdParam: String?,
         user: AuthenticatedUser,
     ): ResponseEntity<SseEmitter> {
         val listeners = listeners.computeIfAbsent(user.user.id) { CopyOnWriteArrayList() }
         val emitter = createEmitter(listeners)
 
-        getLastEventId(lastEventId, lastEventIdParam)?.let {
+        lastEventId?.let {
             resendMissedEvents(it, emitter, user.user.id)
         }
 
@@ -215,10 +192,6 @@ class SSEController(
         }
     }
 
-    private fun dispatch(block: () -> Unit) {
-        eventExecutor.execute(block)
-    }
-
     private fun memberIds(channelId: Identifier): List<Identifier> {
         val members = channelService.getChannelMembers(channelId) as Success? ?: return emptyList()
         return members.value.map { it.key.id }
@@ -252,6 +225,13 @@ class SSEController(
                     MessageOutputModel.fromDomain(entity),
                     memberIds(entity.channelId),
                 )
+            is ChannelMember -> {
+                sendEventToAll(
+                    CHANNEL_UPDATED_EVENT_NAME,
+                    ChannelOutputModel.fromDomain(entity.channel.addMember(entity.user, entity.role)),
+                    if (entity.channel.isPublic) null else entity.channel.members.map { it.key.id },
+                )
+            }
         }
     }
 
@@ -261,13 +241,13 @@ class SSEController(
                 sendEventToAll(
                     CHANNEL_UPDATED_EVENT_NAME,
                     ChannelOutputModel.fromDomain(entity),
-                    entity.members.map { it.key.id },
+                    if (entity.isPublic) null else entity.members.map { it.key.id },
                 )
             is ChannelInvitation ->
                 sendEventToAll(
                     INVITATION_UPDATED_EVENT_NAME,
                     ChannelInvitationOutputModel.fromDomain(entity),
-                    listOf(entity.invitee.id),
+                    listOf(entity.invitee.id, entity.inviter.id),
                 )
             is Message ->
                 sendEventToAll(
@@ -275,6 +255,13 @@ class SSEController(
                     MessageOutputModel.fromDomain(entity),
                     memberIds(entity.channelId),
                 )
+            is ChannelMember -> {
+                sendEventToAll(
+                    CHANNEL_UPDATED_EVENT_NAME,
+                    ChannelOutputModel.fromDomain(entity.channel.addMember(entity.user, entity.role)),
+                    if (entity.channel.isPublic) null else entity.channel.members.map { it.key.id },
+                )
+            }
         }
     }
 
@@ -283,15 +270,15 @@ class SSEController(
             is Channel -> {
                 sendEventToAll(
                     CHANNEL_DELETED_EVENT_NAME,
-                    ChannelOutputModel.fromDomain(entity),
-                    entity.members.map { it.key.id },
+                    IdentifierOutputModel.fromDomain(entity.id),
+                    if (entity.isPublic) null else entity.members.map { it.key.id },
                 )
             }
             is ChannelInvitation ->
                 sendEventToAll(
                     INVITATION_DELETED_EVENT_NAME,
                     IdentifierOutputModel.fromDomain(entity.id),
-                    listOf(entity.invitee.id),
+                    listOf(entity.invitee.id, entity.inviter.id),
                 )
             is Message ->
                 sendEventToAll(
@@ -299,6 +286,13 @@ class SSEController(
                     IdentifierOutputModel.fromDomain(entity.id),
                     memberIds(entity.channelId),
                 )
+            is ChannelMember -> {
+                sendEventToAll(
+                    CHANNEL_UPDATED_EVENT_NAME,
+                    ChannelOutputModel.fromDomain(entity.channel.removeMember(entity.user)),
+                    if (entity.channel.isPublic) null else entity.channel.members.map { it.key.id },
+                )
+            }
         }
     }
 
@@ -316,3 +310,18 @@ class SSEController(
         private const val AWAIT_TERMINATION_TIMEOUT = 5L
     }
 }
+
+typealias EventType = String
+typealias Payload = Any?
+typealias EventId = String
+
+typealias Listener = (EventType, Payload, EventId) -> Unit
+
+typealias UserEvents = Pair<SseEventBuilder, List<Identifier>>
+
+/**
+ * Event to be received by the SSE controller, wrapping a repository event.
+ */
+class RepositoryHTTPEvent<T>(
+    val repositoryEvent: RepositoryEvent<T>,
+) : ApplicationEvent(repositoryEvent)

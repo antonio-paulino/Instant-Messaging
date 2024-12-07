@@ -140,24 +140,24 @@ class InvitationServiceImpl(
     override fun updateInvitation(
         channelId: Identifier,
         inviteId: Identifier,
-        role: ChannelRole,
-        expirationDate: LocalDateTime,
+        role: ChannelRole?,
+        expirationDate: LocalDateTime?,
         user: User,
     ): Either<InvitationError, Unit> =
         transactionManager.run {
-            val expiryValidation = validateExpirationDate(expirationDate)
 
-            if (expiryValidation is Failure) {
-                return@run expiryValidation
+            if (expirationDate != null) {
+                val expiryValidation = validateExpirationDate(expirationDate)
+                if (expiryValidation is Failure) {
+                    return@run expiryValidation
+                }
             }
 
             if (role == ChannelRole.OWNER) {
                 return@run Failure(InvitationError.OwnerInvitationNotAllowed)
             }
 
-            val channel =
-                channelRepository.findById(channelId)
-                    ?: return@run Failure(InvitationError.ChannelNotFound)
+            val channel = channelRepository.findById(channelId) ?: return@run Failure(InvitationError.ChannelNotFound)
 
             if (channel.owner != user) {
                 return@run Failure(InvitationError.UserCannotUpdateInvitation)
@@ -175,7 +175,7 @@ class InvitationServiceImpl(
                 return@run Failure(InvitationError.InvitationInvalid)
             }
 
-            channelInvitationRepository.save(invitation.copy(expiresAt = expirationDate, role = role))
+            channelInvitationRepository.save(invitation.copy(role = role ?: invitation.role, expiresAt = expirationDate ?: invitation.expiresAt))
 
             success(Unit)
         }

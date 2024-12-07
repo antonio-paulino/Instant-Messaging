@@ -105,8 +105,8 @@ interface InvitationService {
     fun updateInvitation(
         channelId: Identifier,
         inviteId: Identifier,
-        role: ChannelRole,
-        expirationDate: LocalDateTime,
+        role: ChannelRole?,
+        expirationDate: LocalDateTime?,
         user: User,
     ): Either<InvitationError, Unit>
 

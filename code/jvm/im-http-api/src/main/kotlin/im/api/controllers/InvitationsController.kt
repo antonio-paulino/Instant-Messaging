@@ -193,7 +193,7 @@ class InvitationsController(
                 invitationService.updateInvitation(
                     channelId.toDomain(),
                     invitationId.toDomain(),
-                    invitationInput.role.toDomain(),
+                    invitationInput.role?.toDomain(),
                     invitationInput.expiresAt,
                     user.user,
                 )

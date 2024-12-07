@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "im"
-version = "0.0.1-SNAPSHOT"
+version = "0.1.0-SNAPSHOT"
 
 java {
     toolchain {
@@ -66,6 +66,6 @@ task<Exec>("wait-db") {
 }
 
 task<Exec>("deploy") {
-    commandLine("docker", "compose", "-f", dockerComposePath, "up", "-d", "--build", "--force-recreate", "api")
-    dependsOn("wait-db")
+    commandLine("docker", "compose", "-f", dockerComposePath, "up", "-d", "--build", "--force-recreate", "deploy")
+    dependsOn("wait-db", "build")
 }

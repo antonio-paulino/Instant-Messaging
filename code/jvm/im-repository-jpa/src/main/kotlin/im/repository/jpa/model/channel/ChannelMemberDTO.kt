@@ -1,6 +1,7 @@
 package im.repository.jpa.model.channel
 
 import im.domain.channel.Channel
+import im.domain.channel.ChannelMember
 import im.domain.channel.ChannelRole
 import im.domain.user.User
 import im.repository.jpa.model.user.UserDTO
@@ -52,4 +53,11 @@ open class ChannelMemberDTO(
             role = ChannelRoleDTO.fromDomain(role),
         )
     }
+
+    fun toDomain() =
+        ChannelMember(
+            channel = channel.toDomain(),
+            user = user.toDomain(),
+            role = role.toDomain(),
+        )
 }

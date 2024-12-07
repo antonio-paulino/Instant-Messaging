@@ -8,7 +8,6 @@ import im.domain.wrappers.name.Name
 import im.repository.jpa.model.channel.ChannelDTO
 import im.repository.jpa.model.channel.ChannelMemberDTO
 import im.repository.jpa.model.channel.ChannelMemberId
-import im.repository.jpa.model.channel.ChannelRoleDTO
 import im.repository.jpa.repositories.jpa.JpaRepositoryUtils
 import im.repository.pagination.Pagination
 import im.repository.pagination.PaginationRequest
@@ -34,13 +33,14 @@ class ChannelRepositoryImpl(
         filterPublic: Boolean,
         pagination: PaginationRequest,
         sortRequest: SortRequest,
+        after: Identifier,
     ): Pagination<Channel> {
         val pageable = utils.toPageRequest(pagination, sortRequest)
         val res =
             if (pagination.getCount) {
-                channelRepositoryJpa.findByPartialName(name, filterPublic, pageable)
+                channelRepositoryJpa.findByPartialName(name, filterPublic, pageable, after.value)
             } else {
-                channelRepositoryJpa.findByPartialNameSliced(name, filterPublic, pageable)
+                channelRepositoryJpa.findByPartialNameSliced(name, filterPublic, pageable, after.value)
             }
         return Pagination(res.content.map { it.toDomain() }, utils.getPaginationInfo(res))
     }
@@ -120,7 +120,7 @@ class ChannelRepositoryImpl(
         user: User,
         role: ChannelRole,
     ) {
-        channelMemberRepositoryJpa.updateById(ChannelMemberId(channel.id.value, user.id.value), ChannelRoleDTO.fromDomain(role))
+        channelMemberRepositoryJpa.save(ChannelMemberDTO.fromDomain(channel, user, role))
     }
 
     override fun save(entity: Channel): Channel = channelRepositoryJpa.save(ChannelDTO.fromDomain(entity)).toDomain()

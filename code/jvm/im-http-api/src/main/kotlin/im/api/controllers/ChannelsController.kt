@@ -259,6 +259,26 @@ class ChannelsController(
             is Failure -> handleChannelFailure(res.value)
         }
 
+    /**
+     * Update a user role in a channel.
+     *
+     * Possible status codes:
+     * - 204 No Content: User role successfully updated.
+     * - 404 Not Found: Channel or user not found.
+     * - 403 Forbidden: User cannot update member roles in the channel.
+     *
+     * @param channelId The channel identifier.
+     * @param userId The user identifier.
+     * @param role The role update data.
+     * @param user The authenticated user.
+     *
+     * @return The response entity.
+     *
+     * @see ChannelIdentifierInputModel
+     * @see UserIdentifierInputModel
+     * @see ChannelRoleUpdateInputModel
+     *
+     */
     @PatchMapping("/{channelId}/members/{userId}")
     fun updateMemberRole(
         @Valid channelId: ChannelIdentifierInputModel,

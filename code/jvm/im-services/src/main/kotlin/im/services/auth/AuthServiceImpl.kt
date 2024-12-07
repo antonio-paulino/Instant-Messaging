@@ -112,7 +112,7 @@ class AuthServiceImpl(
                     session.refresh(
                         LocalDateTime
                             .now()
-                            .plusMinutes(config.sessionTTL.inWholeMinutes),
+                            .plusSeconds(config.sessionTTL.inWholeSeconds),
                     ),
                 )
 
@@ -123,7 +123,7 @@ class AuthServiceImpl(
                         expiresAt =
                             LocalDateTime
                                 .now()
-                                .plusMinutes(config.accessTokenTTL.inWholeMinutes),
+                                .plusSeconds(config.accessTokenTTL.inWholeSeconds),
                     ),
                 )
 

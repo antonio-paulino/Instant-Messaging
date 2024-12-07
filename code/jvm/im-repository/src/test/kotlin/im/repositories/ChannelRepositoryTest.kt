@@ -24,6 +24,7 @@ import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ContextConfiguration
+import java.nio.channels.Channels.newChannel
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import kotlin.test.Test
@@ -617,11 +618,13 @@ abstract class ChannelRepositoryTest {
     fun `should update member role`() {
         transactionManager.run {
             testChannel1 = channelRepository.save(testChannel1)
-            val newChannel = testChannel1.addMember(testMember, ChannelRole.MEMBER)
-            val updatedChannel = channelRepository.save(newChannel)
-            assertEquals(2, updatedChannel.members.size)
-            assertEquals(ChannelRole.MEMBER, updatedChannel.members[testMember])
-            channelRepository.updateMemberRole(updatedChannel, testMember, ChannelRole.GUEST)
+            testChannel1 = testChannel1.addMember(testMember, ChannelRole.MEMBER)
+            testChannel1 = channelRepository.save(testChannel1)
+            assertEquals(2, testChannel1.members.size)
+            assertEquals(ChannelRole.MEMBER, testChannel1.members[testMember])
+        }
+        transactionManager.run {
+            channelRepository.updateMemberRole(testChannel1, testMember, ChannelRole.GUEST)
         }
         transactionManager.run {
             val updatedChannel = channelRepository.findById(testChannel1.id)

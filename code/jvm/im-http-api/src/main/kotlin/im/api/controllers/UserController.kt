@@ -20,7 +20,6 @@ import im.services.users.UserService
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -106,7 +105,6 @@ class UserController(
      * @see UserChannelsOutputModel
      *
      */
-    @CrossOrigin(origins = ["http://localhost:3000"])
     @GetMapping("/{userId}/channels")
     fun getUserChannels(
         @Valid userId: UserIdentifierInputModel,

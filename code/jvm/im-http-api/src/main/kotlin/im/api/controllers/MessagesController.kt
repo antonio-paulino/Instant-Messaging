@@ -73,7 +73,7 @@ class MessagesController(
                     channelId.toDomain(),
                     paginationInput.toRequest(),
                     sort.toRequest(),
-                    before?.before?.let { LocalDateTime.parse(it, DateTimeFormatter.ISO_DATE_TIME) }.also { time -> println(time) },
+                    before?.before?.let { LocalDateTime.parse(it, DateTimeFormatter.ISO_DATE_TIME) },
                     user.user,
                 )
         ) {

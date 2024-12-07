@@ -22,23 +22,25 @@ interface ChannelRepositoryJpa : JpaRepository<ChannelDTO, Long> {
     @Query(
         value =
             "SELECT c FROM ChannelDTO c WHERE lower(c.name) LIKE CONCAT(lower(:name), '%') AND " +
-                "(c.isPublic or NOT :filterPublic = true)",
+                "(c.isPublic or NOT :filterPublic = true) AND c.id > :after",
     )
     fun findByPartialName(
         name: String,
         filterPublic: Boolean,
         page: Pageable,
+        after: Long,
     ): Page<ChannelDTO>
 
     @Query(
         value =
             "SELECT c FROM ChannelDTO c WHERE lower(c.name) LIKE CONCAT(lower(:name), '%') AND " +
-                "(c.isPublic or NOT :filterPublic = true)",
+                "(c.isPublic or NOT :filterPublic = true) AND c.id > :after",
     )
     fun findByPartialNameSliced(
         name: String,
         filterPublic: Boolean,
         page: Pageable,
+        after: Long,
     ): Slice<ChannelDTO>
 
     @Query(

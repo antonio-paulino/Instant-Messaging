@@ -183,6 +183,7 @@ class ChannelServiceImpl(
                         filterPublic = true,
                         pagination,
                         sortRequest.copy(sortBy = sort),
+                        after ?: Identifier(0),
                     )
                 } else {
                     channelRepository.find(pagination, filterPublic = true, sortRequest.copy(sortBy = sort), after ?: Identifier(0))

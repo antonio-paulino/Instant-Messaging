@@ -36,6 +36,7 @@ interface ChannelRepository : Repository<Channel, Identifier> {
         filterPublic: Boolean,
         pagination: PaginationRequest,
         sortRequest: SortRequest,
+        after: Identifier,
     ): Pagination<Channel>
 
     /**
