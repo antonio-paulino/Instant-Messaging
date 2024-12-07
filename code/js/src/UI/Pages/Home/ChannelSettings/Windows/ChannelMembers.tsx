@@ -9,7 +9,6 @@ import { ChannelRole } from '../../../../../Domain/channel/ChannelRole';
 import { Identifier } from '../../../../../Domain/wrappers/identifier/Identifier';
 import { ChannelService } from '../../../../../Services/channels/ChannelService';
 import { Channel } from '../../../../../Domain/channel/Channel';
-import { useInfiniteScrollContextChannels } from '../../../../Providers/InfiniteScrollProvider';
 import { useAlertContext } from '../../../../Providers/AlertsProvider';
 import { ChannelMember } from '../../../../../Domain/channel/ChannelMember';
 import { useMediaQuery, useTheme } from '@mui/material';

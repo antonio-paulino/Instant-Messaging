@@ -24,5 +24,5 @@ export function handleScrollThrottled(
     setTimeout(() => {
         handleScroll(scrollRef.current, scrollDown, loadMore);
         throttleRef.current = false;
-    }, 100);
+    }, throttle);
 }

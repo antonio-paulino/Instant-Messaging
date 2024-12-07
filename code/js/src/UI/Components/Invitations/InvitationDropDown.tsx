@@ -45,6 +45,7 @@ export function InvitationsDropDown() {
                         <ListItem
                             key={invitation.id.value}
                             sx={{
+                                ...style,
                                 p: 0,
                                 height: '50px',
                                 justifyContent: 'center',

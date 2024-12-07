@@ -13,7 +13,6 @@ import { SortRequest } from '../../Domain/pagination/SortRequest';
 import { Pagination } from '../../Domain/pagination/Pagination';
 import { ChannelsPaginatedOutputModel } from '../../Dto/output/channels/ChannelsPaginatedOutputModel';
 import { ChannelRoleUpdateInputModel } from '../../Dto/input/ChannelRoleUpdateInputModel';
-import { User } from '../../Domain/user/User';
 import { Uri } from '../Uri';
 import { buildQuery } from '../Utils';
 import { ChannelMember } from '../../Domain/channel/ChannelMember';
@@ -27,7 +26,6 @@ export namespace ChannelService {
     import CHANNELS_ROUTE = Uri.CHANNELS_ROUTE;
     import CHANNEL_ROUTE = Uri.CHANNEL_ROUTE;
     import CHANNEL_ID_PARAM = Uri.CHANNEL_ID_PARAM;
-    import CHANNEL_MEMBERS_ROUTE = Uri.CHANNEL_MEMBERS_ROUTE;
     import CHANNEL_MEMBER_ROUTE = Uri.CHANNEL_MEMBER_ROUTE;
     import USER_ID_PARAM = Uri.USER_ID_PARAM;
     import put = BaseHTTPService.put;

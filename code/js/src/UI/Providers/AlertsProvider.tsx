@@ -67,7 +67,7 @@ export function AlertProvider({ children }: { children: ReactNode }) {
         },
         {
             type: 'invitation-created',
-            listener: (event: MessageEvent<string>) => {
+            listener: () => {
                 setInvitationNotifications((prev) => {
                     localStorage.setItem('invitationNotifications', (prev + 1).toString());
                     return prev + 1;

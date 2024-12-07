@@ -3,8 +3,7 @@ import { Badge, Button, Collapse, Fade } from '@mui/material';
 import Stack from '@mui/material/Stack';
 import { ArrowDropDown, ArrowDropUp } from '@mui/icons-material';
 import Box from '@mui/material/Box';
-import { handleScroll, handleScrollThrottled } from '../../../../Utils/Scroll';
-import { useRef } from 'react';
+
 interface DropDownMenuProps {
     maxHeight?: string;
     maxWidth?: string;

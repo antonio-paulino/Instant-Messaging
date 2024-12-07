@@ -1,6 +1,6 @@
 import { styled } from '@mui/material/styles';
 import MuiDrawer from '@mui/material/Drawer';
-import { Badge, drawerClasses } from '@mui/material';
+import { drawerClasses } from '@mui/material';
 import * as React from 'react';
 import { MenuContent } from './MenuContent';
 import { AuthService } from '../../../../Services/auth/AuthService';

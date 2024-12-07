@@ -1,9 +1,6 @@
 import React from 'react';
-import { Backdrop, CardHeader, Fade, SxProps } from '@mui/material';
+import { Backdrop, CardHeader, Fade } from '@mui/material';
 import { Card } from '../../../Pages/SignIn/SignIn';
-import IconButton from '@mui/material/IconButton';
-import { Close } from '@mui/icons-material';
-import Box from '@mui/material/Box';
 
 export function Window({
     title,

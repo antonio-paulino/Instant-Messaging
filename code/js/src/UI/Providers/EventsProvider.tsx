@@ -5,7 +5,7 @@ import { ChannelInvitation, channelInvitationFromDto } from '../../Domain/invita
 import { ChannelInvitationOutputModel } from '../../Dto/output/invitations/ChannelInvitationOutputModel';
 import { Channel, channelFromDto } from '../../Domain/channel/Channel';
 import { ChannelOutputModel } from '../../Dto/output/channels/ChannelOutputModel';
-import React, { createContext, useEffect, useRef, useState } from 'react';
+import React, { createContext, useState } from 'react';
 import { useSessionManager } from './SessionProvider';
 import { doAfterDelay } from '../../Utils/Time';
 

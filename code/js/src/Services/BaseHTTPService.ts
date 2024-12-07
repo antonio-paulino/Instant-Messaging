@@ -1,7 +1,6 @@
 import { ApiResult } from './media/Problem';
 import { doAfterDelayWithResult } from '../Utils/Time';
 import { failure, success } from '../Domain/Either';
-import { delay } from './Utils';
 
 type RequestBody<B> = B | null;
 
@@ -55,9 +54,7 @@ export namespace BaseHTTPService {
         fetchResBody: boolean = true,
         abortSignal?: AbortSignal,
     ): ApiResult<T> {
-        if (process.env.NODE_ENV === 'development') {
-            await delay(100 + Math.random() * 800);
-        }
+        // await delay(100);
         const request: RequestInit = {
             method: method,
             headers: {

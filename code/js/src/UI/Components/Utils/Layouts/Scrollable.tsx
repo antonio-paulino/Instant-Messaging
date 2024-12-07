@@ -1,8 +1,8 @@
 import { SxProps } from '@mui/material';
-import React, { useEffect, useLayoutEffect } from 'react';
+import React from 'react';
 import Box from '@mui/material/Box';
 import { Theme } from '@mui/material/styles';
-import { handleScroll, handleScrollThrottled } from '../../../../Utils/Scroll';
+import { handleScrollThrottled } from '../../../../Utils/Scroll';
 
 export function Scrollable(props: {
     sx?: SxProps<Theme>;

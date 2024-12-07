@@ -1,9 +1,7 @@
-import { FormState } from '../../../State/useForm';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import { ChannelRole } from '../../../../Domain/channel/ChannelRole';
 import React from 'react';
-import { ChannelRoleIcon } from '../../Channels/ChannelRoleIcon';
 
 export function RoleInput({
     id,

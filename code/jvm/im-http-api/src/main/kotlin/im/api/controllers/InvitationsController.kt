@@ -287,7 +287,6 @@ class InvitationsController(
      *
      * @param userId The user identifier.
      * @param invitationId The invitation identifier.
-     * @param accept The invitation accept/reject data.
      * @param user The authenticated user.
      *
      * @return The response entity.

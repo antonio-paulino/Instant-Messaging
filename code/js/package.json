@@ -23,7 +23,7 @@
     "webpack-dev-server": "^5.1.0"
   },
   "scripts": {
-    "start": "NODE_ENV=development webpack serve",
+    "start": "webpack serve",
     "build": " npm run format && npm run format:check && webpack",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
     "format:check": "prettier --check \"src/**/*.{js,jsx,ts,tsx,json,css,scss,md}\""

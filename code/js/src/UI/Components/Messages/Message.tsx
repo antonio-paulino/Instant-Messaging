@@ -58,7 +58,7 @@ const Timestamp = styled(Typography)(({ theme }) => ({
     },
 }));
 
-const TooltipIconButton = styled(IconButton)(({ theme }) => ({
+const TooltipIconButton = styled(IconButton)(() => ({
     border: 'none',
     borderRadius: '50%',
     width: '26px',

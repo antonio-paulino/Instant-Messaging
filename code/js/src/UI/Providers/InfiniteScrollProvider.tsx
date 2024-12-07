@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect } from 'react';
+import React, { createContext, useContext } from 'react';
 import { InfiniteScroll, InfiniteScrollProps, useInfiniteScroll } from '../State/useInfiniteScroll';
 import { IdentifiableValue } from '../../Domain/IdentifiableValue';
 import { Channel } from '../../Domain/channel/Channel';

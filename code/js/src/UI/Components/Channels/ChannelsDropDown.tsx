@@ -84,6 +84,7 @@ export function ChannelsDropDown() {
                         <ListItem
                             key={channel.id.value}
                             sx={{
+                                ...style,
                                 p: 1,
                                 color: 'primary.main',
                                 justifyContent: 'center',

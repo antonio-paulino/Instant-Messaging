@@ -1,13 +1,13 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Channel } from '../../../Domain/channel/Channel';
 import MessagesContainer from '../Messages/MessagesContainer';
 import { AppBar, ButtonBase, Toolbar } from '@mui/material';
 import Typography from '@mui/material/Typography';
-import { ChannelAccessIcon } from './ChannelAccessIcon';
 import { MessageTextField } from '../Messages/MessageTextField';
 import { Routes } from '../../../routes';
 import { Link, Navigate } from 'react-router-dom';
 import { useInfiniteScrollContextChannels } from '../../Providers/InfiniteScrollProvider';
+import {Settings} from "@mui/icons-material";
 
 export default function ChannelView() {
     const { state, selectedChannel } = useInfiniteScrollContextChannels();
@@ -36,9 +36,15 @@ export function ChannelTopBar({ channel }: { channel: Channel }) {
                 backgroundImage: 'none',
                 borderBottom: '1px solid',
                 borderColor: 'divider',
+                color: 'text.primary',
             }}
         >
-            <ButtonBase sx={{ width: '100%', justifyContent: 'flex-start' }}>
+            <ButtonBase
+                sx={{
+                    width: '100%',
+                    justifyContent: 'flex-start',
+                }}
+            >
                 <Link
                     to={Routes.CHANNEL_SETTINGS}
                     style={{
@@ -49,7 +55,7 @@ export function ChannelTopBar({ channel }: { channel: Channel }) {
                     }}
                 >
                     <Toolbar variant={'regular'}>
-                        <ChannelAccessIcon isPublic={channel.isPublic} />
+                        <Settings />
                         <Typography variant="body1" ml={1}>
                             {channel.name.value}
                         </Typography>

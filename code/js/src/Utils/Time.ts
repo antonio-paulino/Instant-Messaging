@@ -1,5 +1,3 @@
-import { MutableRefObject, Ref } from 'react';
-
 /**
  * Returns a promise that executes the given function after the given delay.
  *

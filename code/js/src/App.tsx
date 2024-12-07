@@ -1,5 +1,5 @@
-import SessionProvider, { useLoggedIn } from './UI/Providers/SessionProvider';
-import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import SessionProvider from './UI/Providers/SessionProvider';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import AppTheme from './UI/Theme/AppTheme';
 import { CssBaseline } from '@mui/material';
 import * as React from 'react';

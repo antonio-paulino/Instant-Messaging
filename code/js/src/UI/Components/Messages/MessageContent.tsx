@@ -1,4 +1,3 @@
-import { Message } from '../../../Domain/messages/Message';
 import React from 'react';
 import Link from '@mui/material/Link';
 import { styled } from '@mui/material/styles';
