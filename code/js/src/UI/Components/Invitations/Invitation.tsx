@@ -1,77 +1,22 @@
 import { Identifier } from '../../../Domain/wrappers/identifier/Identifier';
 import { ChannelInvitation } from '../../../Domain/invitations/ChannelInvitation';
-import { useSessionManager } from '../Providers/Session';
-import { useAlert } from '../Providers/Alerts';
+import { useSessionManager } from '../../Providers/SessionProvider';
+import { useAlertContext } from '../../Providers/AlertsProvider';
 import { InvitationService } from '../../../Services/invitations/InvitationService';
 import * as React from 'react';
 import Stack from '@mui/material/Stack';
-import {
-    ChatBubbleOutline,
-    CheckRounded,
-    CloseRounded,
-    MenuBookOutlined,
-} from '@mui/icons-material';
+import { CheckRounded, CloseRounded } from '@mui/icons-material';
 import { ListItemText } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
-import { useInfiniteScrollContextChannels } from '../Providers/InfiniteScrollProvider';
+import { useInfiniteScrollContextChannels } from '../../Providers/InfiniteScrollProvider';
+import { Channel } from '../../../Domain/channel/Channel';
+import { InvitationIcon } from './InvitationIcon';
 
 export default function InvitationView(props: {
     handleItemDelete: (itemId: Identifier) => void;
     invitation: ChannelInvitation;
 }) {
-    const sessionManager = useSessionManager();
-    const { showAlert } = useAlert();
-    const { state, handleItemCreate: handleCreateChannel } =
-        useInfiniteScrollContextChannels();
-
-    const acceptInvitation = async () => {
-        const res = await sessionManager.executeWithRefresh(async () => {
-            return await InvitationService.acceptInvitation(props.invitation);
-        });
-        if (res.isSuccess()) {
-            props.handleItemDelete(props.invitation.id);
-            if (
-                state.paginationState.items.length === 0 ||
-                state.paginationState.items[
-                    state.paginationState.items.length - 1
-                ].id.value > props.invitation.channel.id.value
-            ) {
-                handleCreateChannel({
-                    ...props.invitation.channel,
-                    members: [
-                        ...props.invitation.channel.members,
-                        {
-                            id: props.invitation.invitee.id,
-                            name: props.invitation.invitee.name,
-                            role: props.invitation.role,
-                        },
-                    ],
-                });
-            }
-            showAlert({ message: 'Invitation accepted', severity: 'success' });
-        } else {
-            showAlert({
-                message: 'Failed to accept invitation',
-                severity: 'error',
-            });
-        }
-    };
-
-    const declineInvitation = async () => {
-        const res = await sessionManager.executeWithRefresh(async () => {
-            return await InvitationService.declineInvitation(props.invitation);
-        });
-        if (res.isSuccess()) {
-            props.handleItemDelete(props.invitation.id);
-            showAlert({ message: 'Invitation declined', severity: 'success' });
-        } else {
-            showAlert({
-                message: 'Failed to decline invitation',
-                severity: 'error',
-            });
-        }
-    };
-
+    const { acceptInvitation, declineInvitation } = useInvitationView(props);
     return (
         <React.Fragment>
             <Stack
@@ -79,33 +24,85 @@ export default function InvitationView(props: {
                 alignItems={'center'}
                 justifyContent={'space-between'}
                 sx={{ gap: 2 }}
-                width="100%"
+                width="90%"
+                height={'100%'}
             >
-                {props.invitation.role === 'GUEST' ? (
-                    <MenuBookOutlined />
-                ) : (
-                    <ChatBubbleOutline />
-                )}
+                <InvitationIcon invitation={props.invitation} />
                 <ListItemText
-                    sx={{ overflow: 'hidden', textWrap: 'wrap' }}
+                    sx={{ overflow: 'hidden', m: 0.5 }}
                     primary={props.invitation.channel.name.value}
-                    secondary={props.invitation.invitee.name.value}
+                    secondary={props.invitation.inviter.name.value}
                 />
-                <IconButton
-                    aria-label={'accept'}
-                    size={'small'}
-                    onClick={acceptInvitation}
-                >
+                <IconButton aria-label={'accept'} onClick={acceptInvitation} sx={{ color: 'success.main' }}>
                     <CheckRounded />
                 </IconButton>
-                <IconButton
-                    aria-label={'decline'}
-                    size={'small'}
-                    onClick={declineInvitation}
-                >
+                <IconButton aria-label={'decline'} sx={{ color: 'error.main' }} onClick={declineInvitation}>
                     <CloseRounded />
                 </IconButton>
             </Stack>
         </React.Fragment>
     );
+}
+
+interface InvitationHook {
+    acceptInvitation: () => void;
+    declineInvitation: () => void;
+}
+
+function useInvitationView(props: { invitation: ChannelInvitation }): InvitationHook {
+    const sessionManager = useSessionManager();
+    const { showAlert } = useAlertContext();
+    const { state, handleItemCreate: handleCreateChannel } = useInfiniteScrollContextChannels();
+
+    async function acceptInvitation() {
+        const res = await sessionManager.executeWithRefresh(async () => {
+            return await InvitationService.acceptInvitation(props.invitation);
+        });
+        if (res.isSuccess()) {
+            if (
+                state.paginationState.items.length === 0 ||
+                state.paginationState.items[state.paginationState.items.length - 1].id.value >
+                    props.invitation.channel.id.value
+            ) {
+                handleCreateChannel(createNewChannelFromInvitation(props.invitation));
+            }
+            showAlert({ message: 'Invitation accepted', severity: 'success' });
+        } else {
+            showAlert({
+                message: res.getLeft().detail,
+                severity: 'error',
+            });
+        }
+    }
+
+    async function declineInvitation() {
+        const res = await sessionManager.executeWithRefresh(async () => {
+            return await InvitationService.declineInvitation(props.invitation);
+        });
+
+        if (res.isSuccess()) {
+            showAlert({ message: 'Invitation declined', severity: 'success' });
+        } else {
+            showAlert({
+                message: res.getLeft().detail,
+                severity: 'error',
+            });
+        }
+    }
+
+    return { acceptInvitation, declineInvitation };
+}
+
+function createNewChannelFromInvitation(invitation: ChannelInvitation): Channel {
+    return {
+        ...invitation.channel,
+        members: [
+            ...invitation.channel.members,
+            {
+                id: invitation.invitee.id,
+                name: invitation.invitee.name,
+                role: invitation.role,
+            },
+        ],
+    };
 }

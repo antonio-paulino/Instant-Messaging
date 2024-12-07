@@ -1,16 +1,19 @@
 import * as React from 'react';
-import { Button, Collapse, Fade } from '@mui/material';
+import { Badge, Button, Collapse, Fade } from '@mui/material';
 import Stack from '@mui/material/Stack';
 import { ArrowDropDown, ArrowDropUp } from '@mui/icons-material';
 import Box from '@mui/material/Box';
-import { handleScroll } from '../../Utils/Scroll';
-
+import { handleScroll, handleScrollThrottled } from '../../../../Utils/Scroll';
+import { useRef } from 'react';
 interface DropDownMenuProps {
     maxHeight?: string;
     maxWidth?: string;
-    loadMore?: () => void;
     startOpen: boolean;
+    scrollable?: boolean;
+    onToggleOpen?: (isOpen: boolean) => void;
     bottomScroll?: boolean;
+    notifications?: number;
+    clearNotifications?: () => void;
     header: React.ReactNode;
     children: React.ReactNode;
 }
@@ -18,9 +21,10 @@ interface DropDownMenuProps {
 export default function DropDownMenu({
     maxHeight,
     maxWidth,
-    loadMore,
     startOpen,
-    bottomScroll,
+    onToggleOpen,
+    notifications,
+    clearNotifications,
     header,
     children,
 }: DropDownMenuProps) {
@@ -32,17 +36,23 @@ export default function DropDownMenu({
                 aria-controls={open ? 'slide-down-menu' : undefined}
                 aria-haspopup="true"
                 aria-expanded={open ? 'true' : undefined}
-                onClick={() => setOpen((prevOpen) => !prevOpen)}
+                onClick={() => {
+                    setOpen(!open);
+                    if (onToggleOpen) {
+                        onToggleOpen(!open);
+                    }
+                    if (clearNotifications) {
+                        clearNotifications();
+                    }
+                }}
                 variant="text"
                 fullWidth
+                sx={{ p: 1, overflowX: 'hidden' }}
             >
-                <Stack
-                    direction={'row'}
-                    justifyContent={'space-between'}
-                    alignItems={'center'}
-                    width={'100%'}
-                >
-                    {header}
+                <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'} width={'100%'}>
+                    <Badge badgeContent={notifications} invisible={notifications === 0 || open} color={'error'}>
+                        {header}
+                    </Badge>
                     {open ? <ArrowDropUp /> : <ArrowDropDown />}
                 </Stack>
             </Button>
@@ -51,14 +61,11 @@ export default function DropDownMenu({
                     <Box
                         id="slide-down-menu"
                         sx={{
-                            backgroundColor: 'background.paper',
-                            overflow: 'auto',
-                            width: maxWidth,
                             maxHeight: maxHeight,
+                            maxWidth: maxWidth,
+                            overflow: 'hidden',
+                            width: '100%',
                         }}
-                        onScroll={(event) =>
-                            handleScroll(event, bottomScroll, loadMore)
-                        }
                     >
                         {children}
                     </Box>

@@ -14,5 +14,4 @@ export default function ErrorList({ errors }: ErrorsProps) {
             ))}
         </React.Fragment>
     );
-};
-
+}

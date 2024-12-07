@@ -1,10 +1,7 @@
 import { Outlet, useNavigate } from 'react-router-dom';
 import * as React from 'react';
 import Box from '@mui/material/Box';
-import { useSessionManager } from '../../Components/Providers/Session';
-import { useAbortSignal } from '../../Components/State/useAbortSignal';
-import { AuthService } from '../../../Services/auth/AuthService';
-import SideMenu from '../../Components/SideMenu';
+import { useLoggedIn, useSessionManager } from '../../Providers/SessionProvider';
 import { PaginationRequest } from '../../../Domain/pagination/PaginationRequest';
 import { Channel } from '../../../Domain/channel/Channel';
 import { UserService } from '../../../Services/users/UserService';
@@ -13,71 +10,25 @@ import { InvitationService } from '../../../Services/invitations/InvitationServi
 import {
     InfiniteScrollChannelProvider,
     InfiniteScrollInvitationProvider,
-} from '../../Components/Providers/InfiniteScrollProvider';
-import { AuthenticatedPage } from '../../../App';
-import { useAlert } from '../../Components/Providers/Alerts';
+} from '../../Providers/InfiniteScrollProvider';
+import { AlertProvider } from '../../Providers/AlertsProvider';
+import { useEffect } from 'react';
+import { useEventManager } from '../../Providers/EventsProvider';
+import ChannelView from '../../Components/Channels/ChannelView';
+import SideMenu from '../../Components/Utils/Menu/SideMenu';
+import { Identifier } from '../../../Domain/wrappers/identifier/Identifier';
+import { ApiResult } from '../../../Services/media/Problem';
+import { Pagination } from '../../../Domain/pagination/Pagination';
+import { AuthenticatedPage } from '../../Components/AuthenticatedPage';
 
 export function Home() {
-    const sessionManager = useSessionManager();
-    const navigate = useNavigate();
-    const signal = useAbortSignal();
-    const { showAlert } = useAlert();
-
-    const [selectedChannel, setSelectedChannel] =
-        React.useState<Channel | null>(null);
-
-    const fetchChannels = async (page: PaginationRequest, items: Channel[]) => {
-        return await sessionManager.executeWithRefresh(async () => {
-            const after = items.length > 0 ? items[items.length - 1].id : null;
-            return await UserService.getUserChannels(
-                sessionManager.session.user,
-                false,
-                null,
-                page,
-                after,
-            );
-        });
-    };
-
-    const fetchInvitations = async (
-        page: PaginationRequest,
-        items: ChannelInvitation[],
-    ) => {
-        return await sessionManager.executeWithRefresh(async () => {
-            const after = items.length > 0 ? items[items.length - 1].id : null;
-            return await InvitationService.getUserInvitations(
-                sessionManager.session.user,
-                page,
-                null,
-                after,
-            );
-        });
-    };
-
-    function handleLogout() {
-        sessionManager
-            .executeWithRefresh(() => {
-                return AuthService.logout(signal);
-            })
-            .then((res) => {
-                if (res.isSuccess()) {
-                    sessionManager.clearSession();
-                    navigate('/sign-in');
-                } else {
-                    showAlert({
-                        message: 'Failed to logout',
-                        severity: 'error',
-                    });
-                }
-            });
-    }
-
-    // The main box should include the currently selected channel's view
+    const [selectedChannel, setSelectedChannel] = React.useState<Identifier | null>(null);
+    const { fetchInvitations, fetchChannels } = useHome();
     return (
         <AuthenticatedPage>
             <InfiniteScrollChannelProvider
                 fetchItemsRequest={fetchChannels}
-                limit={10}
+                limit={20}
                 useOffset={false}
                 getCount={false}
                 selectedChannel={selectedChannel}
@@ -85,24 +36,67 @@ export function Home() {
             >
                 <InfiniteScrollInvitationProvider
                     fetchItemsRequest={fetchInvitations}
-                    limit={10}
+                    limit={20}
                     useOffset={false}
                     getCount={false}
                 >
-                    <Box sx={{ display: 'flex' }}>
-                        <SideMenu handleLogout={handleLogout} />
-                        <Box
-                            component={'main'}
-                            sx={{
-                                flexGrow: 1,
-                                overflow: 'auto',
-                            }}
-                        >
-                            <Outlet />
+                    <AlertProvider>
+                        <Box sx={{ display: 'flex', overflow: 'hidden' }}>
+                            <SideMenu />
+                            <Box
+                                component={'main'}
+                                sx={{
+                                    flexGrow: 1,
+                                    overflow: 'hidden',
+                                }}
+                            >
+                                {selectedChannel && <ChannelView />}
+                                <Outlet />
+                            </Box>
                         </Box>
-                    </Box>
+                    </AlertProvider>
                 </InfiniteScrollInvitationProvider>
             </InfiniteScrollChannelProvider>
         </AuthenticatedPage>
     );
+}
+
+interface HomeHook {
+    fetchChannels: (page: PaginationRequest, items: Channel[], signal: AbortSignal) => ApiResult<Pagination<Channel>>;
+    fetchInvitations: (
+        page: PaginationRequest,
+        items: ChannelInvitation[],
+        signal: AbortSignal,
+    ) => ApiResult<Pagination<ChannelInvitation>>;
+}
+
+function useHome(): HomeHook {
+    const eventManager = useEventManager();
+    const sessionManager = useSessionManager();
+    const login = useLoggedIn();
+
+    useEffect(() => {
+        if (login && !eventManager.isInitialized) {
+            eventManager.setupEventSource();
+        }
+        return () => {
+            eventManager.destroyEventSource();
+        };
+    }, [login, eventManager.isInitialized]);
+
+    const fetchChannels = async (page: PaginationRequest, items: Channel[], signal: AbortSignal) => {
+        return await sessionManager.executeWithRefresh(async () => {
+            const after = items.length > 0 ? items[items.length - 1].id : null;
+            return await UserService.getUserChannels(sessionManager.session.user, false, null, page, after, signal);
+        });
+    };
+
+    const fetchInvitations = async (page: PaginationRequest, items: ChannelInvitation[], signal: AbortSignal) => {
+        return await sessionManager.executeWithRefresh(async () => {
+            const after = items.length > 0 ? items[items.length - 1].id : null;
+            return await InvitationService.getUserInvitations(sessionManager.session.user, page, null, after, signal);
+        });
+    };
+
+    return { fetchInvitations, fetchChannels };
 }
