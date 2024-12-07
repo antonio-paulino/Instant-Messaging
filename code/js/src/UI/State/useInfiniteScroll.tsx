@@ -3,9 +3,8 @@ import { PaginationRequest } from '../../Domain/pagination/PaginationRequest';
 import { ApiResult, ProblemResponse } from '../../Services/media/Problem';
 import { Identifier } from '../../Domain/wrappers/identifier/Identifier';
 import { IdentifiableValue } from '../../Domain/IdentifiableValue';
-import {useEffect, useReducer, useRef} from 'react';
-import {delay} from "../../Services/Utils";
-import {ABORT_STATUS} from "../../Services/BaseHTTPService";
+import { useEffect, useReducer, useRef } from 'react';
+import { ABORT_STATUS } from '../../Services/BaseHTTPService';
 
 /**
  * Defines the parameters for the InfiniteScroll hook component.
@@ -245,7 +244,7 @@ export function useInfiniteScroll<T>(
         dispatch({ type: 'reset' });
     };
 
-    const abortControllerRef = useRef<AbortController>(null)
+    const abortControllerRef = useRef<AbortController>(null);
 
     useEffect(() => {
         if (state.type !== 'loading') {

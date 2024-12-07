@@ -145,7 +145,6 @@ class InvitationServiceImpl(
         user: User,
     ): Either<InvitationError, Unit> =
         transactionManager.run {
-
             if (expirationDate != null) {
                 val expiryValidation = validateExpirationDate(expirationDate)
                 if (expiryValidation is Failure) {
@@ -175,7 +174,9 @@ class InvitationServiceImpl(
                 return@run Failure(InvitationError.InvitationInvalid)
             }
 
-            channelInvitationRepository.save(invitation.copy(role = role ?: invitation.role, expiresAt = expirationDate ?: invitation.expiresAt))
+            channelInvitationRepository.save(
+                invitation.copy(role = role ?: invitation.role, expiresAt = expirationDate ?: invitation.expiresAt),
+            )
 
             success(Unit)
         }

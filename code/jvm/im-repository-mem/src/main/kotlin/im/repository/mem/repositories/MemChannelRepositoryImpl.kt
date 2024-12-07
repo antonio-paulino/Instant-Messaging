@@ -33,8 +33,9 @@ class MemChannelRepositoryImpl(
         filterPublic: Boolean,
         pagination: PaginationRequest,
         sortRequest: SortRequest,
+        after: Identifier,
     ): Pagination<Channel> {
-        val filteredChannels = channels.values.filter { it.name.startsWith(name) && (!filterPublic || it.isPublic) }
+        val filteredChannels = channels.values.filter { it.name.startsWith(name) && (!filterPublic || it.isPublic) && it.id > after.value }
         val page = utils.paginate(filteredChannels, pagination, sortRequest)
         return Pagination(page.items.map { it.toDomain() }, page.info)
     }

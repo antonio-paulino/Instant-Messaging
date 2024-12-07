@@ -5,7 +5,7 @@
 ---
 
 This project currently features a Web API, developed in Kotlin with the use of Spring Boot 
-and will eventually feature a web client developed in TypeScript with the use of React.
+and a Single Page Application, developed in TypeScript with the use of React and Material-UI.
 
 ## Documentation
 

@@ -576,9 +576,9 @@ abstract class InvitationsControllerTests {
             }
 
         assertNotNull(updated)
-        assertEquals(updatedInvitation.role.value, updated!!.role.toString())
+        assertEquals(updatedInvitation.role!!.value, updated!!.role.toString())
         assertEquals(
-            updatedInvitation.expiresAt.truncatedTo(ChronoUnit.MILLIS),
+            updatedInvitation.expiresAt!!.truncatedTo(ChronoUnit.MILLIS),
             updated.expiresAt.truncatedTo(ChronoUnit.MILLIS),
         )
     }
