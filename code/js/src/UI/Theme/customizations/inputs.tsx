@@ -317,15 +317,9 @@ export const inputsCustomizations: Components<Theme> = {
     MuiCheckbox: {
         defaultProps: {
             disableRipple: true,
-            icon: (
-                <CheckBoxOutlineBlankRoundedIcon
-                    sx={{ color: 'hsla(210, 0%, 0%, 0.0)' }}
-                />
-            ),
+            icon: <CheckBoxOutlineBlankRoundedIcon sx={{ color: 'hsla(210, 0%, 0%, 0.0)' }} />,
             checkedIcon: <CheckRoundedIcon sx={{ height: 14, width: 14 }} />,
-            indeterminateIcon: (
-                <RemoveRoundedIcon sx={{ height: 14, width: 14 }} />
-            ),
+            indeterminateIcon: <RemoveRoundedIcon sx={{ height: 14, width: 14 }} />,
         },
         styleOverrides: {
             root: ({ theme }) => ({
@@ -414,7 +408,7 @@ export const inputsCustomizations: Components<Theme> = {
                             size: 'small',
                         },
                         style: {
-                            height: '2.6rem',
+                            minHeight: '2.6rem',
                         },
                     },
                     {
@@ -422,7 +416,7 @@ export const inputsCustomizations: Components<Theme> = {
                             size: 'medium',
                         },
                         style: {
-                            height: '2.8rem',
+                            minHeight: '3.2rem',
                         },
                     },
                 ],
@@ -449,7 +443,7 @@ export const inputsCustomizations: Components<Theme> = {
                 marginBottom: 0,
                 transition: 'transform 0.2s ease-in-out',
                 '&.Mui-focused': {
-                    transform: 'translateY(-20px) translateX(8px) scale(0.9)',
+                    transform: 'translateY(-22px) translateX(8px) scale(0.9)',
                 },
             }),
         },

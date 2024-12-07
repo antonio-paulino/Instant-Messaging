@@ -1,11 +1,12 @@
 import React, { createContext, useContext, useState } from 'react';
-import { Session } from '../../../Domain/sessions/Session';
-import { ApiResult } from '../../../Services/media/Problem';
+import { Session } from '../../Domain/sessions/Session';
+import { ApiResult } from '../../Services/media/Problem';
 import { useNavigate } from 'react-router-dom';
-import { AuthService } from '../../../Services/auth/AuthService';
-import { AccessToken } from '../../../Domain/tokens/AccessToken';
-import { RefreshToken } from '../../../Domain/tokens/RefreshToken';
-import { Identifier } from '../../../Domain/wrappers/identifier/Identifier';
+import { AuthService } from '../../Services/auth/AuthService';
+import { AccessToken } from '../../Domain/tokens/AccessToken';
+import { RefreshToken } from '../../Domain/tokens/RefreshToken';
+import { Identifier } from '../../Domain/wrappers/identifier/Identifier';
+import { Routes } from '../../routes';
 
 const SESSION_STORAGE_KEY = 'session';
 
@@ -25,31 +26,25 @@ export interface SessionManager {
 
 const SessionContext = createContext<SessionManager>({
     session: null,
-    setSession: () => {},
-    clearSession: () => {},
+    setSession: () => {
+        throw new Error('Not implemented');
+    },
+    clearSession: () => {
+        throw new Error('Not implemented');
+    },
     executeWithRefresh<T>(): ApiResult<T> {
         throw new Error('Not implemented');
     },
 });
 
-export default function SessionProvider({
-    children,
-}: {
-    children: React.ReactNode;
-}) {
+export default function SessionProvider({ children }: { children: React.ReactNode }) {
     const [session, setSession] = useState<Session | null>(() => {
         const sessionJson = localStorage.getItem(SESSION_STORAGE_KEY);
         if (sessionJson) {
             const session = JSON.parse(sessionJson);
             const user = session.user;
-            const accessToken = new AccessToken(
-                session.accessToken.token,
-                new Date(session.accessToken.expiresAt),
-            );
-            const refreshToken = new RefreshToken(
-                session.refreshToken.token,
-                new Date(session.refreshToken.expiresAt),
-            );
+            const accessToken = new AccessToken(session.accessToken.token, new Date(session.accessToken.expiresAt));
+            const refreshToken = new RefreshToken(session.refreshToken.token, new Date(session.refreshToken.expiresAt));
             return new Session(
                 new Identifier(session.id),
                 user,
@@ -67,13 +62,10 @@ export default function SessionProvider({
         setSession(null);
     };
 
-    async function executeWithRefresh<T>(
-        request: () => ApiResult<T>,
-        signal?: AbortSignal,
-    ): ApiResult<T> {
+    async function executeWithRefresh<T>(request: () => ApiResult<T>, signal?: AbortSignal): ApiResult<T> {
         if (!session || new Date(session.expiresAt) < new Date()) {
             clearSession();
-            navigate('/sign-in');
+            navigate(Routes.SIGN_IN);
             return;
         }
 
@@ -84,7 +76,7 @@ export default function SessionProvider({
             } else {
                 if (result.getLeft().status === 401) {
                     clearSession();
-                    navigate('/sign-in');
+                    navigate(Routes.SIGN_IN);
                     return;
                 }
                 // @ts-ignore
@@ -94,11 +86,7 @@ export default function SessionProvider({
 
         const afterRefresh = await request();
 
-        if (
-            afterRefresh &&
-            afterRefresh.isFailure() &&
-            afterRefresh.getLeft().status === 401
-        ) {
+        if (afterRefresh && afterRefresh.isFailure() && afterRefresh.getLeft().status === 401) {
             clearSession();
             return;
         }
@@ -125,28 +113,14 @@ export default function SessionProvider({
     );
 }
 
-/**
- * React hook for using the session manager
- *
- * @returns The session manager
- */
 export function useSessionManager(): SessionManager {
     return useContext(SessionContext);
 }
 
-/**
- * React hook for using the current session
- *
- * @returns The current session
- */
-export function useSession(): Session | null {
-    return useSessionManager().session;
-}
-
-/**
- * Checks if the user is logged in
- */
-export function isLoggedIn(): boolean {
-    const session = useSession();
-    return !(!session || new Date(session.expiresAt) < new Date());
+export function useLoggedIn(): boolean {
+    const session = useSessionManager().session;
+    if (!session) {
+        return false;
+    }
+    return new Date(session.expiresAt) > new Date();
 }

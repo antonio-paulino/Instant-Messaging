@@ -1,9 +1,11 @@
-import { Pagination } from '../../../Domain/pagination/Pagination';
-import { PaginationRequest } from '../../../Domain/pagination/PaginationRequest';
-import { ApiResult, ProblemResponse } from '../../../Services/media/Problem';
-import { Identifier } from '../../../Domain/wrappers/identifier/Identifier';
-import { IdentifiableValue } from '../../../Domain/IdentifiableValue';
-import { useEffect, useReducer } from 'react';
+import { Pagination } from '../../Domain/pagination/Pagination';
+import { PaginationRequest } from '../../Domain/pagination/PaginationRequest';
+import { ApiResult, ProblemResponse } from '../../Services/media/Problem';
+import { Identifier } from '../../Domain/wrappers/identifier/Identifier';
+import { IdentifiableValue } from '../../Domain/IdentifiableValue';
+import {useEffect, useReducer, useRef} from 'react';
+import {delay} from "../../Services/Utils";
+import {ABORT_STATUS} from "../../Services/BaseHTTPService";
 
 /**
  * Defines the parameters for the InfiniteScroll hook component.
@@ -11,7 +13,8 @@ import { useEffect, useReducer } from 'react';
 export interface InfiniteScrollProps<T> {
     fetchItemsRequest: (
         pageRequest: PaginationRequest,
-        items?: IdentifiableValue<T>[],
+        items: IdentifiableValue<T>[],
+        abortSignal: AbortSignal,
     ) => ApiResult<Pagination<T>>;
     limit?: number;
     getCount?: boolean;
@@ -24,6 +27,7 @@ export interface InfiniteScrollProps<T> {
 export interface InfiniteScroll<T> {
     state: InfiniteScrollState<T>;
     loadMore: () => void;
+    reset: () => void;
     handleItemCreate?: (item: T) => void;
     handleItemUpdate?: (item: T) => void;
     handleItemDelete?: (itemId: Identifier) => void;
@@ -38,8 +42,13 @@ export type InfiniteScrollState<T> = {
 
 export type InfiniteScrollAction<T> =
     | {
-          type: 'load' | 'loaded';
+          type: 'load';
           payload?: Pagination<T>;
+      }
+    | {
+          type: 'loaded';
+          payload: Pagination<T>;
+          seenItems: IdentifiableValue<T>[];
       }
     | {
           type: 'update' | 'create';
@@ -55,6 +64,9 @@ export type InfiniteScrollAction<T> =
       }
     | {
           type: 'clearUpdates';
+      }
+    | {
+          type: 'reset';
       };
 
 export function useInfiniteScroll<T>(
@@ -68,40 +80,40 @@ export function useInfiniteScroll<T>(
             case 'loading':
                 switch (action.type) {
                     case 'load':
-                        // Prevent loading if already in 'loading' state
                         return state;
-
                     case 'loaded':
+                        if (action.seenItems !== state.paginationState.items) {
+                            return state;
+                        }
                         return {
                             ...state,
                             type: 'loaded',
                             paginationState: {
-                                items: state.paginationState.items.concat(
-                                    action.payload.items,
-                                ),
+                                items: state.paginationState.items.concat(action.payload.items),
                                 info: action.payload.info,
                             },
                             error: null,
                         };
-
+                    case 'reset':
+                        return {
+                            type: 'initial',
+                            paginationState: {
+                                items: [],
+                                info: null,
+                            },
+                            error: null,
+                            queuedUpdates: [],
+                        };
                     case 'error':
                         return {
                             ...state,
                             type: 'error',
                             error: action.payload,
                         };
-
                     case 'update':
                     case 'delete':
-                        const updateId =
-                            action.type === 'update'
-                                ? action.payload.id
-                                : (action.payload as Identifier);
-                        if (
-                            !state.paginationState.items.find(
-                                (i) => i.id.value === updateId.value,
-                            )
-                        ) {
+                        const updateId = action.type === 'update' ? action.payload.id : (action.payload as Identifier);
+                        if (!state.paginationState.items.find((i) => i.id.value === updateId.value)) {
                             return {
                                 ...state,
                                 queuedUpdates: [...state.queuedUpdates, action],
@@ -111,16 +123,11 @@ export function useInfiniteScroll<T>(
                     default:
                         return state;
                 }
-
             case 'loaded':
             case 'error':
                 switch (action.type) {
                     case 'load':
-                        if (
-                            state.paginationState.info &&
-                            !state.paginationState.info.next
-                        ) {
-                            // No more pages to load
+                        if (state.paginationState.info && !state.paginationState.info.next) {
                             return state;
                         }
                         return {
@@ -128,43 +135,42 @@ export function useInfiniteScroll<T>(
                             type: 'loading',
                             error: null,
                         };
-
                     case 'create':
                         return {
                             ...state,
                             paginationState: {
                                 ...state.paginationState,
-                                items: [
-                                    action.payload,
-                                    ...state.paginationState.items,
-                                ],
+                                items: [action.payload, ...state.paginationState.items],
                             },
                         };
-
                     case 'update':
                     case 'delete':
                         return processUpdate(state, action);
-
                     case 'clearUpdates':
-                        state.queuedUpdates.forEach((update) =>
-                            processUpdate(state, update),
-                        );
+                        state.queuedUpdates.forEach((update) => processUpdate(state, update));
                         return {
                             ...state,
                             queuedUpdates: [],
                         };
-
+                    case 'reset':
+                        return {
+                            type: 'initial',
+                            paginationState: {
+                                items: [],
+                                info: null,
+                            },
+                            error: null,
+                            queuedUpdates: [],
+                        };
                     case 'error':
                         return {
                             ...state,
                             type: 'error',
                             error: action.payload,
                         };
-
                     default:
                         return state;
                 }
-
             case 'initial':
                 switch (action.type) {
                     case 'load':
@@ -176,7 +182,6 @@ export function useInfiniteScroll<T>(
                     default:
                         return state;
                 }
-
             default:
                 return state;
         }
@@ -193,9 +198,7 @@ export function useInfiniteScroll<T>(
                     paginationState: {
                         ...state.paginationState,
                         items: state.paginationState.items.map((i) =>
-                            i.id.value === action.payload.id.value
-                                ? action.payload
-                                : i,
+                            i.id.value === action.payload.id.value ? action.payload : i,
                         ),
                     },
                 };
@@ -204,9 +207,7 @@ export function useInfiniteScroll<T>(
                     ...state,
                     paginationState: {
                         ...state.paginationState,
-                        items: state.paginationState.items.filter(
-                            (i) => i.id.value !== action.payload.value,
-                        ),
+                        items: state.paginationState.items.filter((i) => i.id.value !== action.payload.value),
                     },
                 };
             default:
@@ -240,8 +241,23 @@ export function useInfiniteScroll<T>(
         dispatch({ type: 'delete', payload: itemId });
     };
 
+    const reset = () => {
+        dispatch({ type: 'reset' });
+    };
+
+    const abortControllerRef = useRef<AbortController>(null)
+
     useEffect(() => {
         if (state.type !== 'loading') {
+            if (abortControllerRef.current) {
+                abortControllerRef.current.abort();
+                abortControllerRef.current = null;
+            }
+            return;
+        }
+
+        // if a state change occurs while loading, e.g. create, update, delete, don't load again
+        if (abortControllerRef.current) {
             return;
         }
 
@@ -251,17 +267,30 @@ export function useInfiniteScroll<T>(
             getCount: props.getCount || false,
         };
 
+        abortControllerRef.current = new AbortController();
+
         props
-            .fetchItemsRequest(pageRequest, state.paginationState.items)
+            .fetchItemsRequest(pageRequest, state.paginationState.items, abortControllerRef.current.signal)
             .then((result) => {
                 if (result.isSuccess()) {
-                    dispatch({ type: 'loaded', payload: result.getRight() });
+                    dispatch({
+                        type: 'loaded',
+                        payload: result.getRight(),
+                        seenItems: state.paginationState.items,
+                    });
                 } else {
-                    dispatch({ type: 'error', payload: result.getLeft() });
+                    const error = result.getLeft();
+                    if (error.status === ABORT_STATUS) {
+                        return;
+                    }
+                    dispatch({ type: 'error', payload: error });
                 }
             })
             .catch((error) => {
                 dispatch({ type: 'error', payload: error });
+            })
+            .finally(() => {
+                abortControllerRef.current = null;
             });
     }, [state]);
 
@@ -271,9 +300,22 @@ export function useInfiniteScroll<T>(
         }
     }, [state]);
 
+    useEffect(() => {
+        if (
+            state.type === 'initial' ||
+            (state.type === 'loaded' &&
+                // If items are deleted using handleItemDelete, load more if the items are less than the limit
+                state.paginationState.items.length < (props.limit || 25) &&
+                state.paginationState.info?.next)
+        ) {
+            loadMore();
+        }
+    }, [state]);
+
     return {
         state,
         loadMore,
+        reset,
         handleItemCreate,
         handleItemUpdate,
         handleItemDelete,

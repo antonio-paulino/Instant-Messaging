@@ -37,24 +37,15 @@ export const dataDisplayCustomizations: Components<Theme> = {
                     opacity: 0.7,
                     '&.Mui-selected': {
                         opacity: 1,
-                        backgroundColor: alpha(
-                            theme.palette.action.selected,
-                            0.3,
-                        ),
+                        backgroundColor: alpha(theme.palette.action.selected, 0.3),
                         [`& .${svgIconClasses.root}`]: {
                             color: theme.palette.text.primary,
                         },
                         '&:focus-visible': {
-                            backgroundColor: alpha(
-                                theme.palette.action.selected,
-                                0.3,
-                            ),
+                            backgroundColor: alpha(theme.palette.action.selected, 0.3),
                         },
                         '&:hover': {
-                            backgroundColor: alpha(
-                                theme.palette.action.selected,
-                                0.5,
-                            ),
+                            backgroundColor: alpha(theme.palette.action.selected, 0.5),
                         },
                     },
                     '&:focus-visible': {
@@ -70,10 +61,26 @@ export const dataDisplayCustomizations: Components<Theme> = {
                 fontSize: theme.typography.body2.fontSize,
                 fontWeight: 500,
                 lineHeight: theme.typography.body2.lineHeight,
+                [theme.breakpoints.up('xl')]: {
+                    fontSize: theme.typography.subtitle1.fontSize,
+                    lineHeight: theme.typography.subtitle1.lineHeight,
+                },
+                [theme.breakpoints.down('sm')]: {
+                    fontSize: theme.typography.body1.fontSize,
+                    lineHeight: theme.typography.body1.lineHeight,
+                },
             }),
             secondary: ({ theme }) => ({
                 fontSize: theme.typography.caption.fontSize,
                 lineHeight: theme.typography.caption.lineHeight,
+                [theme.breakpoints.up('xl')]: {
+                    fontSize: theme.typography.body2.fontSize,
+                    lineHeight: theme.typography.body2.lineHeight,
+                },
+                [theme.breakpoints.down('sm')]: {
+                    fontSize: theme.typography.caption.fontSize,
+                    lineHeight: theme.typography.caption.lineHeight,
+                },
             }),
         },
     },

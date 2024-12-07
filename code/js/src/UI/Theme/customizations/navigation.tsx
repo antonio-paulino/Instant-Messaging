@@ -9,7 +9,6 @@ import { tabClasses } from '@mui/material/Tab';
 import UnfoldMoreRoundedIcon from '@mui/icons-material/UnfoldMoreRounded';
 import { gray, brand } from '../themePrimitives';
 
-/* eslint-disable import/prefer-default-export */
 export const navigationCustomizations: Components<Theme> = {
     MuiMenuItem: {
         styleOverrides: {
@@ -21,10 +20,7 @@ export const navigationCustomizations: Components<Theme> = {
                 },
                 [`&.${menuItemClasses.selected}`]: {
                     [`&.${menuItemClasses.focusVisible}`]: {
-                        backgroundColor: alpha(
-                            theme.palette.action.selected,
-                            0.3,
-                        ),
+                        backgroundColor: alpha(theme.palette.action.selected, 0.3),
                     },
                 },
             }),
@@ -44,35 +40,24 @@ export const navigationCustomizations: Components<Theme> = {
                 border: `1px solid ${theme.palette.divider}`,
                 backgroundImage: 'none',
                 background: 'hsl(0, 0%, 100%)',
-                boxShadow:
-                    'hsla(220, 30%, 5%, 0.07) 0px 4px 16px 0px, hsla(220, 25%, 10%, 0.07) 0px 8px 16px -5px',
+                boxShadow: 'hsla(220, 30%, 5%, 0.07) 0px 4px 16px 0px, hsla(220, 25%, 10%, 0.07) 0px 8px 16px -5px',
                 [`& .${buttonBaseClasses.root}`]: {
                     '&.Mui-selected': {
-                        backgroundColor: alpha(
-                            theme.palette.action.selected,
-                            0.3,
-                        ),
+                        backgroundColor: alpha(theme.palette.action.selected, 0.3),
                     },
                 },
                 ...theme.applyStyles('dark', {
                     background: gray[900],
-                    boxShadow:
-                        'hsla(220, 30%, 5%, 0.7) 0px 4px 16px 0px, hsla(220, 25%, 10%, 0.8) 0px 8px 16px -5px',
+                    boxShadow: 'hsla(220, 30%, 5%, 0.7) 0px 4px 16px 0px, hsla(220, 25%, 10%, 0.8) 0px 8px 16px -5px',
                 }),
             }),
         },
     },
     MuiSelect: {
         defaultProps: {
-            IconComponent: React.forwardRef<SVGSVGElement, SvgIconProps>(
-                (props, ref) => (
-                    <UnfoldMoreRoundedIcon
-                        fontSize="small"
-                        {...props}
-                        ref={ref}
-                    />
-                ),
-            ),
+            IconComponent: React.forwardRef<SVGSVGElement, SvgIconProps>((props, ref) => (
+                <UnfoldMoreRoundedIcon fontSize="small" {...props} ref={ref} />
+            )),
         },
         styleOverrides: {
             root: ({ theme }) => ({

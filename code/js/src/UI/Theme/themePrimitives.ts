@@ -162,8 +162,7 @@ export const getDesignTokens = (mode: PaletteMode) => {
             grey: {
                 ...gray,
             },
-            divider:
-                mode === 'dark' ? alpha(gray[700], 0.6) : alpha(gray[300], 0.4),
+            divider: mode === 'dark' ? alpha(gray[700], 0.6) : alpha(gray[300], 0.4),
             background: {
                 default: 'hsl(0, 0%, 99%)',
                 paper: 'hsl(220, 35%, 97%)',
@@ -196,47 +195,79 @@ export const getDesignTokens = (mode: PaletteMode) => {
                 fontSize: defaultTheme.typography.pxToRem(48),
                 fontWeight: 600,
                 lineHeight: 1.2,
-                letterSpacing: -0.5,
+                [defaultTheme.breakpoints.down('sm')]: {
+                    fontSize: defaultTheme.typography.pxToRem(32),
+                },
             },
             h2: {
                 fontSize: defaultTheme.typography.pxToRem(36),
                 fontWeight: 600,
                 lineHeight: 1.2,
+                [defaultTheme.breakpoints.down('sm')]: {
+                    fontSize: defaultTheme.typography.pxToRem(28),
+                },
             },
             h3: {
                 fontSize: defaultTheme.typography.pxToRem(30),
                 lineHeight: 1.2,
+                [defaultTheme.breakpoints.down('sm')]: {
+                    fontSize: defaultTheme.typography.pxToRem(24),
+                },
             },
             h4: {
                 fontSize: defaultTheme.typography.pxToRem(24),
                 fontWeight: 600,
                 lineHeight: 1.5,
+                [defaultTheme.breakpoints.down('sm')]: {
+                    fontSize: defaultTheme.typography.pxToRem(20),
+                },
             },
             h5: {
                 fontSize: defaultTheme.typography.pxToRem(20),
                 fontWeight: 600,
+                [defaultTheme.breakpoints.down('sm')]: {
+                    fontSize: defaultTheme.typography.pxToRem(18),
+                },
             },
             h6: {
                 fontSize: defaultTheme.typography.pxToRem(18),
                 fontWeight: 600,
+                [defaultTheme.breakpoints.down('sm')]: {
+                    fontSize: defaultTheme.typography.pxToRem(16),
+                },
             },
             subtitle1: {
                 fontSize: defaultTheme.typography.pxToRem(18),
+                [defaultTheme.breakpoints.down('sm')]: {
+                    fontSize: defaultTheme.typography.pxToRem(16),
+                },
             },
             subtitle2: {
                 fontSize: defaultTheme.typography.pxToRem(14),
                 fontWeight: 500,
+                [defaultTheme.breakpoints.down('sm')]: {
+                    fontSize: defaultTheme.typography.pxToRem(12),
+                },
             },
             body1: {
                 fontSize: defaultTheme.typography.pxToRem(14),
+                [defaultTheme.breakpoints.down('sm')]: {
+                    fontSize: defaultTheme.typography.pxToRem(12),
+                },
             },
             body2: {
                 fontSize: defaultTheme.typography.pxToRem(14),
                 fontWeight: 400,
+                [defaultTheme.breakpoints.down('sm')]: {
+                    fontSize: defaultTheme.typography.pxToRem(12),
+                },
             },
             caption: {
                 fontSize: defaultTheme.typography.pxToRem(12),
                 fontWeight: 400,
+                [defaultTheme.breakpoints.down('sm')]: {
+                    fontSize: defaultTheme.typography.pxToRem(10),
+                },
             },
         },
         shape: {
@@ -293,8 +324,7 @@ export const colorSchemes = {
                 hover: alpha(gray[200], 0.2),
                 selected: `${alpha(gray[200], 0.3)}`,
             },
-            baseShadow:
-                'hsla(220, 30%, 5%, 0.07) 0px 4px 16px 0px, hsla(220, 25%, 10%, 0.07) 0px 8px 16px -5px',
+            baseShadow: 'hsla(220, 30%, 5%, 0.07) 0px 4px 16px 0px, hsla(220, 25%, 10%, 0.07) 0px 8px 16px -5px',
         },
     },
     dark: {
@@ -342,8 +372,7 @@ export const colorSchemes = {
                 hover: alpha(gray[600], 0.2),
                 selected: alpha(gray[600], 0.3),
             },
-            baseShadow:
-                'hsla(220, 30%, 5%, 0.7) 0px 4px 16px 0px, hsla(220, 25%, 10%, 0.8) 0px 8px 16px -5px',
+            baseShadow: 'hsla(220, 30%, 5%, 0.7) 0px 4px 16px 0px, hsla(220, 25%, 10%, 0.8) 0px 8px 16px -5px',
         },
     },
 };
@@ -355,35 +384,59 @@ export const typography = {
         fontWeight: 600,
         lineHeight: 1.2,
         letterSpacing: -0.5,
+        [defaultTheme.breakpoints.up('xl')]: {
+            fontSize: defaultTheme.typography.pxToRem(52),
+        },
     },
     h2: {
         fontSize: defaultTheme.typography.pxToRem(36),
         fontWeight: 600,
         lineHeight: 1.2,
+        [defaultTheme.breakpoints.up('xl')]: {
+            fontSize: defaultTheme.typography.pxToRem(38),
+        },
     },
     h3: {
-        fontSize: defaultTheme.typography.pxToRem(30),
+        fontSize: defaultTheme.typography.pxToRem(32),
         lineHeight: 1.2,
+        [defaultTheme.breakpoints.up('xl')]: {
+            fontSize: defaultTheme.typography.pxToRem(34),
+        },
     },
     h4: {
-        fontSize: defaultTheme.typography.pxToRem(24),
+        fontSize: defaultTheme.typography.pxToRem(26),
         fontWeight: 600,
         lineHeight: 1.5,
+        [defaultTheme.breakpoints.up('xl')]: {
+            fontSize: defaultTheme.typography.pxToRem(28),
+        },
     },
     h5: {
-        fontSize: defaultTheme.typography.pxToRem(20),
+        fontSize: defaultTheme.typography.pxToRem(22),
         fontWeight: 600,
+        [defaultTheme.breakpoints.up('xl')]: {
+            fontSize: defaultTheme.typography.pxToRem(24),
+        },
     },
     h6: {
-        fontSize: defaultTheme.typography.pxToRem(18),
+        fontSize: defaultTheme.typography.pxToRem(20),
         fontWeight: 600,
+        [defaultTheme.breakpoints.up('xl')]: {
+            fontSize: defaultTheme.typography.pxToRem(22),
+        },
     },
     subtitle1: {
-        fontSize: defaultTheme.typography.pxToRem(18),
+        fontSize: defaultTheme.typography.pxToRem(16),
+        [defaultTheme.breakpoints.up('xl')]: {
+            fontSize: defaultTheme.typography.pxToRem(18),
+        },
     },
     subtitle2: {
         fontSize: defaultTheme.typography.pxToRem(14),
         fontWeight: 500,
+        [defaultTheme.breakpoints.up('xl')]: {
+            fontSize: defaultTheme.typography.pxToRem(16),
+        },
     },
     body1: {
         fontSize: defaultTheme.typography.pxToRem(14),
@@ -391,10 +444,16 @@ export const typography = {
     body2: {
         fontSize: defaultTheme.typography.pxToRem(14),
         fontWeight: 400,
+        [defaultTheme.breakpoints.up('xl')]: {
+            fontSize: defaultTheme.typography.pxToRem(16),
+        },
     },
     caption: {
         fontSize: defaultTheme.typography.pxToRem(12),
         fontWeight: 400,
+        [defaultTheme.breakpoints.up('xl')]: {
+            fontSize: defaultTheme.typography.pxToRem(14),
+        },
     },
 };
 
@@ -403,9 +462,5 @@ export const shape = {
 };
 
 // @ts-ignore
-const defaultShadows: Shadows = [
-    'none',
-    'var(--template-palette-baseShadow)',
-    ...defaultTheme.shadows.slice(2),
-];
+const defaultShadows: Shadows = ['none', 'var(--template-palette-baseShadow)', ...defaultTheme.shadows.slice(2)];
 export const shadows = defaultShadows;

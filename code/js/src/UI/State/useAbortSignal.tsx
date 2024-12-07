@@ -17,3 +17,15 @@ export function useAbortSignal(): AbortSignal {
 
     return abortController.current.signal;
 }
+
+export function useAbortController(): AbortController {
+    const abortController = useRef(new AbortController());
+
+    useEffect(() => {
+        return () => {
+            abortController.current.abort();
+        };
+    }, []);
+
+    return abortController.current;
+}

@@ -1,17 +1,16 @@
-import { Message } from '../../../Domain/messages/Message';
-import { MessageOutputModel } from '../../../Dto/output/messages/MessageOutputModel';
-import { Identifier } from '../../../Domain/wrappers/identifier/Identifier';
-import {
-    ChannelInvitation,
-    channelInvitationFromDto,
-} from '../../../Domain/invitations/ChannelInvitation';
-import { ChannelInvitationOutputModel } from '../../../Dto/output/invitations/ChannelInvitationOutputModel';
-import { Channel, channelFromDto } from '../../../Domain/channel/Channel';
-import { ChannelOutputModel } from '../../../Dto/output/channels/ChannelOutputModel';
-import React, { createContext, useEffect, useRef } from 'react';
-import { useSessionManager } from './Session';
+import { Message } from '../../Domain/messages/Message';
+import { MessageOutputModel } from '../../Dto/output/messages/MessageOutputModel';
+import { Identifier } from '../../Domain/wrappers/identifier/Identifier';
+import { ChannelInvitation, channelInvitationFromDto } from '../../Domain/invitations/ChannelInvitation';
+import { ChannelInvitationOutputModel } from '../../Dto/output/invitations/ChannelInvitationOutputModel';
+import { Channel, channelFromDto } from '../../Domain/channel/Channel';
+import { ChannelOutputModel } from '../../Dto/output/channels/ChannelOutputModel';
+import React, { createContext, useEffect, useRef, useState } from 'react';
+import { useSessionManager } from './SessionProvider';
+import { doAfterDelay } from '../../Utils/Time';
 
 export interface EventManager {
+    readonly isInitialized: boolean;
     readonly setupEventSource: () => void;
     readonly destroyEventSource: () => void;
     readonly handleEvent: (event: MessageEvent<any>) => ServerEvent;
@@ -24,85 +23,50 @@ export type EventListener = {
     readonly listener: (event: MessageEvent<string>) => void;
 };
 
-const EVENTS_URI = 'api/sse/listen';
+const EVENTS_URI = '/api/sse/listen';
 
 const EventContext = createContext<EventManager>({
-    setupEventSource: () => new Promise<void>(() => {}),
-    destroyEventSource: () => {},
-    handleEvent: () => {
-        throw new Error('EventSource not initialized');
+    isInitialized: false,
+    setupEventSource: () =>
+        new Promise<void>(() => {
+            throw new Error('Not implemented');
+        }),
+    destroyEventSource: () => {
+        throw new Error('Not implemented');
     },
-    addListener: () => {},
-    removeListener: () => {},
+    handleEvent: () => {
+        throw new Error('Not implemented');
+    },
+    addListener: () => {
+        throw new Error('Not implemented');
+    },
+    removeListener: () => {
+        throw new Error('Not implemented');
+    },
 });
 
-export const RECONNECT_DELAY = 5000;
-
-export default function EventsProvider({
-    children,
-}: {
-    children: React.ReactNode;
-}) {
+export default function EventsProvider({ children }: { children: React.ReactNode }) {
     const sessionManager = useSessionManager();
+    const [isInitialized, setIsInitialized] = useState(false);
+    const [eventSource, setEventSource] = useState<EventSource | null>(null);
 
-    const lastEventId: { current: string | null } = useRef(null);
-    const eventSource = useRef<EventSource | null>(null);
-    const eventListeners = useRef<EventListener[]>([]);
-
-    useEffect(() => {
-        console.log('Setting up EventSource');
-        return () => {
-            console.log('Destroying EventSource');
-        };
-    }, []);
-
-    /**
-     * Sets up the EventSource connection.
-     *
-     * If the EventSource is already open, it does nothing.
-     *
-     * If the EventSource is closed, it creates a new one.
-     */
     const setupEventSource = async () => {
+        if (eventSource !== null && eventSource.readyState === EventSource.OPEN) {
+            return;
+        }
         await sessionManager.executeWithRefresh<void>(() => {
-            console.log(lastEventId);
-
-            if (
-                eventSource.current !== null &&
-                eventSource.current.readyState === EventSource.OPEN
-            ) {
-                console.warn('EventSource is already open');
-            }
-
-            const newEventSource = lastEventId
-                ? new EventSource(
-                      EVENTS_URI + '?lastEventId=' + lastEventId.current,
-                      {
-                          withCredentials: true,
-                      },
-                  )
-                : new EventSource(EVENTS_URI, { withCredentials: true });
-
-            eventSource.current = newEventSource;
-
-            newEventSource.addEventListener('keep-alive', () => {
-                console.log('Keep-alive received');
+            const newEventSource = new EventSource(EVENTS_URI, {
+                withCredentials: true,
             });
-
+            setEventSource(newEventSource);
+            newEventSource.onopen = () => {
+                setIsInitialized(true);
+            };
             newEventSource.onerror = () => {
-                newEventSource.close();
-                eventSource.current = null;
-                console.error(
-                    'EventSource error. Reconnecting in 5 seconds...',
-                );
-                setTimeout(() => {
-                    setupEventSource().then(() => {
-                        console.log('Reconnected. Re-adding listeners...');
-                        eventListeners.current.forEach((listener) =>
-                            addListener(listener),
-                        );
-                    });
-                }, RECONNECT_DELAY);
+                if (newEventSource.readyState === EventSource.CLOSED) {
+                    setIsInitialized(false);
+                    doAfterDelay(2000, setupEventSource);
+                }
             };
         });
     };
@@ -113,11 +77,9 @@ export default function EventsProvider({
      * @param listener The listener to add
      */
     const addListener = (listener: EventListener) => {
-        eventListeners.current.push(listener);
-        return eventSource.current?.addEventListener(
-            listener.type.trim(),
-            listener.listener,
-        );
+        if (eventSource !== null) {
+            return eventSource.addEventListener(listener.type.trim(), listener.listener);
+        }
     };
 
     /**
@@ -126,13 +88,9 @@ export default function EventsProvider({
      * @param listener The listener to remove
      */
     const removeListener = (listener: EventListener) => {
-        eventListeners.current = eventListeners.current.filter(
-            (l) => l !== listener,
-        );
-        return eventSource.current?.removeEventListener(
-            listener.type.trim(),
-            listener.listener,
-        );
+        if (eventSource !== null) {
+            return eventSource.removeEventListener(listener.type.trim(), listener.listener);
+        }
     };
 
     /**
@@ -141,8 +99,11 @@ export default function EventsProvider({
      * If the EventSource is already closed, it does nothing.
      */
     const destroyEventSource = () => {
-        eventSource.current?.close();
-        eventSource.current = null;
+        if (eventSource !== null) {
+            eventSource.close();
+            setEventSource(null);
+            setIsInitialized(false);
+        }
     };
 
     /**
@@ -153,14 +114,7 @@ export default function EventsProvider({
      * @returns The event data
      */
     const handleEvent = (event: MessageEvent<any>): ServerEvent => {
-        lastEventId.current = !lastEventId.current
-            ? event.lastEventId
-            : Math.max(
-                  parseInt(lastEventId.current),
-                  parseInt(event.lastEventId),
-              ).toString();
         const data = JSON.parse(event.data);
-        console.log('Received event: ', data);
         switch (event.type) {
             case 'message-created':
                 return {
@@ -180,16 +134,12 @@ export default function EventsProvider({
             case 'invitation-created':
                 return {
                     type: 'invitation-created',
-                    data: channelInvitationFromDto(
-                        data as ChannelInvitationOutputModel,
-                    ),
+                    data: channelInvitationFromDto(data as ChannelInvitationOutputModel),
                 };
             case 'invitation-updated':
                 return {
                     type: 'invitation-updated',
-                    data: channelInvitationFromDto(
-                        data as ChannelInvitationOutputModel,
-                    ),
+                    data: channelInvitationFromDto(data as ChannelInvitationOutputModel),
                 };
             case 'invitation-deleted':
                 return {
@@ -212,6 +162,7 @@ export default function EventsProvider({
     };
 
     const eventManager = {
+        isInitialized,
         setupEventSource,
         destroyEventSource,
         handleEvent,
@@ -219,19 +170,13 @@ export default function EventsProvider({
         removeListener,
     };
 
-    return (
-        <EventContext.Provider value={eventManager}>
-            {children}
-        </EventContext.Provider>
-    );
+    return <EventContext.Provider value={eventManager}>{children}</EventContext.Provider>;
 }
 
 export function useEventManager() {
     const context = React.useContext(EventContext);
     if (context === undefined) {
-        throw new Error(
-            'useEventManagement must be used within a EventsProvider',
-        );
+        throw new Error('useEventManagement must be used within a EventsProvider');
     }
     return context;
 }
