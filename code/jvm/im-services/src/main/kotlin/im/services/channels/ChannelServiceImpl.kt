@@ -1,6 +1,7 @@
 package im.services.channels
 
 import im.domain.Either
+import im.domain.Failure
 import im.domain.channel.Channel
 import im.domain.channel.ChannelRole
 import im.domain.failure

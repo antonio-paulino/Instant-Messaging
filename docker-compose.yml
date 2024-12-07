@@ -21,3 +21,26 @@ services:
       - POSTGRES_DB=iseldaw
     ports:
       - "5433:5432"
+  deploy-api:
+    container_name: deploy-api
+    build:
+      context: .
+      dockerfile: dockerfiles/Dockerfile-jvm
+    environment:
+      - DB_URL=jdbc:postgresql://prod-db:5432/iseldaw?user=isel&password=isel
+    ports:
+      - "8080:8080"
+    depends_on:
+      - prod-db
+  deploy:
+    container_name: deploy
+    build:
+      context: .
+      dockerfile: dockerfiles/Dockerfile-ts
+    ports:
+      - "8000:8000"
+    environment:
+        - API_CONTEXT=/api
+        - API_TARGET=http://deploy-api:8080
+    depends_on:
+      - deploy-api

@@ -17,6 +17,18 @@
     - [Conceptual Model](#conceptual-model)
     - [Physical Model](#physical-model)
   - [Critical Analysis](#critical-analysis)
+- [Frontend](#frontend)
+  - [Introduction](#introduction-1)
+  - [Changes to Backend during Frontend Development](#changes-to-backend-during-frontend-development)
+  - [Application Structure](#application-structure-1)
+    - [Authentication](#authentication)
+    - [Events](#events)
+    - [Notifications](#notifications)
+    - [UI](#ui)
+      - [Infinite Scrolling](#infinite-scrolling)
+      - [List Virtualization](#list-virtualization)
+    - [Services](#services-1)
+  - [Critical Analysis](#critical-analysis-1)
 
 ---
 
@@ -146,7 +158,7 @@ which extend the generic repository interface to provide additional functionalit
 
 The repository also defines an interface for the [Transaction Manager](#repository-transaction-manager), which is used to delimit the transactions in the services.
 
-This interface allows 
+This interface allows the services to define the boundaries of the transactions, which can be rolled back in case of an error.
 
 #### Jpa Repository
 
@@ -346,3 +358,185 @@ The future improvements we plan to make are:
 - Adding announcements to channels, for example when a user joins or leaves a channel;
 - Adding a feature to allow member roles to be changed by the owner;
 - Implementing more tests to cover more edge cases.
+
+
+# Frontend
+
+----
+
+## Introduction
+
+The frontend is a Single Page Application (SPA) built with React and TypeScript, with the help of Material-UI for the UI components.
+
+This application is a client for the backend RESTful API, providing a user interface for the user to interact with the application.
+
+## Changes to Backend during Frontend Development
+
+Before and during the development of the frontend, some changes were made to the backend to facilitate development and improve the user experience:
+
+- Server sent events were implemented to allow the frontend to receive real-time updates of messages, channels, and invitations;
+- We changed pagination from page-size to offset-limit based to allow for more flexibility in the frontend when fetching data. 
+- This change was also made because it would not be possible to adjust offsets whenever a new message was added to the channel, or a message was deleted, which would lead to inconsistencies in the data;
+- We added before and after filters to the paginated endpoints to allow for consistent pagination when fetching data. This change was made
+because there could be race conditions that lead to inconsistencies when fetching data, for instance: 
+  - User A sends a request for a second page with 10 messages with offset 10;
+  - User B deletes a message from the first page, which causes a shift in the message collection;
+  - The server sends the second page with 10 messages with offset 10 to User A, but the 10th item now points to a message 
+  later in the collection than the one User A meant to fetch as the first item in the second page;
+  - User A receives new messages, but one of the "next" messages is skipped because the offset couldn't possibly
+  be adjusted to 9 after the request was made;
+Due to this, we added a before query for message creation date, and an after ID query parameter for channels and invitations to allow for consistent pagination;
+
+## Application Structure
+
+The project is divided into the following modules:
+
+- [`Assets`](../code/js/src/Assets) - contains the fonts used in the application;
+- [`Domain`](../code/js/src/Domain) - contains the domain models used in the application;
+- [`Dto`](../code/js/src/Dto) - contains the data transfer objects used to communicate with the backend;
+- [`Services`](../code/js/src/Services) - contains the services used to interact with the backend;
+- [`UI`](../code/js/src/UI) - contains the UI components used in the application;
+- [`Utils`](../code/js/src/Utils) - contains utility functions used in the application;
+
+### Authentication
+
+The authentication in the application is done in the Sign In and Sign Up pages, where the user can input their credentials and sign in or sign up.
+
+We used a `SessionProvider` to manage the user session, which stores the user's token and user information in the local storage.
+
+The `SessionProvider` also provides the `useSession` hook, which can be used to access the user session information in any component.
+
+We also used cookies to store the user's access and refresh tokens, which are sent in the headers of the requests to the backend.
+
+### Events
+
+The application uses Server Sent Events (SSE) to receive real-time updates from the backend.
+
+The `EventSource` API is used to establish a connection with the backend and listen for events, such as messages being sent, channels being created, or invitations being received.
+
+To allow for any component using event listeners, we created an `EventsProvider` that manages the event listeners and provides hooks to register and unregister event listeners.
+
+### Notifications
+
+The application uses notifications to inform the user of important events, such as errors, success messages, or new messages received.
+
+The `AlertsProvider` manages the notifications and provides hooks to show alerts with different types, such as success, error, or info.
+
+Some of the notifications are shown badges on the UI, such as the number of unread messages in a channel or the number of unseen invitations.
+
+### UI
+
+The UI components are divided into different categories, such as:
+
+- `Components` - contains the reusable components used in the application, such as buttons, inputs, views, and lists;
+- `Providers` - contains the providers used to manage the user session, events, and notifications;
+- `Pages` - contains the pages of the application, such as the Sign In, Sign Up, and Home pages;
+- `State` - contains reusable state hooks used in the application, such as form state, infinite scroll state and search state;
+
+We used Material-UI to style the components, which provides a set of pre-built components that can be easily customized.
+
+#### Infinite Scrolling
+
+The application uses infinite scrolling to load paginated data, such as channels, messages, and invitations.
+
+To implement infinite scrolling, we implemented a `useInfiniteScroll` hook that provides an interface for UI components
+to load more data as scrolling occurs.
+
+It receives the following parameters:
+
+```typescript
+export interface InfiniteScrollProps<T> {
+  fetchItemsRequest: (
+      pageRequest: PaginationRequest,
+      items: IdentifiableValue<T>[],
+      abortSignal: AbortSignal,
+  ) => ApiResult<Pagination<T>>;
+  limit?: number;
+  getCount?: boolean;
+  useOffset?: boolean;
+}
+```
+
+And exposes the following interface:
+
+```typescript
+export interface InfiniteScroll<T> {
+    state: InfiniteScrollState<T>;
+    loadMore: () => void;
+    reset: () => void;
+    handleItemCreate?: (item: T) => void;
+    handleItemUpdate?: (item: T) => void;
+    handleItemDelete?: (itemId: Identifier) => void;
+}
+```
+
+The `useInfiniteScroll` hook manages loading data, keeping track of CRUD operations on the data, and updating its state.
+
+You can find the implementation of the `useInfiniteScroll` hook [here](../code/js/src/UI/State/useInfiniteScroll.tsx).
+
+#### List Virtualization
+
+List virtualization consists of rendering only items that are visible on screen, and progressively rendering more items as the user scrolls,
+to improve performance and reduce the amount of DOM elements.
+
+We implemented our own `VirtualizedList` component. However, it does not support dynamically changing item sizes, 
+or reverse scrolling, which are features that could be implemented in the future.
+
+Our implementation calculates which items are visible on screen based on the current scroll position and the height of the items. We
+opted for using scroll events instead of the `IntersectionObserver` API due to time constraints, but this could be a future improvement. 
+To improve performance with using scroll events, we implemented a debounce mechanism to avoid doing calculations on every scroll event.
+
+It receives the following parameters:
+
+```typescript
+interface VirtualizedListProps<T> {
+    items: T[];
+    listStyle?: React.CSSProperties;
+    itemStyle?: React.CSSProperties;
+    getItemHeight?: (index: number) => number;
+    fixedHeight?: number;
+    overscan?: number;
+    onItemsRendered?: (start: number, end: number) => void;
+    renderItem: (params: { index: number; style: React.CSSProperties }) => React.ReactNode;
+    header?: React.ReactNode;
+    footer?: React.ReactNode;
+}
+```
+
+You can find the implementation of the `VirtualizedList` component [here](../code/js/src/UI/Components/Utils/VirtualizedList.tsx).
+
+
+### Services
+
+The services are responsible for interacting with the backend API, sending requests, and processing the responses.
+
+To make requests we used the `fetch` API, with `AbortSignal` to allow for cancelling requests when the component is unmounted.
+
+The services are divided into different categories, such as:
+
+- `AuthService` - contains the services related to authentication, such as signing in, signing up, and signing out;
+- `ChannelService` - contains the services related to channels, such as creating channels, fetching channels, and sending messages;
+- `InvitationService` - contains the services related to invitations, such as fetching invitations, accepting or rejecting invitations;
+- `MessageService` - contains the services related to messages, such as fetching messages, sending messages, and deleting messages;
+- `UserService` - contains the services related to users, such as fetching user information;
+- `BaseHTTPService` - contains the base service class that provides the interface for sending requests and processing responses in
+a strongly typed manner;
+
+  
+## Critical Analysis
+
+For this phase of the project, the main focus was the development of the frontend application following the requirements defined in the project outline.
+
+We believe that we have achieved the main goals of this phase, and have implemented a Single Page Application (SPA) that provides the necessary functionality for the user to interact with the application.
+
+We also implemented some features that were not explicitly required in the project outline, such as infinite scrolling, list virtualization, and notifications, to improve the user experience.
+
+The biggest challenge we faced in this phase of the project were the time constraints, which led to us not being able
+to implement Unit and Integration tests for the frontend, which would have been beneficial to ensure the functionality of the components, services and hooks.
+
+Possible future improvements for this project are:
+- (!!) Implementing Unit and Integration tests to test the components, services, and hooks. Due to time constraints, we were not able to implement tests for the frontend;
+- (!) Implementing reverse scrolling for the virtualized list so we can use it for messages in a channel. This would allow for the user to see older messages without 
+taking a performance hit when rendering a large number of messages;
+- Refactoring components to make them more reusable and easier to maintain;
+- Improving UI/UX by improving component styling and adding animations for some components and pages;

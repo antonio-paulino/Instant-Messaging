@@ -8,13 +8,24 @@ module.exports = {
 		static: {
 			directory: path.join(__dirname, 'dist'),
 		},
-		compress: true,
-		port: 3000,
+		compress: false,
+		historyApiFallback: true,
+		port: 8000,
 		proxy: [
 			{
-				context: ['/api'],
-				target: 'http://localhost:8080',
-			},
+				context: [process.env.API_CONTEXT || '/api'],
+				target: process.env.API_TARGET || 'http://localhost:8080',
+				onProxyRes: (proxyRes, req, res) => {
+					proxyRes.on('close', () => {
+						if (!res.writableEnded) {
+							res.end();
+						}
+					});
+					res.on('close', () => {
+						proxyRes.destroy();
+					});
+				},
+			}
 		],
 	},
 	module: {
@@ -48,5 +59,6 @@ module.exports = {
 	output: {
 		filename: 'bundle.js',
 		path: path.resolve(__dirname, 'dist'),
+		publicPath: '/',
 	},
 };
