@@ -2,11 +2,9 @@ package im.proxy
 
 import im.api.controllers.RepositoryHTTPEvent
 import im.repository.jpa.repositories.jpa.RepositoryEventJpa
-import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.ApplicationListener
 import org.springframework.stereotype.Component
-import kotlin.jvm.java
 
 /**
  * This class listens for Repository JPA events and publishes them as HTTP events.

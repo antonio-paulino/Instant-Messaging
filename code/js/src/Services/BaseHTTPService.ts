@@ -7,6 +7,7 @@ type RequestBody<B> = B | null;
 
 const JSON_CONTENT_TYPE = 'application/json';
 const PROBLEM_CONTENT_TYPE = 'application/problem+json';
+export const ABORT_STATUS = 0;
 
 export namespace BaseHTTPService {
     enum HTTPMethod {
@@ -38,8 +39,6 @@ export namespace BaseHTTPService {
     /**
      * Fetches a response from the server.
      *
-     * Uses the fetch API to send a request to the server.
-     *
      * Cookies are included in the request.
      *
      * @param url - The URL of the request.
@@ -56,7 +55,9 @@ export namespace BaseHTTPService {
         fetchResBody: boolean = true,
         abortSignal?: AbortSignal,
     ): ApiResult<T> {
-        await delay(250);
+        if (process.env.NODE_ENV === 'development') {
+            await delay(100 + Math.random() * 800);
+        }
         const request: RequestInit = {
             method: method,
             headers: {
@@ -74,7 +75,10 @@ export namespace BaseHTTPService {
             response = await fetch(url, request);
         } catch {
             if (abortSignal?.aborted) {
-                return failure({ status: 0, detail: 'Request was aborted.' });
+                return failure({
+                    status: ABORT_STATUS,
+                    detail: 'Request was aborted.',
+                });
             }
             return failure({
                 status: 500,
@@ -105,36 +109,24 @@ export namespace BaseHTTPService {
      * @param url - The URL of the request.
      * @private
      */
-    async function handleErrorResponse<T>(
-        response: Response,
-        request: RequestInit,
-        url: string,
-    ): ApiResult<T> {
+    async function handleErrorResponse<T>(response: Response, request: RequestInit, url: string): ApiResult<T> {
         if (response.status === 429) {
             const retryAfter = response.headers.get('Retry-After');
-            console.log('Retrying after: ' + retryAfter);
             if (retryAfter) {
-                return await doAfterDelayWithResult(
-                    parseInt(retryAfter) * 1000,
-                    () =>
-                        fetchResponse<T>(
-                            url,
-                            request.method as HTTPMethod,
-                            request.body,
-                            true,
-                        ),
+                return await doAfterDelayWithResult(parseInt(retryAfter) * 1000, () =>
+                    fetchResponse<T>(url, request.method as HTTPMethod, request.body, true),
                 );
             }
+        }
+        if (response.status === 504) {
+            return failure({
+                status: response.status,
+                detail: 'Could not connect to the server.',
+            });
         }
         try {
             return failure(await response.json());
         } catch {
-            if (response.status === 504) {
-                return failure({
-                    status: response.status,
-                    detail: 'Could not connect to the server.',
-                });
-            }
             return failure({
                 status: response.status,
                 detail: 'There was an error processing the request.',
@@ -149,9 +141,7 @@ export namespace BaseHTTPService {
      *
      * @returns The result of the request.
      */
-    export async function get<T>(
-        requestOptions: RequestOptions<T>,
-    ): ApiResult<T> {
+    export async function get<T>(requestOptions: RequestOptions<T>): ApiResult<T> {
         return await fetchResponse<T>(
             requestOptions.uri,
             HTTPMethod.GET,
@@ -172,18 +162,11 @@ export namespace BaseHTTPService {
      *
      * @returns The result of the request.
      */
-    export async function post<T, B>(
-        requestOptions: RequestOptions<T>,
-    ): ApiResult<B> {
-        console.log('Doing post request to: ' + requestOptions.uri);
-        console.log('With options:');
-        console.log(requestOptions);
+    export async function post<T, B>(requestOptions: RequestOptions<T>): ApiResult<B> {
         return await fetchResponse<B>(
             requestOptions.uri,
             HTTPMethod.POST,
-            requestOptions.requestBody
-                ? JSON.stringify(requestOptions.requestBody)
-                : null,
+            requestOptions.requestBody ? JSON.stringify(requestOptions.requestBody) : null,
             requestOptions.fetchResBody,
             requestOptions.abortSignal,
         );
@@ -196,18 +179,11 @@ export namespace BaseHTTPService {
      *
      * @param requestOptions - The options for the request.
      */
-    export async function put<T>(
-        requestOptions: RequestOptions<T>,
-    ): ApiResult<void> {
-        console.log('Doing put request to: ' + requestOptions.uri);
-        console.log('With options:');
-        console.log(requestOptions);
+    export async function put<T>(requestOptions: RequestOptions<T>): ApiResult<void> {
         return await fetchResponse<void>(
             requestOptions.uri,
             HTTPMethod.PUT,
-            requestOptions.requestBody
-                ? JSON.stringify(requestOptions.requestBody)
-                : null,
+            requestOptions.requestBody ? JSON.stringify(requestOptions.requestBody) : null,
             false,
             requestOptions.abortSignal,
         );
@@ -220,12 +196,7 @@ export namespace BaseHTTPService {
      *
      * @returns The result of the request.
      */
-    export async function deleteRequest(
-        requestOptions: RequestOptions<void>,
-    ): ApiResult<void> {
-        console.log('Doing delete request to: ' + requestOptions.uri);
-        console.log('With options:');
-        console.log(requestOptions);
+    export async function deleteRequest(requestOptions: RequestOptions<void>): ApiResult<void> {
         return await fetchResponse<void>(
             requestOptions.uri,
             HTTPMethod.DELETE,
@@ -244,18 +215,11 @@ export namespace BaseHTTPService {
      *
      * @returns The result of the request.
      */
-    export async function patch<T>(
-        requestOptions: RequestOptions<T>,
-    ): ApiResult<void> {
-        console.log('Doing patch request to: ' + requestOptions.uri);
-        console.log('With options');
-        console.log(requestOptions);
+    export async function patch<T>(requestOptions: RequestOptions<T>): ApiResult<void> {
         return await fetchResponse<void>(
             requestOptions.uri,
             HTTPMethod.PATCH,
-            requestOptions.requestBody
-                ? JSON.stringify(requestOptions.requestBody)
-                : null,
+            requestOptions.requestBody ? JSON.stringify(requestOptions.requestBody) : null,
             false,
             requestOptions.abortSignal,
         );

@@ -27,34 +27,19 @@ export class PasswordValidator {
         }
 
         if (value.length < this.minLength || value.length > this.maxLength) {
-            errors.push(
-                PasswordValidationError.InvalidLength(
-                    this.minLength,
-                    this.maxLength,
-                ),
-            );
+            errors.push(PasswordValidationError.InvalidLength(this.minLength, this.maxLength));
         }
 
         if ((value.match(/[a-z]/g) || []).length < this.minLowercase) {
-            errors.push(
-                PasswordValidationError.NotEnoughLowercaseLetters(
-                    this.minLowercase,
-                ),
-            );
+            errors.push(PasswordValidationError.NotEnoughLowercaseLetters(this.minLowercase));
         }
 
         if ((value.match(/[A-Z]/g) || []).length < this.minUppercase) {
-            errors.push(
-                PasswordValidationError.NotEnoughUppercaseLetters(
-                    this.minUppercase,
-                ),
-            );
+            errors.push(PasswordValidationError.NotEnoughUppercaseLetters(this.minUppercase));
         }
 
         if ((value.match(/\d/g) || []).length < this.minDigits) {
-            errors.push(
-                PasswordValidationError.NotEnoughDigits(this.minDigits),
-            );
+            errors.push(PasswordValidationError.NotEnoughDigits(this.minDigits));
         }
 
         if (errors.length > 0) {
@@ -69,9 +54,7 @@ export async function checkPwned(password: string): Promise<number> {
     const hash = await sha1(password);
     const prefix = hash.substring(0, 5);
     const suffix = hash.substring(5);
-    const response = await fetch(
-        `https://api.pwnedpasswords.com/range/${prefix}`,
-    );
+    const response = await fetch(`https://api.pwnedpasswords.com/range/${prefix}`);
     const body = await response.text();
     const lines = body.split('\n');
     const found = lines.find((line) => line.startsWith(suffix));

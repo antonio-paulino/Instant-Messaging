@@ -24,7 +24,6 @@ import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ContextConfiguration
-import java.nio.channels.Channels.newChannel
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import kotlin.test.Test
@@ -191,6 +190,7 @@ abstract class ChannelRepositoryTest {
                     false,
                     PaginationRequest(0, 10),
                     SortRequest("id"),
+                    after = Identifier(0),
                 )
             assertEquals(1, foundChannels.count())
             assertEquals(testChannel1.name, foundChannels.first().name)
@@ -207,6 +207,7 @@ abstract class ChannelRepositoryTest {
                     false,
                     PaginationRequest(0, 10, getCount = false),
                     SortRequest("id"),
+                    after = Identifier(0),
                 )
             assertEquals(1, foundChannels.count())
             assertEquals(testChannel1.name, foundChannels.first().name)

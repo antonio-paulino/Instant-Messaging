@@ -21,11 +21,7 @@ export function userFromDto(dto: UserOutputModel): User {
     };
 }
 
-export function userFromCreation(
-    dto: UserCreationOutputModel,
-    name: Name,
-    email: Email,
-): User {
+export function userFromCreation(dto: UserCreationOutputModel, name: Name, email: Email): User {
     return {
         id: new Identifier(dto.id),
         name,

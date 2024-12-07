@@ -29,10 +29,7 @@ export namespace UserService {
      *
      * @returns The user that was retrieved.
      */
-    export async function getUser(
-        userId: Identifier,
-        abortSignal?: AbortSignal,
-    ): ApiResult<User> {
+    export async function getUser(userId: Identifier, abortSignal?: AbortSignal): ApiResult<User> {
         return handle(
             get<UserOutputModel>({
                 uri: USER_ROUTE.replace(USER_ID_PARAM, userId.value.toString()),
@@ -92,14 +89,10 @@ export namespace UserService {
             get<ChannelsPaginatedOutputModel>({
                 uri:
                     BASE_URI +
-                    buildQuery(
-                        USER_CHANNELS_ROUTE,
-                        null,
-                        pagination,
-                        sort,
-                        filterOwned,
-                        after,
-                    ).replace(USER_ID_PARAM, user.id.value.toString()),
+                    buildQuery(USER_CHANNELS_ROUTE, null, pagination, sort, filterOwned, after).replace(
+                        USER_ID_PARAM,
+                        user.id.value.toString(),
+                    ),
                 abortSignal: abortSignal,
             }),
             (outputModel) => ({

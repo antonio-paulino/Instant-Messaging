@@ -28,9 +28,7 @@ export interface ChannelInvitation {
     expiresAt: Date;
 }
 
-export function channelInvitationFromDto(
-    dto: ChannelInvitationOutputModel,
-): ChannelInvitation {
+export function channelInvitationFromDto(dto: ChannelInvitationOutputModel): ChannelInvitation {
     return {
         id: new Identifier(dto.id),
         channel: channelFromDto(dto.channel),

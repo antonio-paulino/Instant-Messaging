@@ -16,15 +16,9 @@ export function buildQuery(
         query.set('name', name);
     }
     if (paginationRequest) {
-        paginationRequest.offset
-            ? query.set('offset', paginationRequest.offset.toString())
-            : null;
-        paginationRequest.limit
-            ? query.set('limit', paginationRequest.limit.toString())
-            : null;
-        paginationRequest.getCount
-            ? query.set('getCount', paginationRequest.getCount.toString())
-            : null;
+        paginationRequest.offset ? query.set('offset', paginationRequest.offset.toString()) : null;
+        paginationRequest.limit ? query.set('limit', paginationRequest.limit.toString()) : null;
+        query.set('getCount', paginationRequest.getCount ? 'true' : 'false');
     }
     if (sortRequest) {
         query.set('sort', sortRequest.direction);

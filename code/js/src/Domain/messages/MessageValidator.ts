@@ -16,16 +16,8 @@ export class MessageValidator {
             errors.push(MessageValidationError.ContentBlank);
         }
 
-        if (
-            message.length < this.minLength ||
-            message.length > this.maxLength
-        ) {
-            errors.push(
-                new MessageValidationError.ContentLength(
-                    this.minLength,
-                    this.maxLength,
-                ),
-            );
+        if (message.length < this.minLength || message.length > this.maxLength) {
+            errors.push(new MessageValidationError.ContentLength(this.minLength, this.maxLength));
         }
 
         if (errors.length > 0) {

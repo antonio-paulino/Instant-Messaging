@@ -2,11 +2,7 @@ import { Name } from '../../Domain/wrappers/name/Name';
 import { ChannelRole } from '../../Domain/channel/ChannelRole';
 import { Session } from '../../Domain/sessions/Session';
 import { ApiResult, handle } from '../media/Problem';
-import {
-    Channel,
-    channelFromCreation,
-    channelFromDto,
-} from '../../Domain/channel/Channel';
+import { Channel, channelFromCreation, channelFromDto } from '../../Domain/channel/Channel';
 import { BaseHTTPService } from '../BaseHTTPService';
 import { ChannelCreationInputModel } from '../../Dto/input/ChannelCreationInputModel';
 import { ChannelCreationOutputModel } from '../../Dto/output/channels/ChannelCreationOutputModel';
@@ -20,6 +16,7 @@ import { ChannelRoleUpdateInputModel } from '../../Dto/input/ChannelRoleUpdateIn
 import { User } from '../../Domain/user/User';
 import { Uri } from '../Uri';
 import { buildQuery } from '../Utils';
+import { ChannelMember } from '../../Domain/channel/ChannelMember';
 
 export namespace ChannelService {
     import post = BaseHTTPService.post;
@@ -63,14 +60,7 @@ export namespace ChannelService {
                 },
                 abortSignal: abortSignal,
             }),
-            (outputModel) =>
-                channelFromCreation(
-                    outputModel,
-                    name,
-                    defaultRole,
-                    session.user,
-                    isPublic,
-                ),
+            (outputModel) => channelFromCreation(outputModel, name, defaultRole, session.user, isPublic),
         );
     }
 
@@ -82,16 +72,10 @@ export namespace ChannelService {
      *
      * @returns the channel
      */
-    export async function getChannel(
-        channelId: Identifier,
-        abortSignal?: AbortSignal,
-    ): ApiResult<Channel> {
+    export async function getChannel(channelId: Identifier, abortSignal?: AbortSignal): ApiResult<Channel> {
         return handle(
             get<ChannelOutputModel>({
-                uri: CHANNEL_ROUTE.replace(
-                    CHANNEL_ID_PARAM,
-                    channelId.value.toString(),
-                ),
+                uri: CHANNEL_ROUTE.replace(CHANNEL_ID_PARAM, channelId.value.toString()),
                 abortSignal: abortSignal,
             }),
             channelFromDto,
@@ -118,7 +102,7 @@ export namespace ChannelService {
     ): ApiResult<Pagination<Channel>> {
         return handle(
             get<ChannelsPaginatedOutputModel>({
-                uri: buildQuery(CHANNELS_ROUTE, name, pagination, sort),
+                uri: buildQuery(CHANNELS_ROUTE, name, pagination, sort, false, after),
                 abortSignal: abortSignal,
             }),
             (outputModel) => ({
@@ -147,10 +131,7 @@ export namespace ChannelService {
         abortSignal?: AbortSignal,
     ): ApiResult<void> {
         return await put<ChannelCreationInputModel>({
-            uri: CHANNEL_ROUTE.replace(
-                CHANNEL_ID_PARAM,
-                channelId.value.toString(),
-            ),
+            uri: CHANNEL_ROUTE.replace(CHANNEL_ID_PARAM, channelId.value.toString()),
             requestBody: {
                 name: name.value,
                 defaultRole: defaultRole,
@@ -169,15 +150,9 @@ export namespace ChannelService {
      *
      * @returns the result of the request
      */
-    export async function deleteChannel(
-        channelId: Identifier,
-        abortSignal?: AbortSignal,
-    ): ApiResult<void> {
+    export async function deleteChannel(channelId: Identifier, abortSignal?: AbortSignal): ApiResult<void> {
         return await deleteRequest({
-            uri: CHANNEL_ROUTE.replace(
-                CHANNEL_ID_PARAM,
-                channelId.value.toString(),
-            ),
+            uri: CHANNEL_ROUTE.replace(CHANNEL_ID_PARAM, channelId.value.toString()),
             abortSignal: abortSignal,
         });
     }
@@ -191,16 +166,12 @@ export namespace ChannelService {
      *
      * @returns the result of the request
      */
-    export async function joinChannel(
-        channel: Channel,
-        session: Session,
-        abortSignal?: AbortSignal,
-    ): ApiResult<void> {
+    export async function joinChannel(channel: Channel, session: Session, abortSignal?: AbortSignal): ApiResult<void> {
         return await put({
-            uri: CHANNEL_MEMBERS_ROUTE.replace(
-                CHANNEL_ID_PARAM,
-                channel.id.value.toString(),
-            ).replace(USER_ID_PARAM, session.user.id.value.toString()),
+            uri: CHANNEL_MEMBER_ROUTE.replace(CHANNEL_ID_PARAM, channel.id.value.toString()).replace(
+                USER_ID_PARAM,
+                session.user.id.value.toString(),
+            ),
             abortSignal: abortSignal,
         });
     }
@@ -220,10 +191,10 @@ export namespace ChannelService {
         abortSignal?: AbortSignal,
     ): ApiResult<void> {
         return await deleteRequest({
-            uri: CHANNEL_MEMBER_ROUTE.replace(
-                CHANNEL_ID_PARAM,
-                channel.id.value.toString(),
-            ).replace(USER_ID_PARAM, userId.value.toString()),
+            uri: CHANNEL_MEMBER_ROUTE.replace(CHANNEL_ID_PARAM, channel.id.value.toString()).replace(
+                USER_ID_PARAM,
+                userId.value.toString(),
+            ),
             abortSignal: abortSignal,
         });
     }
@@ -240,15 +211,15 @@ export namespace ChannelService {
      */
     export async function updateMemberRole(
         channel: Channel,
-        user: User,
+        user: ChannelMember,
         role: ChannelRole,
         abortSignal?: AbortSignal,
     ): ApiResult<void> {
         return await patch<ChannelRoleUpdateInputModel>({
-            uri: CHANNEL_MEMBER_ROUTE.replace(
-                CHANNEL_ID_PARAM,
-                channel.id.value.toString(),
-            ).replace(USER_ID_PARAM, user.id.value.toString()),
+            uri: CHANNEL_MEMBER_ROUTE.replace(CHANNEL_ID_PARAM, channel.id.value.toString()).replace(
+                USER_ID_PARAM,
+                user.id.value.toString(),
+            ),
             requestBody: {
                 role: role,
             },

@@ -7,6 +7,6 @@ import { PaginationInfo } from './PaginationInfo';
  * @param info The pagination information.
  */
 export interface Pagination<T> {
-    items: T[];
-    info: PaginationInfo;
+    readonly items: T[];
+    readonly info: PaginationInfo;
 }

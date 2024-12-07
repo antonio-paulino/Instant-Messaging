@@ -22,9 +22,7 @@ export abstract class PasswordValidationError {
     static NotEnoughUppercaseLetters(min: number) {
         return new (class extends PasswordValidationError {
             constructor() {
-                super(
-                    `Password must contain at least ${min} uppercase letter(s)`,
-                );
+                super(`Password must contain at least ${min} uppercase letter(s)`);
             }
         })();
     }
@@ -32,9 +30,7 @@ export abstract class PasswordValidationError {
     static NotEnoughLowercaseLetters(min: number) {
         return new (class extends PasswordValidationError {
             constructor() {
-                super(
-                    `Password must contain at least ${min} lowercase letter(s)`,
-                );
+                super(`Password must contain at least ${min} lowercase letter(s)`);
             }
         })();
     }
@@ -53,12 +49,11 @@ export abstract class PasswordValidationError {
         }
     })();
 
-    static CannotContainWhitespace =
-        new (class extends PasswordValidationError {
-            constructor() {
-                super('Password cannot contain whitespace');
-            }
-        })();
+    static CannotContainWhitespace = new (class extends PasswordValidationError {
+        constructor() {
+            super('Password cannot contain whitespace');
+        }
+    })();
 
     toErrorMessage(): string {
         return this.defaultMessage;

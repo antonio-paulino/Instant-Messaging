@@ -4,5 +4,5 @@
  * @param expiresAt The date and time when the invitation expires.
  */
 export interface ImInvitationCreationInputModel {
-    expiresAt: Date;
+    expiresAt: string;
 }

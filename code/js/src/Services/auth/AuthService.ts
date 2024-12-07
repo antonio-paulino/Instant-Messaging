@@ -6,15 +6,13 @@ import { Session } from '../../Domain/sessions/Session';
 import { Name } from '../../Domain/wrappers/name/Name';
 import { Email } from '../../Domain/wrappers/email/Email';
 import { Password } from '../../Domain/wrappers/password/Password';
-import {
-    ImInvitation,
-    imInvitationFromDto,
-} from '../../Domain/invitations/ImInvitation';
+import { ImInvitation, imInvitationFromDto } from '../../Domain/invitations/ImInvitation';
 import { UserCreationInputModel } from '../../Dto/input/UserCreationInputModel';
 import { UserCreationOutputModel } from '../../Dto/output/users/UserCreationOutputModel';
 import { ImInvitationOutputModel } from '../../Dto/output/invitations/ImInvitationOutputModel';
 import { User, userFromCreation } from '../../Domain/user/User';
 import { Uri } from '../Uri';
+import { ImInvitationCreationInputModel } from '../../Dto/input/ImInvitationCreationInputModel';
 
 export namespace AuthService {
     import post = BaseHTTPService.post;
@@ -86,8 +84,7 @@ export namespace AuthService {
                 },
                 abortSignal: abortSignal,
             }),
-            (userCreationOutputModel) =>
-                userFromCreation(userCreationOutputModel, username, email),
+            (userCreationOutputModel) => userFromCreation(userCreationOutputModel, username, email),
         );
     }
 
@@ -109,9 +106,7 @@ export namespace AuthService {
      *
      * @returns The session that was created.
      */
-    export async function refresh(
-        abortSignal?: AbortSignal,
-    ): ApiResult<Session> {
+    export async function refresh(abortSignal?: AbortSignal): ApiResult<Session> {
         return await handle(
             post<void, CredentialsOutputModel>({
                 uri: REFRESH_ROUTE,
@@ -126,13 +121,14 @@ export namespace AuthService {
      *
      * @returns The invitation that was created.
      */
-    export async function createInvitation(
-        abortSignal?: AbortSignal,
-    ): ApiResult<ImInvitation> {
+    export async function createInvitation(expiresAt: Date, abortSignal?: AbortSignal): ApiResult<ImInvitation> {
         return await handle(
-            post<void, ImInvitationOutputModel>({
+            post<ImInvitationCreationInputModel, ImInvitationOutputModel>({
                 uri: CREATE_INVITATION_ROUTE,
                 abortSignal: abortSignal,
+                requestBody: {
+                    expiresAt: expiresAt.toISOString(),
+                },
             }),
             imInvitationFromDto,
         );

@@ -1,7 +1,5 @@
 export abstract class MessageValidationError {
-    protected constructor(
-        public readonly defaultMessage: string = 'Invalid message',
-    ) {}
+    protected constructor(public readonly defaultMessage: string = 'Invalid message') {}
 
     static ContentBlank = new (class extends MessageValidationError {
         constructor() {
@@ -14,9 +12,7 @@ export abstract class MessageValidationError {
             public readonly min: number,
             public readonly max: number,
         ) {
-            super(
-                `Message content must be between ${min} and ${max} characters`,
-            );
+            super(`Message content must be between ${min} and ${max} characters`);
         }
     };
 

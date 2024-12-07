@@ -1,5 +1,5 @@
 import { IdentifierValidator } from './IdentifierValidator';
-import { IdentifierOutputModel } from '../../../UI/Components/Providers/Events';
+import { IdentifierOutputModel } from '../../../UI/Providers/EventsProvider';
 
 export class Identifier {
     private static validator = new IdentifierValidator();

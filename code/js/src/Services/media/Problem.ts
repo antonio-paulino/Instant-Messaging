@@ -17,10 +17,7 @@ interface Problem {
     detail: string;
 }
 
-export type ProblemResponse =
-    | Problem
-    | UnexpectedProblem
-    | InputValidationProblem;
+export type ProblemResponse = Problem | UnexpectedProblem | InputValidationProblem;
 
 export type ApiResult<T> = Promise<Either<ProblemResponse, T>>;
 
@@ -48,12 +45,7 @@ export async function handle<T, R>(
 export interface ServiceProblem extends Problem {}
 
 function isServiceProblem(obj: any): obj is ServiceProblem {
-    return (
-        obj.type !== undefined &&
-        obj.title !== undefined &&
-        obj.status !== undefined &&
-        obj.detail !== undefined
-    );
+    return obj.type !== undefined && obj.title !== undefined && obj.status !== undefined && obj.detail !== undefined;
 }
 
 export interface UnexpectedProblem {

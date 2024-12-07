@@ -55,14 +55,8 @@ export namespace InvitationService {
         abortSignal?: AbortSignal,
     ): ApiResult<ChannelInvitation> {
         return await handle(
-            post<
-                ChannelInvitationCreationInputModel,
-                ChannelInvitationCreationOutputModel
-            >({
-                uri: CHANNEL_INVITATIONS_ROUTE.replace(
-                    CHANNEL_ID_PARAM,
-                    channel.id.value.toString(),
-                ),
+            post<ChannelInvitationCreationInputModel, ChannelInvitationCreationOutputModel>({
+                uri: CHANNEL_INVITATIONS_ROUTE.replace(CHANNEL_ID_PARAM, channel.id.value.toString()),
                 requestBody: {
                     invitee: invitee.id.value,
                     expiresAt: expiresAt,
@@ -70,14 +64,7 @@ export namespace InvitationService {
                 },
                 abortSignal: abortSignal,
             }),
-            (outputModel) =>
-                channelInvitationFromCreation(
-                    outputModel,
-                    channel,
-                    invitee,
-                    expiresAt,
-                    role,
-                ),
+            (outputModel) => channelInvitationFromCreation(outputModel, channel, invitee, expiresAt, role),
         );
     }
 
@@ -97,10 +84,10 @@ export namespace InvitationService {
     ): ApiResult<ChannelInvitation> {
         return await handle(
             get<ChannelInvitationOutputModel>({
-                uri: CHANNEL_INVITATION_ROUTE.replace(
-                    CHANNEL_ID_PARAM,
-                    channel.id.value.toString(),
-                ).replace(INVITATION_ID_PARAM, inviteId.value.toString()),
+                uri: CHANNEL_INVITATION_ROUTE.replace(CHANNEL_ID_PARAM, channel.id.value.toString()).replace(
+                    INVITATION_ID_PARAM,
+                    inviteId.value.toString(),
+                ),
                 abortSignal: abortSignal,
             }),
             channelInvitationFromDto,
@@ -127,14 +114,10 @@ export namespace InvitationService {
     ): ApiResult<Pagination<ChannelInvitation>> {
         return await handle(
             get<ChannelInvitationsPaginatedOutputModel>({
-                uri: buildQuery(
-                    CHANNEL_INVITATIONS_ROUTE,
-                    null,
-                    pagination,
-                    sort,
-                    false,
-                    after,
-                ).replace(CHANNEL_ID_PARAM, channel.id.value.toString()),
+                uri: buildQuery(CHANNEL_INVITATIONS_ROUTE, null, pagination, sort, false, after).replace(
+                    CHANNEL_ID_PARAM,
+                    channel.id.value.toString(),
+                ),
                 abortSignal: abortSignal,
             }),
             (outputModel) => ({
@@ -160,10 +143,10 @@ export namespace InvitationService {
         abortSignal?: AbortSignal,
     ): ApiResult<void> {
         return patch<ChannelInvitationUpdateInputModel>({
-            uri: CHANNEL_INVITATION_ROUTE.replace(
-                CHANNEL_ID_PARAM,
-                invitation.channel.id.value.toString(),
-            ).replace(INVITATION_ID_PARAM, invitation.id.value.toString()),
+            uri: CHANNEL_INVITATION_ROUTE.replace(CHANNEL_ID_PARAM, invitation.channel.id.value.toString()).replace(
+                INVITATION_ID_PARAM,
+                invitation.id.value.toString(),
+            ),
             requestBody: {
                 role: role,
                 expiresAt: expiresAt,
@@ -178,15 +161,12 @@ export namespace InvitationService {
      * @param invitation - The invitation to delete.
      * @param abortSignal - The signal to abort the request.
      */
-    export async function deleteInvitation(
-        invitation: ChannelInvitation,
-        abortSignal?: AbortSignal,
-    ): ApiResult<void> {
+    export async function deleteInvitation(invitation: ChannelInvitation, abortSignal?: AbortSignal): ApiResult<void> {
         return await deleteRequest({
-            uri: CHANNEL_INVITATION_ROUTE.replace(
-                CHANNEL_ID_PARAM,
-                invitation.channel.id.value.toString(),
-            ).replace(INVITATION_ID_PARAM, invitation.id.value.toString()),
+            uri: CHANNEL_INVITATION_ROUTE.replace(CHANNEL_ID_PARAM, invitation.channel.id.value.toString()).replace(
+                INVITATION_ID_PARAM,
+                invitation.id.value.toString(),
+            ),
             abortSignal: abortSignal,
         });
     }
@@ -211,14 +191,7 @@ export namespace InvitationService {
     ): ApiResult<Pagination<ChannelInvitation>> {
         return await handle(
             get<ChannelInvitationsPaginatedOutputModel>({
-                uri: buildQuery(
-                    USER_INVITATIONS_ROUTE,
-                    null,
-                    pagination,
-                    sort,
-                    false,
-                    after,
-                )
+                uri: buildQuery(USER_INVITATIONS_ROUTE, null, pagination, sort, false, after)
                     .replace(CHANNEL_ID_PARAM, user.id.value.toString())
                     .replace(USER_ID_PARAM, user.id.value.toString()),
                 abortSignal: abortSignal,
@@ -237,15 +210,9 @@ export namespace InvitationService {
      * @param abortSignal - The signal to abort the request.
      *
      */
-    export async function acceptInvitation(
-        invitation: ChannelInvitation,
-        abortSignal?: AbortSignal,
-    ): ApiResult<void> {
+    export async function acceptInvitation(invitation: ChannelInvitation, abortSignal?: AbortSignal): ApiResult<void> {
         return await patch<InvitationAcceptInputModel>({
-            uri: USER_INVITATION_ROUTE.replace(
-                CHANNEL_ID_PARAM,
-                invitation.channel.id.value.toString(),
-            )
+            uri: USER_INVITATION_ROUTE.replace(CHANNEL_ID_PARAM, invitation.channel.id.value.toString())
                 .replace(INVITATION_ID_PARAM, invitation.id.value.toString())
                 .replace(USER_ID_PARAM, invitation.invitee.id.value.toString()),
             requestBody: {
@@ -261,15 +228,9 @@ export namespace InvitationService {
      * @param invitation - The invitation to decline.
      * @param abortSignal - The signal to abort the request.
      */
-    export async function declineInvitation(
-        invitation: ChannelInvitation,
-        abortSignal?: AbortSignal,
-    ): ApiResult<void> {
+    export async function declineInvitation(invitation: ChannelInvitation, abortSignal?: AbortSignal): ApiResult<void> {
         return await patch<InvitationAcceptInputModel>({
-            uri: USER_INVITATION_ROUTE.replace(
-                CHANNEL_ID_PARAM,
-                invitation.channel.id.value.toString(),
-            )
+            uri: USER_INVITATION_ROUTE.replace(CHANNEL_ID_PARAM, invitation.channel.id.value.toString())
                 .replace(INVITATION_ID_PARAM, invitation.id.value.toString())
                 .replace(USER_ID_PARAM, invitation.invitee.id.value.toString()),
             requestBody: {

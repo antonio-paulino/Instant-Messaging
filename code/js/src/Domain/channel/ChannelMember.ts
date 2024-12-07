@@ -16,9 +16,7 @@ export interface ChannelMember {
     role: ChannelRole;
 }
 
-export function channelMemberFromDto(
-    dto: ChannelMemberOutputModel,
-): ChannelMember {
+export function channelMemberFromDto(dto: ChannelMemberOutputModel): ChannelMember {
     return {
         id: new Identifier(dto.id),
         name: new Name(dto.name),

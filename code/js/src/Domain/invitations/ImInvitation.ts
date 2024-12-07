@@ -11,9 +11,7 @@ export interface ImInvitation {
     expiresAt: Date;
 }
 
-export function imInvitationFromDto(
-    dto: ImInvitationOutputModel,
-): ImInvitation {
+export function imInvitationFromDto(dto: ImInvitationOutputModel): ImInvitation {
     return {
         token: dto.token,
         expiresAt: new Date(dto.expiresAt),

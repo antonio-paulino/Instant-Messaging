@@ -48,12 +48,6 @@ export class Message {
         author: User,
         content: string,
     ): Message {
-        return new Message(
-            new Identifier(dto.id),
-            channelId,
-            author,
-            content,
-            new Date(dto.createdAt),
-        );
+        return new Message(new Identifier(dto.id), channelId, author, content, new Date(dto.createdAt));
     }
 }

@@ -16,7 +16,7 @@ open class ServiceConfig {
         AuthConfig(
             accessTokenTTL = 24.hours,
             sessionTTL = 7.days,
-            maxSessions = 10,
+            maxSessions = 1000,
         )
 
     @Bean

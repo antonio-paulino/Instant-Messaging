@@ -16,16 +16,8 @@ export class NameValidator {
             errors.push(NameValidationError.Blank);
         }
 
-        if (
-            value.length < this.minNameLength ||
-            value.length > this.maxNameLength
-        ) {
-            errors.push(
-                NameValidationError.InvalidLength(
-                    this.minNameLength,
-                    this.maxNameLength,
-                ),
-            );
+        if (value.length < this.minNameLength || value.length > this.maxNameLength) {
+            errors.push(NameValidationError.InvalidLength(this.minNameLength, this.maxNameLength));
         }
 
         return errors.length > 0 ? errors : [];

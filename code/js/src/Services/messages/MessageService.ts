@@ -44,15 +44,10 @@ export namespace MessageService {
     ): ApiResult<Pagination<Message>> {
         return await handle(
             get<MessagesPaginatedOutputModel>({
-                uri: buildQuery(
-                    MESSAGES_ROUTE,
-                    null,
-                    pagination,
-                    sort,
-                    false,
-                    null,
-                    before,
-                ).replace(CHANNEL_ID_PARAM, channel.id.value.toString()),
+                uri: buildQuery(MESSAGES_ROUTE, null, pagination, sort, false, null, before).replace(
+                    CHANNEL_ID_PARAM,
+                    channel.id.value.toString(),
+                ),
                 abortSignal: abortSignal,
             }),
             (outputModel) => ({
@@ -78,10 +73,10 @@ export namespace MessageService {
     ): ApiResult<Message> {
         return await handle(
             get<MessageOutputModel>({
-                uri: MESSAGE_ROUTE.replace(
-                    CHANNEL_ID_PARAM,
-                    channel.id.value.toString(),
-                ).replace(MESSAGE_ID_PARAM, messageId.value.toString()),
+                uri: MESSAGE_ROUTE.replace(CHANNEL_ID_PARAM, channel.id.value.toString()).replace(
+                    MESSAGE_ID_PARAM,
+                    messageId.value.toString(),
+                ),
                 abortSignal: abortSignal,
             }),
             (outputModel) => Message.fromDto(outputModel),
@@ -104,22 +99,13 @@ export namespace MessageService {
     ): ApiResult<Message> {
         return await handle(
             post<MessageCreationInputModel, MessageCreationOutputModel>({
-                uri: MESSAGES_ROUTE.replace(
-                    CHANNEL_ID_PARAM,
-                    channel.id.value.toString(),
-                ),
+                uri: MESSAGES_ROUTE.replace(CHANNEL_ID_PARAM, channel.id.value.toString()),
                 requestBody: {
                     content: content,
                 },
                 abortSignal: abortSignal,
             }),
-            (outputModel) =>
-                Message.fromCreation(
-                    outputModel,
-                    channel.id,
-                    session.user,
-                    content,
-                ),
+            (outputModel) => Message.fromCreation(outputModel, channel.id, session.user, content),
         );
     }
 
@@ -130,16 +116,12 @@ export namespace MessageService {
      * @param content - The new content of the message.
      * @param abortSignal - The signal to abort the request.
      */
-    export async function updateMessage(
-        message: Message,
-        content: string,
-        abortSignal?: AbortSignal,
-    ): ApiResult<void> {
+    export async function updateMessage(message: Message, content: string, abortSignal?: AbortSignal): ApiResult<void> {
         return await put<MessageCreationInputModel>({
-            uri: MESSAGE_ROUTE.replace(
-                CHANNEL_ID_PARAM,
-                message.channelId.value.toString(),
-            ).replace(MESSAGE_ID_PARAM, message.id.value.toString()),
+            uri: MESSAGE_ROUTE.replace(CHANNEL_ID_PARAM, message.channelId.value.toString()).replace(
+                MESSAGE_ID_PARAM,
+                message.id.value.toString(),
+            ),
             requestBody: {
                 content: content,
             },
@@ -153,16 +135,19 @@ export namespace MessageService {
      *
      * @param channel - The channel the message belongs to.
      * @param messageId - The identifier of the message.
+     * @param signal - The signal to abort the request.
      */
     export async function deleteMessage(
         channel: Channel,
         messageId: Identifier,
+        signal?: AbortSignal,
     ): ApiResult<void> {
         return await deleteRequest({
-            uri: MESSAGE_ROUTE.replace(
-                CHANNEL_ID_PARAM,
-                channel.id.value.toString(),
-            ).replace(MESSAGE_ID_PARAM, messageId.value.toString()),
+            uri: MESSAGE_ROUTE.replace(CHANNEL_ID_PARAM, channel.id.value.toString()).replace(
+                MESSAGE_ID_PARAM,
+                messageId.value.toString(),
+            ),
+            abortSignal: signal,
         });
     }
 }
