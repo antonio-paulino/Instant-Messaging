@@ -1,28 +1,21 @@
-import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, Outlet, useNavigate } from 'react-router-dom';
 import Stack from '@mui/material/Stack';
 import { Window } from '../../../Components/Utils/Layouts/Window';
 import { Routes } from '../../../../routes';
 import { useInfiniteScrollContextChannels } from '../../../Providers/InfiniteScrollProvider';
 import Box from '@mui/material/Box';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { ChannelSettingsDashboard } from './Dashboard/ChannelSettingsDashboard';
 
 export function ChannelSettingsWindow() {
     const navigate = useNavigate();
     const { state, selectedChannel } = useInfiniteScrollContextChannels();
-    const location = useLocation();
 
     const channel = state.paginationState.items.find((channel) => channel.id.value === selectedChannel?.value);
 
     if (!channel) {
         return <Navigate to={Routes.HOME} />;
     }
-
-    useEffect(() => {
-        if (location.pathname === Routes.CHANNEL_SETTINGS) {
-            navigate(Routes.CHANNEL_MEMBERS);
-        }
-    }, [location.pathname]);
 
     return (
         <Window sx={{ p: 0 }} onClose={() => navigate(Routes.HOME)} height={'80vh'}>
