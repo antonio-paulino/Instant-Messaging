@@ -80,6 +80,7 @@ export function useForm({ initialValues, validate, onSubmit }: FormProps): Form 
                         return {
                             type: 'loaded',
                             values: initialValues,
+                            // @ts-ignore
                             errors: Object.keys(initialValues).reduce((acc, key) => ({ ...acc, [key]: [] }), {}),
                             error: null,
                         };
@@ -118,6 +119,7 @@ export function useForm({ initialValues, validate, onSubmit }: FormProps): Form 
                         return {
                             type: 'loaded',
                             values: initialValues,
+                            // @ts-ignore
                             errors: Object.keys(initialValues).reduce((acc, key) => ({ ...acc, [key]: [] }), {}),
                             error: null,
                         };
@@ -147,6 +149,7 @@ export function useForm({ initialValues, validate, onSubmit }: FormProps): Form 
     const [state, dispatch] = useReducer(reducer, {
         type: 'loaded',
         values: initialValues,
+        // @ts-ignore
         errors: Object.keys(initialValues).reduce((acc, key) => ({ ...acc, [key]: [] }), {}),
         error: null,
     });
