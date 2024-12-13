@@ -19,3 +19,32 @@ The documentation for this project can be found in the `docs` directory.
 
 - [50493 Bernardo Pereira](https://github.com/BernardoPe)
 - [50512 António Paulino](https://github.com/antonio-paulino)
+
+# Discussion Information
+
+## Deployment
+
+To deploy the application, Docker and Gradle are required.
+
+On the root of the code/jvm directory, run the following command:
+
+```bash
+./gradlew deploy
+```
+
+This command will build the application, and deploy both the API and the SPA.
+
+To scale the api instances, run the following commands:
+
+```bash
+docker compose up -d --scale deploy-api=[number of instances]
+docker exec -ti im-nginx bash    
+nginx -s reload
+```
+
+## Test Data
+
+The database will be populated with test data, including the following users:
+
+- Username: Instant Messaging, Password: Iseldaw-g07
+- Users from user_1 to user_1000000, with the password: Password123
