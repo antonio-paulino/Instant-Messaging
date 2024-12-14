@@ -106,6 +106,7 @@ class SSEController(
             .header("Connection", "keep-alive")
             .header("Content-Encoding", "none")
             .header("Access-Control-Allow-Origin", "*")
+            .header("X-Accel-Buffering", "no") // For Nginx
             .body(emitter)
     }
 

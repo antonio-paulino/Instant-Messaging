@@ -42,6 +42,14 @@ docker exec -ti im-nginx bash
 nginx -s reload
 ```
 
+If the number of instances is greater than 1, SSE will not work properly.
+
+Events are handled with JPA Entity Listeners, which depend on the JPA Context specific to the instance.
+
+If the instance with the event listener is not the one that makes the change to the database, the listener will not be triggered.
+
+(Possible future improvement: use a static event server that receives events pushed by the instances and triggers the listeners)
+
 ## Test Data
 
 The database will be populated with test data, including the following users:
