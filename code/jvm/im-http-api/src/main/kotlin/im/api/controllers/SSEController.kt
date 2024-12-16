@@ -232,6 +232,12 @@ class SSEController(
                     if (entity.channel.isPublic) null else entity.channel.members.map { it.key.id },
                 )
             }
+            is Channel ->
+                sendEventToAll(
+                    CHANNEL_CREATED_EVENT_NAME,
+                    ChannelOutputModel.fromDomain(entity),
+                    if (entity.isPublic) null else entity.members.map { it.key.id },
+                )
         }
     }
 
@@ -303,6 +309,7 @@ class SSEController(
         private const val INVITATION_CREATED_EVENT_NAME = "invitation-created"
         private const val INVITATION_UPDATED_EVENT_NAME = "invitation-updated"
         private const val INVITATION_DELETED_EVENT_NAME = "invitation-deleted"
+        private const val CHANNEL_CREATED_EVENT_NAME = "channel-created"
         private const val CHANNEL_DELETED_EVENT_NAME = "channel-deleted"
         private const val CHANNEL_UPDATED_EVENT_NAME = "channel-updated"
         private const val MAX_EVENTS_STORED = 1000000

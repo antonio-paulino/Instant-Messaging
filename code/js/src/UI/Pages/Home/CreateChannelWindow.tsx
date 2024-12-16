@@ -9,7 +9,6 @@ import { NavigateFunction, useNavigate } from 'react-router-dom';
 import { useForm } from '../../State/useForm';
 import { NameValidator } from '../../../Domain/wrappers/name/NameValidator';
 import ErrorList from '../../Components/Utils/State/ErrorList';
-import { useInfiniteScrollContextChannels } from '../../Providers/InfiniteScrollProvider';
 import { useSessionManager } from '../../Providers/SessionProvider';
 import { ChannelService } from '../../../Services/channels/ChannelService';
 import { Name } from '../../../Domain/wrappers/name/Name';
@@ -97,8 +96,6 @@ interface CreateChannelWindowHook {
 function useCreateChannelWindow(navigate: NavigateFunction): CreateChannelWindowHook {
     const sessionManager = useSessionManager();
     const { showAlert } = useAlertContext();
-    const { state: scrollState, handleItemCreate } = useInfiniteScrollContextChannels();
-
     const nameValidator = new NameValidator();
 
     const {
@@ -129,9 +126,6 @@ function useCreateChannelWindow(navigate: NavigateFunction): CreateChannelWindow
             });
             if (res.isSuccess()) {
                 showAlert({ message: 'Channel created', severity: 'success' });
-                if (!scrollState.paginationState.info.next) {
-                    handleItemCreate(res.getRight());
-                }
                 navigate(Routes.HOME);
                 return;
             } else {

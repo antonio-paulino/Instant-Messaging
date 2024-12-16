@@ -109,7 +109,9 @@ function useInvitationsDropDown(showAlert: (alert: AlertMessage) => void): Invit
                 type: 'invitation-created',
                 listener: (event: MessageEvent<string>) => {
                     const invitation = eventManager.handleEvent(event).data as ChannelInvitation;
-                    handleItemCreate(invitation);
+                    if (!state.paginationState.info.next) {
+                        handleItemCreate(invitation);
+                    }
                 },
             },
             {
@@ -123,7 +125,7 @@ function useInvitationsDropDown(showAlert: (alert: AlertMessage) => void): Invit
                     handleItemDelete(eventManager.handleEvent(event).data as Identifier),
             },
         ],
-        [],
+        [state.paginationState.info.next === null],
     );
 
     useEffect(() => {

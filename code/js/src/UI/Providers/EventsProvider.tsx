@@ -156,6 +156,11 @@ export default function EventsProvider({ children }: { children: React.ReactNode
                     type: 'channel-deleted',
                     data: Identifier.fromDto(data as IdentifierOutputModel),
                 };
+            case 'channel-created':
+                return {
+                    type: 'channel-created',
+                    data: channelFromDto(data as ChannelOutputModel),
+                };
             default:
                 console.error('Unknown event type: ', event.type);
         }
@@ -190,6 +195,7 @@ export type ServerEvents = {
     invitationDeleted: 'invitation-deleted';
     channelUpdated: 'channel-updated';
     channelDeleted: 'channel-deleted';
+    channelCreated: 'channel-created';
 };
 
 export interface IdentifierOutputModel {
@@ -204,7 +210,8 @@ export type ServerEvent =
     | InvitationUpdatedEvent
     | InvitationDeletedEvent
     | ChannelUpdatedEvent
-    | ChannelDeletedEvent;
+    | ChannelDeletedEvent
+    | ChannelCreatedEvent;
 
 export type MessageCreatedEvent = {
     type: 'message-created';
@@ -245,3 +252,8 @@ export type ChannelDeletedEvent = {
     type: 'channel-deleted';
     data: Identifier;
 };
+
+export type ChannelCreatedEvent = {
+    type: 'channel-created';
+    data: Channel;
+}

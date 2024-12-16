@@ -218,7 +218,13 @@ export function useInfiniteScroll<T>(
         type: 'initial',
         paginationState: {
             items: [],
-            info: null,
+            info: {
+                total: 0,
+                next: 1,
+                previous: null,
+                current: 0,
+                totalPages: 0,
+            },
         },
         error: null,
         queuedUpdates: [],

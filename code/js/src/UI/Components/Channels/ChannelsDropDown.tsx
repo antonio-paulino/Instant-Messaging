@@ -119,7 +119,7 @@ interface ChannelsDropDownHook {
 }
 
 function useChannelsDropDown(): ChannelsDropDownHook {
-    const { state, loadMore, handleItemUpdate, handleItemDelete, selectedChannel, setSelectedChannel } =
+    const { state, loadMore, handleItemCreate, handleItemUpdate, handleItemDelete, selectedChannel, setSelectedChannel } =
         useInfiniteScrollContextChannels();
     const eventManager = useEventManager();
     const { showAlert } = useAlertContext();
@@ -173,8 +173,17 @@ function useChannelsDropDown(): ChannelsDropDownHook {
                     handleItemDelete(channelId);
                 },
             },
+            {
+                type: 'channel-created',
+                listener: (event: MessageEvent<string>) => {
+                    const channel = eventManager.handleEvent(event).data as Channel;
+                    if (!state.paginationState.info.next) {
+                        handleItemCreate(channel);
+                    }
+                },
+            }
         ],
-        [selectedChannel, user],
+        [selectedChannel, user, state.paginationState.info.next === null],
     );
 
     useEffect(() => {
