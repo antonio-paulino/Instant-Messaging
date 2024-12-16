@@ -199,8 +199,8 @@ class SSEController(
 
     @PreDestroy
     fun destroy() {
-        eventExecutor.awaitTermination(AWAIT_TERMINATION_TIMEOUT, TimeUnit.SECONDS)
         eventExecutor.shutdown()
+        eventExecutor.awaitTermination(AWAIT_TERMINATION_TIMEOUT, TimeUnit.SECONDS)
     }
 
     override fun onApplicationEvent(event: RepositoryHTTPEvent<*>) {
