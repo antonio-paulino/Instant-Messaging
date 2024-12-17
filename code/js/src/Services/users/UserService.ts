@@ -12,8 +12,6 @@ import { buildQuery } from '../Utils';
 import { Channel, channelFromDto } from '../../Domain/channel/Channel';
 import { ChannelsPaginatedOutputModel } from '../../Dto/output/channels/ChannelsPaginatedOutputModel';
 
-const BASE_URI = 'http://localhost:8080';
-
 export namespace UserService {
     import get = BaseHTTPService.get;
     import USER_ROUTE = Uri.USER_ROUTE;
@@ -57,7 +55,7 @@ export namespace UserService {
     ): ApiResult<Pagination<User>> {
         return handle(
             get<UsersPaginatedOutputModel>({
-                uri: buildQuery(BASE_URI + USERS_ROUTE, name, pagination, sort),
+                uri: buildQuery(USERS_ROUTE, name, pagination, sort),
                 abortSignal: abortSignal,
             }),
             (outputModel) => ({
@@ -88,7 +86,6 @@ export namespace UserService {
         return await handle(
             get<ChannelsPaginatedOutputModel>({
                 uri:
-                    BASE_URI +
                     buildQuery(USER_CHANNELS_ROUTE, null, pagination, sort, filterOwned, after).replace(
                         USER_ID_PARAM,
                         user.id.value.toString(),
