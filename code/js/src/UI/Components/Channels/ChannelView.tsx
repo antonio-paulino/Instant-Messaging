@@ -7,7 +7,7 @@ import { MessageTextField } from '../Messages/MessageTextField';
 import { Routes } from '../../../routes';
 import { Link, Navigate } from 'react-router-dom';
 import { useInfiniteScrollContextChannels } from '../../Providers/InfiniteScrollProvider';
-import {Settings} from "@mui/icons-material";
+import { Settings } from '@mui/icons-material';
 
 export default function ChannelView() {
     const { state, selectedChannel } = useInfiniteScrollContextChannels();

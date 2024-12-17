@@ -178,13 +178,13 @@ function useChannelInvitations(sessionManager: SessionManager, channel: Channel)
     }, [state.type]);
 
     useEffect(() => {
-        if (eventManager.isInitialized) {
+        if (eventManager.isOpen) {
             eventListeners.forEach(eventManager.addListener);
         }
         return () => {
             eventListeners.forEach(eventManager.removeListener);
         };
-    }, [eventManager.isInitialized]);
+    }, [eventManager.isOpen]);
 
     return {
         state,

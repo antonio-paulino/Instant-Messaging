@@ -12,7 +12,6 @@ export namespace Uri {
 
     export const CHANNELS_ROUTE = '/api/channels';
     export const CHANNEL_ROUTE = `/api/channels/${CHANNEL_ID_PARAM}`;
-    export const CHANNEL_MEMBERS_ROUTE = `/api/channels/${CHANNEL_ID_PARAM}/members`;
     export const CHANNEL_MEMBER_ROUTE = `/api/channels/${CHANNEL_ID_PARAM}/members/${USER_ID_PARAM}`;
 
     export const CHANNEL_INVITATIONS_ROUTE = `/api/channels/${CHANNEL_ID_PARAM}/invitations`;

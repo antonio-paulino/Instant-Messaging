@@ -77,13 +77,13 @@ export function AlertProvider({ children }: { children: ReactNode }) {
     ];
 
     useEffect(() => {
-        if (eventManager.isInitialized) {
+        if (eventManager.isOpen) {
             listeners.forEach(eventManager.addListener);
         }
         return () => {
             listeners.forEach(eventManager.removeListener);
         };
-    }, [eventManager.isInitialized]);
+    }, [eventManager.isOpen]);
 
     const showAlert = (alert: AlertMessage) => {
         if (show) {

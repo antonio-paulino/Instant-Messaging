@@ -126,13 +126,13 @@ function useChannelSearchWindow(): ChannelSearchWindowHook {
     );
 
     useEffect(() => {
-        if (eventManager.isInitialized) {
+        if (eventManager.isOpen) {
             listeners.forEach(eventManager.addListener);
         }
         return () => {
             listeners.forEach(eventManager.removeListener);
         };
-    }, [eventManager.isInitialized]);
+    }, [eventManager.isOpen]);
 
     const filteredItems = useMemo(() => {
         return scrollState.state.paginationState.items.filter((channel) => {

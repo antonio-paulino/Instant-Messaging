@@ -129,13 +129,13 @@ function useInvitationsDropDown(showAlert: (alert: AlertMessage) => void): Invit
     );
 
     useEffect(() => {
-        if (eventManager.isInitialized) {
+        if (eventManager.isOpen) {
             eventListeners.forEach(eventManager.addListener);
         }
         return () => {
             eventListeners.forEach(eventManager.removeListener);
         };
-    }, [eventManager.isInitialized]);
+    }, [eventManager.isOpen]);
 
     useEffect(() => {
         if (state.type === 'error') {

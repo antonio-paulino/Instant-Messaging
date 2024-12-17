@@ -10,6 +10,7 @@ import { useSessionManager } from './SessionProvider';
 import { doAfterDelay } from '../../Utils/Time';
 
 export interface EventManager {
+    readonly isOpen: boolean;
     readonly isInitialized: boolean;
     readonly setupEventSource: () => void;
     readonly destroyEventSource: () => void;
@@ -26,6 +27,7 @@ export type EventListener = {
 const EVENTS_URI = '/api/sse/listen';
 
 const EventContext = createContext<EventManager>({
+    isOpen: false,
     isInitialized: false,
     setupEventSource: () =>
         new Promise<void>(() => {
@@ -47,6 +49,7 @@ const EventContext = createContext<EventManager>({
 
 export default function EventsProvider({ children }: { children: React.ReactNode }) {
     const sessionManager = useSessionManager();
+    const [isOpen, setIsOpen] = useState(false);
     const [isInitialized, setIsInitialized] = useState(false);
     const [eventSource, setEventSource] = useState<EventSource | null>(null);
 
@@ -59,13 +62,14 @@ export default function EventsProvider({ children }: { children: React.ReactNode
                 withCredentials: true,
             });
             setEventSource(newEventSource);
+            setIsInitialized(true);
             newEventSource.onopen = () => {
-                setIsInitialized(true);
+                setIsOpen(true);
             };
             newEventSource.onerror = () => {
                 if (newEventSource.readyState === EventSource.CLOSED) {
-                    setIsInitialized(false);
-                    doAfterDelay(2000, setupEventSource);
+                    setIsOpen(false);
+                    doAfterDelay(5000, setupEventSource);
                 }
             };
         });
@@ -168,6 +172,7 @@ export default function EventsProvider({ children }: { children: React.ReactNode
 
     const eventManager = {
         isInitialized,
+        isOpen,
         setupEventSource,
         destroyEventSource,
         handleEvent,
@@ -256,4 +261,4 @@ export type ChannelDeletedEvent = {
 export type ChannelCreatedEvent = {
     type: 'channel-created';
     data: Channel;
-}
+};

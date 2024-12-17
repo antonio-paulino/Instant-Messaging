@@ -183,13 +183,13 @@ function useMessagesContainer(channel: Channel): MessageContainerHook {
     );
 
     useEffect(() => {
-        if (eventManager.isInitialized) {
+        if (eventManager.isOpen) {
             listeners.forEach(eventManager.addListener);
         }
         return () => {
             listeners.forEach(eventManager.removeListener);
         };
-    }, [eventManager.isInitialized, listeners]);
+    }, [eventManager.isOpen, listeners]);
 
     return { state, items: state.paginationState.items, loadMore };
 }
