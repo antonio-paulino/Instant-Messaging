@@ -15,7 +15,6 @@ import im.domain.wrappers.identifier.Identifier
 import im.repository.repositories.RepositoryEvent
 import im.services.channels.ChannelService
 import jakarta.annotation.PreDestroy
-import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationEvent
 import org.springframework.context.ApplicationListener
 import org.springframework.http.ResponseEntity
