@@ -66,6 +66,6 @@ task<Exec>("wait-db") {
 }
 
 task<Exec>("deploy") {
-    commandLine("docker", "compose", "-f", dockerComposePath, "up", "-d", "--build", "--force-recreate", "deploy")
+    commandLine("docker", "compose", "-f", dockerComposePath, "up", "-d", "--build", "--force-recreate", "nginx-deployment")
     dependsOn("wait-db", "build")
 }

@@ -34,25 +34,12 @@ services:
     depends_on:
       - prod-db
 
-  nginx:
+  nginx-deployment:
     container_name: im-nginx
     build:
       context: .
       dockerfile: dockerfiles/nginx/Dockerfile-nginx
     ports:
-      - "8080:8080"
+      - "8000:8000"
     depends_on:
       - deploy-api
-
-  deploy:
-    container_name: deploy
-    build:
-      context: .
-      dockerfile: dockerfiles/Dockerfile-ts
-    ports:
-      - "8000:8000"
-    environment:
-      - API_CONTEXT=/api
-      - API_TARGET=http://nginx:8080
-    depends_on:
-      - nginx
