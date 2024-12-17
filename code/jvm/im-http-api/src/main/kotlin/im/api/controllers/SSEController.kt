@@ -15,6 +15,7 @@ import im.domain.wrappers.identifier.Identifier
 import im.repository.repositories.RepositoryEvent
 import im.services.channels.ChannelService
 import jakarta.annotation.PreDestroy
+import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationEvent
 import org.springframework.context.ApplicationListener
 import org.springframework.http.ResponseEntity
@@ -229,7 +230,7 @@ class SSEController(
                 sendEventToAll(
                     CHANNEL_UPDATED_EVENT_NAME,
                     ChannelOutputModel.fromDomain(entity.channel.addMember(entity.user, entity.role)),
-                    if (entity.channel.isPublic) null else entity.channel.members.map { it.key.id },
+                    if (entity.channel.isPublic) null else entity.channel.members.map { it.key.id } + entity.user.id,
                 )
             }
             is Channel ->
