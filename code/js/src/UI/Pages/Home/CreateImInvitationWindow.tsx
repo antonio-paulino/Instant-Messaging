@@ -84,7 +84,7 @@ function useCreateImInvitationWindow(): CreateImInvitationWindowHook {
         },
         onSubmit: async (values, signal) => {
             const label: string = values[expirationKey];
-            const expiration: Date = expirationOptions.find((option) => option.label === label)?.value;
+            const expiration: Date = expirationOptions.find((option) => option.label === label)?.value()
             const res = await sessionManager.executeWithRefresh(async () => {
                 return await AuthService.createInvitation(expiration, signal);
             });

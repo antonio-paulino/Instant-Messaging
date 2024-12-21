@@ -51,6 +51,7 @@ module.exports = {
 		new HtmlWebpackPlugin({
 			title: "React App",
 			template: './public/index.html',
+			cache: false,
 		}),
 	],
 	resolve: {

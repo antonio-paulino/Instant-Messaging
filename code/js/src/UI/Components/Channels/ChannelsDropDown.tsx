@@ -163,6 +163,15 @@ function useChannelsDropDown(): ChannelsDropDownHook {
                         if (selectedChannel?.value === channel.id.value) {
                             setSelectedChannel(null);
                         }
+                    } else if (
+                        !state.paginationState.items.some((item) => item.id.value === channel.id.value) &&
+                        (
+                            state.paginationState.items.length === 0 ||
+                            state.paginationState.items[state.paginationState.items.length - 1].id.value > channel.id.value ||
+                            state.paginationState.info.next === null
+                        )
+                    ) {
+                        handleItemCreate(channel);
                     }
                 },
             },

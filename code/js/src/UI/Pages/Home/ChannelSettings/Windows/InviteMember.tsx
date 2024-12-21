@@ -192,7 +192,7 @@ function useFormSubmit(channel: Channel, selectedUser: User | null, showAlert: (
     const sessionManager = useSessionManager();
     return async (values: any, signal: AbortSignal) => {
         const userRole = values[roleKey];
-        const expiresAt = expirationOptions.find((option) => option.label === values[expirationKey])?.value;
+        const expiresAt = expirationOptions.find((option) => option.label === values[expirationKey])?.value();
         const res = await sessionManager.executeWithRefresh(async () => {
             return await InvitationService.createChannelInvitation(channel, selectedUser, expiresAt, userRole, signal);
         });

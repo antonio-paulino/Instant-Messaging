@@ -217,7 +217,7 @@ class SSEController(
                 sendEventToAll(
                     INVITATION_CREATED_EVENT_NAME,
                     ChannelInvitationOutputModel.fromDomain(entity),
-                    listOf(entity.invitee.id),
+                    listOf(entity.invitee.id, entity.inviter.id),
                 )
             is Message ->
                 sendEventToAll(

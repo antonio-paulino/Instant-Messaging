@@ -3,14 +3,15 @@ import MenuItem from '@mui/material/MenuItem';
 import React from 'react';
 
 export const expirationOptions = [
-    { label: '30 Minutes', value: new Date(Date.now() + 30 * 60 * 1000) },
-    { label: '1 Hour', value: new Date(Date.now() + 3600 * 1000) },
-    { label: '12 Hours', value: new Date(Date.now() + 12 * 3600 * 1000) },
-    { label: '1 Day', value: new Date(Date.now() + 24 * 3600 * 1000) },
-    { label: '1 Week', value: new Date(Date.now() + 7 * 24 * 3600 * 1000) },
+    { label: '30 Minutes', value: () => {
+        return new Date(Date.now() + 30 * 60 * 1000);}
+    },
+    { label: '1 Hour', value: () => new Date(Date.now() + 60 * 60 * 1000) },
+    { label: '12 Hours', value: () => new Date(Date.now() + 12 * 3600 * 1000) },
+    { label: '1 Day', value: () => new Date(Date.now() + 24 * 3600 * 1000) },
+    { label: '1 Week', value: () => new Date(Date.now() + 7 * 24 * 3600 * 1000) },
     {
-        label: '1 Month',
-        value: new Date(new Date().setMonth(new Date().getMonth() + 1)),
+        label: '1 Month', value: () => new Date(new Date().setMonth(new Date().getMonth() + 1)),
     },
 ];
 

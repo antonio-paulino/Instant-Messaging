@@ -2,7 +2,6 @@ import { Channel } from '../../../Domain/channel/Channel';
 import { useSessionManager } from '../../Providers/SessionProvider';
 import { useAlertContext } from '../../Providers/AlertsProvider';
 import React from 'react';
-import { useInfiniteScrollContextChannels } from '../../Providers/InfiniteScrollProvider';
 import { ChannelService } from '../../../Services/channels/ChannelService';
 import Stack from '@mui/material/Stack';
 import { Button, ListItemIcon, ListItemText } from '@mui/material';
@@ -60,9 +59,6 @@ function useChannelSearchResult(channel: Channel): ChannelSearchResultHook {
     const { showAlert } = useAlertContext();
     const [loading, setLoading] = React.useState(false);
 
-    const dropDownScrollState = useInfiniteScrollContextChannels();
-    const dropDownScrollStateItems = dropDownScrollState.state.paginationState.items;
-
     async function joinChannel() {
         setLoading(true);
         const res = await sessionManager.executeWithRefresh(async () => {
@@ -73,13 +69,6 @@ function useChannelSearchResult(channel: Channel): ChannelSearchResultHook {
                 message: `Joined ${channel.name.value}`,
                 severity: 'success',
             });
-            if (
-                dropDownScrollStateItems.length === 0 ||
-                dropDownScrollStateItems[dropDownScrollStateItems.length - 1].id.value > channel.id.value ||
-                dropDownScrollState.state.paginationState.info.next === null
-            ) {
-                dropDownScrollState.handleItemCreate(createNewChannelWithUser(channel, sessionManager.session.user));
-            }
         } else {
             showAlert({ message: 'Failed to join channel', severity: 'error' });
         }
@@ -87,18 +76,4 @@ function useChannelSearchResult(channel: Channel): ChannelSearchResultHook {
     }
 
     return { loading, joinChannel, user: sessionManager.session.user };
-}
-
-function createNewChannelWithUser(channel: Channel, user: User): Channel {
-    return {
-        ...channel,
-        members: [
-            ...channel.members,
-            {
-                id: user.id,
-                name: user.name,
-                role: channel.defaultRole,
-            },
-        ],
-    };
 }
