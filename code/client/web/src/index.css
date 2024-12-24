@@ -2,33 +2,33 @@
     font-family: 'Google Sans Bold';
     src:
         local('Google Sans Bold'),
-        url('./Assets/Fonts/ProductSans-Bold.woff') format('woff');
+        url('Assets/Fonts/ProductSans-Bold.woff') format('woff');
 }
 
 @font-face {
     font-family: 'Google Sans Bold Italic';
     src:
         local('Google Sans Bold Italic'),
-        url('./Assets/Fonts/ProductSans-BoldItalic.woff') format('woff');
+        url('Assets/Fonts/ProductSans-BoldItalic.woff') format('woff');
 }
 
 @font-face {
     font-family: 'Google Sans Italic';
     src:
         local('Google Sans Italic'),
-        url('./Assets/Fonts/ProductSans-Italic.woff') format('woff');
+        url('Assets/Fonts/ProductSans-Italic.woff') format('woff');
 }
 
 @font-face {
     font-family: 'Google Sans Medium';
     src:
         local('Google Sans Medium'),
-        url('./Assets/Fonts/ProductSans-Medium.woff') format('woff');
+        url('Assets/Fonts/ProductSans-Medium.woff') format('woff');
 }
 
 @font-face {
     font-family: 'Google Sans Regular';
     src:
         local('Google Sans Regular'),
-        url('./Assets/Fonts/ProductSans-Regular.woff') format('woff');
+        url('Assets/Fonts/ProductSans-Regular.woff') format('woff');
 }

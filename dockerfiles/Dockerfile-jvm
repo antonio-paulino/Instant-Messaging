@@ -2,7 +2,7 @@ FROM openjdk:21-jdk-slim
 
 WORKDIR /app
 
-COPY /code/jvm/build/libs/*.jar /app/
+COPY /code/server/jvm/build/libs/*.jar /app/
 
 EXPOSE 8080
 

@@ -4,10 +4,10 @@ USER postgres
 
 WORKDIR /app
 
-COPY ../code/jvm/im-database/src/schema.sql /docker-entrypoint-initdb.d/1_create.sql
-COPY ../code/jvm/im-database/src/triggers.sql /docker-entrypoint-initdb.d/2_triggers.sql
+COPY ../code/server/jvm/im-database/src/schema.sql /docker-entrypoint-initdb.d/1_create.sql
+COPY ../code/server/jvm/im-database/src/triggers.sql /docker-entrypoint-initdb.d/2_triggers.sql
 
-COPY --chown=postgres:postgres ../code/jvm/scripts/wait-for-postgres.sh ./bin/wait-for-postgres.sh
+COPY --chown=postgres:postgres ../code/server/jvm/scripts/wait-for-postgres.sh ./bin/wait-for-postgres.sh
 RUN chmod +x ./bin/wait-for-postgres.sh
 
 EXPOSE 5432

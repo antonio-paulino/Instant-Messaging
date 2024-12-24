@@ -59,35 +59,35 @@ The API documentation, with the list of endpoints, request and response models, 
 
 The project is divided into the following modules: 
 
-* [`im-host`](../code/jvm/im-host/src/main/kotlin/im) - contains the main application class and configurations;
-* [`im-http-api`](../code/jvm/im-http-api/src/main/kotlin/im) - contains the RESTful API controllers, request and response models;
-* [`im-services`](../code/jvm/im-services/src/main/kotlin/im) - contains the business logic of the application;
-* [`im-repository`](../code/jvm/im-repository/src/main/kotlin/im) - contains the generic repository data access layer;
-* [`im-repository-jpa`](../code/jvm/im-repository-jpa/src/main/kotlin/im) - contains the JPA implementation of the repository;
-* [`im-repository-mem`](../code/jvm/im-repository-mem/src/main/kotlin/im) - contains the in-memory implementation of the repository;
-* [`im-domain`](../code/jvm/im-domain/src/main/kotlin/im) - contains the domain models;
-* [`im-database`](../code/jvm/im-database/src) - contains the PostgresSQL database schema and scripts;
+* [`im-host`](../code/server/jvm/im-host/src/main/kotlin/im) - contains the main application class and configurations;
+* [`im-http-api`](../code/server/jvm/im-http-api/src/main/kotlin/im) - contains the RESTful API controllers, request and response models;
+* [`im-services`](../code/server/jvm/im-services/src/main/kotlin/im) - contains the business logic of the application;
+* [`im-repository`](../code/server/jvm/im-repository/src/main/kotlin/im) - contains the generic repository data access layer;
+* [`im-repository-jpa`](../code/server/jvm/im-repository-jpa/src/main/kotlin/im) - contains the JPA implementation of the repository;
+* [`im-repository-mem`](../code/server/jvm/im-repository-mem/src/main/kotlin/im) - contains the in-memory implementation of the repository;
+* [`im-domain`](../code/server/jvm/im-domain/src/main/kotlin/im) - contains the domain models;
+* [`im-database`](../code/server/jvm/im-database/src) - contains the PostgresSQL database schema and scripts;
 
 ---
 
 ### Host
-The [Host](../code/jvm/im-host/src/main/kotlin/im) module contains the main application class and configurations. It is responsible for initializing the 
+The [Host](../code/server/jvm/im-host/src/main/kotlin/im) module contains the main application class and configurations. It is responsible for initializing the 
 Spring Boot application and providing the necessary configurations, such as [Beans](https://docs.spring.io/spring-framework/reference/core/beans/definition.html),
 [Interceptors](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/servlet/HandlerInterceptor.html), and [Filters](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/filter/OncePerRequestFilter.html).
 
 It has the following structure:
 
-- [`App.kt`](../code/jvm/im-host/src/main/kotlin/im/App.kt) is the main application class that initializes the Spring Boot application;
+- [`App.kt`](../code/server/jvm/im-host/src/main/kotlin/im/App.kt) is the main application class that initializes the Spring Boot application;
 
-- [`/configs`](../code/jvm/im-host/src/main/kotlin/im/configs) is the directory that contains the application configurations;
+- [`/configs`](../code/server/jvm/im-host/src/main/kotlin/im/configs) is the directory that contains the application configurations;
 
-- [`/tasks`](../code/jvm/im-host/src/main/kotlin/im/tasks) is the directory that contains the scheduled tasks;
+- [`/tasks`](../code/server/jvm/im-host/src/main/kotlin/im/tasks) is the directory that contains the scheduled tasks;
 
 ---
 
 ### Http-Api
 
-The [Http-Api](../code/jvm/im-http-api/src/main/kotlin/im) module contains the RESTful API controllers, and is responsible
+The [Http-Api](../code/server/jvm/im-http-api/src/main/kotlin/im) module contains the RESTful API controllers, and is responsible
 for receiving the HTTP requests, processing the input, and returning the response.
 
 This module directly interacts with the [Services](#services) module to get the requests processed, and converts the 
@@ -96,12 +96,12 @@ and [`application/json+problem`](https://datatracker.ietf.org/doc/html/rfc7807) 
 
 It has the following structure:
 
-- [`/controllers`](../code/jvm/im-http-api/src/main/kotlin/im/api/controllers) is the directory that contains the RESTful API controllers;
-- [`/middlewares`](../code/jvm/im-http-api/src/main/kotlin/im/api/middlewares) is the directory that contains middlewares and defines
+- [`/controllers`](../code/server/jvm/im-http-api/src/main/kotlin/im/api/controllers) is the directory that contains the RESTful API controllers;
+- [`/middlewares`](../code/server/jvm/im-http-api/src/main/kotlin/im/api/middlewares) is the directory that contains middlewares and defines
 the HTTP pipeline for processing the requests;
-- [`/model`](../code/jvm/im-http-api/src/main/kotlin/im/api/model) is the directory that contains the request and response models, 
+- [`/model`](../code/server/jvm/im-http-api/src/main/kotlin/im/api/model) is the directory that contains the request and response models, 
 as well as the validations for input models;
-- [`/utils`](../code/jvm/im-http-api/src/main/kotlin/im/api/utils) is the directory that contains utility classes for the API, mainly used 
+- [`/utils`](../code/server/jvm/im-http-api/src/main/kotlin/im/api/utils) is the directory that contains utility classes for the API, mainly used 
 for getting and setting HTTP headers.
 
 For input validation, the API uses [Jakarta Bean Validation](https://beanvalidation.org/2.0-jsr380/), 
@@ -113,7 +113,7 @@ This framework allows for custom annotations to be created, which were used to c
 
 ### Services
 
-The [Services](../code/jvm/im-services/src/main/kotlin/im) module contains the business logic of the application. 
+The [Services](../code/server/jvm/im-services/src/main/kotlin/im) module contains the business logic of the application. 
 It is responsible for processing the requests received from the API, validating the business rules, and interacting with the
 [Repository](#repository) module to access the data. 
 
@@ -129,18 +129,18 @@ services, such as the invitation expiration time or the maximum number of sessio
 
 It has the following structure:
 
-- [`/services`](../code/jvm/im-services/src/main/kotlin/im/services) contains the service interfaces and implementations;
-- [`/services/auth`](../code/jvm/im-services/src/main/kotlin/im/services/auth) is the directory that contains the authentication services;
-- [`/services/channel`](../code/jvm/im-services/src/main/kotlin/im/services/channels) is the directory that contains the channel services;
-- [`/services/invitation`](../code/jvm/im-services/src/main/kotlin/im/services/invitations) is the directory that contains the invitation services;
-- [`/services/user`](../code/jvm/im-services/src/main/kotlin/im/services/users) is the directory that contains the user services;
-- [`/services/message`](../code/jvm/im-services/src/main/kotlin/im/services/messages) is the directory that contains the message services;
+- [`/services`](../code/server/jvm/im-services/src/main/kotlin/im/services) contains the service interfaces and implementations;
+- [`/services/auth`](../code/server/jvm/im-services/src/main/kotlin/im/services/auth) is the directory that contains the authentication services;
+- [`/services/channel`](../code/server/jvm/im-services/src/main/kotlin/im/services/channels) is the directory that contains the channel services;
+- [`/services/invitation`](../code/server/jvm/im-services/src/main/kotlin/im/services/invitations) is the directory that contains the invitation services;
+- [`/services/user`](../code/server/jvm/im-services/src/main/kotlin/im/services/users) is the directory that contains the user services;
+- [`/services/message`](../code/server/jvm/im-services/src/main/kotlin/im/services/messages) is the directory that contains the message services;
 
 ---
 
 ### Repository
 
-The [Repository](../code/jvm/im-repository/src/main/kotlin/im) module contains the generic repository data access layer.
+The [Repository](../code/server/jvm/im-repository/src/main/kotlin/im) module contains the generic repository data access layer.
 
 It defines the interfaces for the repositories, which are responsible for accessing the data from the database.
 
@@ -148,9 +148,9 @@ This module behaves as a bridge between the services and the database, providing
 
 It has the following structure:
 
-- [`/repository/pagination`](../code/jvm/im-repository/src/main/kotlin/im/repository/pagination) contains the pagination classes to 
+- [`/repository/pagination`](../code/server/jvm/im-repository/src/main/kotlin/im/repository/pagination) contains the pagination classes to 
 be used when interacting with the repositories;
-- [`/repository/repositories`](../code/jvm/im-repository/src/main/kotlin/im/repository/repositories) 
+- [`/repository/repositories`](../code/server/jvm/im-repository/src/main/kotlin/im/repository/repositories) 
 contains the generic repository interface with basic CRUD operations, as well as the specific repository interfaces for each domain model
 which extend the generic repository interface to provide additional functionality;
 
@@ -162,7 +162,7 @@ This interface allows the services to define the boundaries of the transactions,
 
 #### Jpa Repository
 
-The [JPA Repository](../code/jvm/im-repository-jpa/src/main/kotlin/im) module contains the JPA implementation of the repository.
+The [JPA Repository](../code/server/jvm/im-repository-jpa/src/main/kotlin/im) module contains the JPA implementation of the repository.
 
 It provides the implementation for the repository interfaces defined in the [Repository](#repository) module, using the
 [Spring Data JPA](https://spring.io/projects/spring-data-jpa) framework.
@@ -172,27 +172,27 @@ CRUD operations for the Entity classes which can be used to implement the generi
 
 It has the following structure:
 
-- [`/repository/jpa/model`](../code/jvm/im-repository-jpa/src/main/kotlin/im/repository/jpa/model) contains the Entity classes that represent the database tables;
-- [`/repository/jpa/repositories`](../code/jvm/im-repository-jpa/src/main/kotlin/im/repository/jpa/repositories) contains the repository implementations for the interfaces defined in the [Repository](#repository) module;
-- [`/repository/jpa/transactions`](../code/jvm/im-repository-jpa/src/main/kotlin/im/repository/jpa/transactions) contains the Transaction Manager implementation;
+- [`/repository/jpa/model`](../code/server/jvm/im-repository-jpa/src/main/kotlin/im/repository/jpa/model) contains the Entity classes that represent the database tables;
+- [`/repository/jpa/repositories`](../code/server/jvm/im-repository-jpa/src/main/kotlin/im/repository/jpa/repositories) contains the repository implementations for the interfaces defined in the [Repository](#repository) module;
+- [`/repository/jpa/transactions`](../code/server/jvm/im-repository-jpa/src/main/kotlin/im/repository/jpa/transactions) contains the Transaction Manager implementation;
 
 #### In-Memory Repository
 
-The [In-Memory Repository](../code/jvm/im-repository-mem/src/main/kotlin/im) module contains the in-memory implementation of the repository.
+The [In-Memory Repository](../code/server/jvm/im-repository-mem/src/main/kotlin/im) module contains the in-memory implementation of the repository.
 
 It provides an in-memory implementation of the repository interfaces defined in the [Repository](#repository) module, which can be used for testing purposes.
 
 It has the following structure:
 
-- [`/repository/mem`](../code/jvm/im-repository-mem/src/main/kotlin/im/repository/mem) contains the in-memory repository implementations for the interfaces defined in the [Repository](#repository) module;
-- [`/repository/mem/model`](../code/jvm/im-repository-mem/src/main/kotlin/im/repository/mem/model) contains the in-memory models that represent the data stored in memory;
-- [`/repository/mem/transactions`](../code/jvm/im-repository-mem/src/main/kotlin/im/repository/mem/transactions) contains the Transaction Manager implementation;
+- [`/repository/mem`](../code/server/jvm/im-repository-mem/src/main/kotlin/im/repository/mem) contains the in-memory repository implementations for the interfaces defined in the [Repository](#repository) module;
+- [`/repository/mem/model`](../code/server/jvm/im-repository-mem/src/main/kotlin/im/repository/mem/model) contains the in-memory models that represent the data stored in memory;
+- [`/repository/mem/transactions`](../code/server/jvm/im-repository-mem/src/main/kotlin/im/repository/mem/transactions) contains the Transaction Manager implementation;
 
 ---
 
 ### Domain
 
-The [Domain](../code/jvm/im-domain/src/main/kotlin/im) module contains the domain models used in the application.
+The [Domain](../code/server/jvm/im-domain/src/main/kotlin/im) module contains the domain models used in the application.
 
 It defines the classes that represent the entities of the application, such as User, Channel, Message, and Invitation.
 
@@ -206,14 +206,14 @@ The JPA repository implementation maps domain models to Entity classes, which ar
 and mapped back to domain models when retrieved.
 
 It has the following structure:
-- [`/domain`](../code/jvm/im-domain/src/main/kotlin/im/domain) is the directory that contains the domain models as
+- [`/domain`](../code/server/jvm/im-domain/src/main/kotlin/im/domain) is the directory that contains the domain models as
 well as the validators for domain models which require validation;
 
 ---
 
 ### Error Handling
 
-To handle errors, the [Either](../code/jvm/im-domain/src/main/kotlin/im/domain/Either.kt) class was implemented
+To handle errors, the [Either](../code/server/jvm/im-domain/src/main/kotlin/im/domain/Either.kt) class was implemented
 to represent the result of an operation that can either be a success or a failure.
 
 This provides an alternative to throwing exceptions, allowing the services to return a result that can be 
@@ -323,14 +323,14 @@ See the [Service](#services) module for the business logic that enforces these r
 
 ### Physical Model
 
-The [`im-database`](../code/jvm/im-database/src) module contains the database schema and scripts.
+The [`im-database`](../code/server/jvm/im-database/src) module contains the database schema and scripts.
 
 It has the following scripts:
 
-- [`schema.sql`](../code/jvm/im-database/src/schema.sql) - contains the schema definition of the database;
-- [`insert_data`](../code/jvm/im-database/src/insert_data.sql) - contains the script to insert dummy data into the database for manual testing purposes;
-- [`clear_data`](../code/jvm/im-database/src/clear_data.sql) - contains the script to clear the data from the database;
-- [`triggers`](../code/jvm/im-database/src/triggers.sql) - contains the triggers for the database;
+- [`schema.sql`](../code/server/jvm/im-database/src/schema.sql) - contains the schema definition of the database;
+- [`insert_data`](../code/server/jvm/im-database/src/insert_data.sql) - contains the script to insert dummy data into the database for manual testing purposes;
+- [`clear_data`](../code/server/jvm/im-database/src/clear_data.sql) - contains the script to clear the data from the database;
+- [`triggers`](../code/server/jvm/im-database/src/triggers.sql) - contains the triggers for the database;
 
 We highlight the following aspects of the physical model:
 
@@ -391,12 +391,12 @@ Due to this, we added a before query for message creation date, and an after ID 
 
 The project is divided into the following modules:
 
-- [`Assets`](../code/js/src/Assets) - contains the fonts used in the application;
-- [`Domain`](../code/js/src/Domain) - contains the domain models used in the application;
-- [`Dto`](../code/js/src/Dto) - contains the data transfer objects used to communicate with the backend;
-- [`Services`](../code/js/src/Services) - contains the services used to interact with the backend;
-- [`UI`](../code/js/src/UI) - contains the UI components used in the application;
-- [`Utils`](../code/js/src/Utils) - contains utility functions used in the application;
+- [`Assets`](../code/client/web/src/Assets) - contains the fonts used in the application;
+- [`Domain`](../code/client/web/src/Domain) - contains the domain models used in the application;
+- [`Dto`](../code/client/web/src/Dto) - contains the data transfer objects used to communicate with the backend;
+- [`Services`](../code/client/web/src/Services) - contains the services used to interact with the backend;
+- [`UI`](../code/client/web/src/UI) - contains the UI components used in the application;
+- [`Utils`](../code/client/web/src/Utils) - contains utility functions used in the application;
 
 ### Authentication
 
@@ -472,7 +472,7 @@ export interface InfiniteScroll<T> {
 
 The `useInfiniteScroll` hook manages loading data, keeping track of CRUD operations on the data, and updating its state.
 
-You can find the implementation of the `useInfiniteScroll` hook [here](../code/js/src/UI/State/useInfiniteScroll.tsx).
+You can find the implementation of the `useInfiniteScroll` hook [here](../code/client/web/src/UI/State/useInfiniteScroll.tsx).
 
 #### List Virtualization
 
@@ -503,7 +503,7 @@ interface VirtualizedListProps<T> {
 }
 ```
 
-You can find the implementation of the `VirtualizedList` component [here](../code/js/src/UI/Components/Utils/VirtualizedList.tsx).
+You can find the implementation of the `VirtualizedList` component [here](../code/client/web/src/UI/Components/Utils/VirtualizedList.tsx).
 
 
 ### Services

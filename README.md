@@ -26,7 +26,7 @@ The documentation for this project can be found in the `docs` directory.
 
 To deploy the application, Docker and Gradle are required.
 
-On the root of the code/jvm directory, run the following command:
+On the root of the code/server/jvm directory, run the following command:
 
 ```bash
 ./gradlew deploy
