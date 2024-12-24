@@ -1,0 +1,3 @@
+[submodule "code/client/android/Chimp"]
+	path = code/client/android/Chimp
+	url = https://github.com/BernardoPe/Chimp/

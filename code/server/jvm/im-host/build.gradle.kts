@@ -44,7 +44,7 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-val composeFileDir: Directory = rootProject.layout.projectDirectory.dir("../..")
+val composeFileDir: Directory = rootProject.layout.projectDirectory.dir("../../..")
 val dockerComposePath = composeFileDir.file("docker-compose.yml").toString()
 
 tasks.withType<Jar> {
