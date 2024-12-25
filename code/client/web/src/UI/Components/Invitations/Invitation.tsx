@@ -8,8 +8,6 @@ import Stack from '@mui/material/Stack';
 import { CheckRounded, CloseRounded } from '@mui/icons-material';
 import { ListItemText } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
-import { useInfiniteScrollContextChannels } from '../../Providers/InfiniteScrollProvider';
-import { Channel } from '../../../Domain/channel/Channel';
 import { InvitationIcon } from './InvitationIcon';
 
 export default function InvitationView(props: {
@@ -52,20 +50,12 @@ interface InvitationHook {
 function useInvitationView(props: { invitation: ChannelInvitation }): InvitationHook {
     const sessionManager = useSessionManager();
     const { showAlert } = useAlertContext();
-    const { state, handleItemCreate: handleCreateChannel } = useInfiniteScrollContextChannels();
 
     async function acceptInvitation() {
         const res = await sessionManager.executeWithRefresh(async () => {
             return await InvitationService.acceptInvitation(props.invitation);
         });
         if (res.isSuccess()) {
-            if (
-                state.paginationState.items.length === 0 ||
-                state.paginationState.items[state.paginationState.items.length - 1].id.value >
-                    props.invitation.channel.id.value
-            ) {
-                handleCreateChannel(createNewChannelFromInvitation(props.invitation));
-            }
             showAlert({ message: 'Invitation accepted', severity: 'success' });
         } else {
             showAlert({
@@ -91,18 +81,4 @@ function useInvitationView(props: { invitation: ChannelInvitation }): Invitation
     }
 
     return { acceptInvitation, declineInvitation };
-}
-
-function createNewChannelFromInvitation(invitation: ChannelInvitation): Channel {
-    return {
-        ...invitation.channel,
-        members: [
-            ...invitation.channel.members,
-            {
-                id: invitation.invitee.id,
-                name: invitation.invitee.name,
-                role: invitation.role,
-            },
-        ],
-    };
 }
