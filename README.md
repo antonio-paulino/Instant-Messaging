@@ -33,3 +33,11 @@ On the root of the code/server/jvm directory, run the following command:
 ```
 
 This command will build the application, and deploy both the API and the SPA.
+
+You can also try the application at `https://fleet-stud-easy.ngrok-free.app`. 
+
+It has a demo user with the following credentials:
+- Username: `Instant Messaging`
+- Password: `Iseldaw-g07`
+
+(Do not submit any sensitive information while using the application)
