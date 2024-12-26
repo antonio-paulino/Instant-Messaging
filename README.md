@@ -1,4 +1,4 @@
-# Instant Messaging - DAW
+# Instant Messaging
 
 > Instant Messaging is a web application that allows its users to send messages in real time through channels.
 
@@ -19,8 +19,6 @@ The documentation for this project can be found in the `docs` directory.
 
 - [50493 Bernardo Pereira](https://github.com/BernardoPe)
 - [50512 António Paulino](https://github.com/antonio-paulino)
-
-# Discussion Information
 
 ## Deployment
 
