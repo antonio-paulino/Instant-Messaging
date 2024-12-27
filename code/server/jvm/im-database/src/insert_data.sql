@@ -96,8 +96,7 @@ BEGIN
             c_id := c_ids[ceil(random() * array_length(c_ids, 1))];
             u_id := u_ids[ceil(random() * array_length(u_ids, 1))];
             role := CASE
-                        WHEN random() < 0.1 THEN 'OWNER'
-                        WHEN random() < 0.4 THEN 'GUEST'
+                        WHEN random() < 0.5 THEN 'GUEST'
                         ELSE 'MEMBER'
                 END;
             BEGIN
