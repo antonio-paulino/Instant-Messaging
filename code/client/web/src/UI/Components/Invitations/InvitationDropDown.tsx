@@ -14,7 +14,7 @@ import { useInfiniteScrollContextInvitations } from '../../Providers/InfiniteScr
 import { RetryButton } from '../Utils/Actions/RetryButton';
 import { InfiniteScrollState } from '../../State/useInfiniteScroll';
 import { VirtualizedList } from '../Utils/VirtualizedList';
-import {useSessionManager} from "../../Providers/SessionProvider";
+import { useSessionManager } from '../../Providers/SessionProvider';
 
 export function InvitationsDropDown() {
     const { showAlert, invitationNotifications, clearInvitationNotifications } = useAlertContext();
@@ -110,7 +110,10 @@ function useInvitationsDropDown(showAlert: (alert: AlertMessage) => void): Invit
                 type: 'invitation-created',
                 listener: (event: MessageEvent<string>) => {
                     const invitation = eventManager.handleEvent(event).data as ChannelInvitation;
-                    if (!state.paginationState.info.next && invitation.invitee.id.value === sessionManager.session.user.id.value) {
+                    if (
+                        !state.paginationState.info.next &&
+                        invitation.invitee.id.value === sessionManager.session.user.id.value
+                    ) {
                         handleItemCreate(invitation);
                     }
                 },

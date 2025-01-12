@@ -21,6 +21,8 @@ services:
       - POSTGRES_PASSWORD=isel
       - POSTGRES_USER=isel
       - POSTGRES_DB=iseldaw
+    volumes:
+      - db-data:/var/lib/postgresql/data
     ports:
       - "5433:5432"
 
@@ -43,3 +45,7 @@ services:
       - "8000:8000"
     depends_on:
       - deploy-api
+
+
+volumes:
+    db-data:

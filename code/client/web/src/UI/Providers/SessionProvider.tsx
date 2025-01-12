@@ -55,6 +55,8 @@ export default function SessionProvider({ children }: { children: React.ReactNod
         }
     });
 
+    const [refreshPromise, setRefreshPromise] = useState<Promise<void> | null>(null);
+
     const navigate = useNavigate();
 
     const clearSession = () => {
@@ -70,17 +72,16 @@ export default function SessionProvider({ children }: { children: React.ReactNod
         }
 
         if (session.accessToken.isExpired()) {
-            const result = await AuthService.refresh(signal);
-            if (result.isSuccess()) {
-                updateSession(result.getRight());
-            } else {
-                if (result.getLeft().status === 401) {
-                    clearSession();
-                    navigate(Routes.SIGN_IN);
-                    return;
+            if (!refreshPromise) {
+                const newRefreshPromise = refreshSession(signal);
+                setRefreshPromise(newRefreshPromise);
+                try {
+                    await newRefreshPromise;
+                } finally {
+                    setRefreshPromise(null);
                 }
-                // @ts-ignore
-                return result as ApiResult<T>;
+            } else {
+                await refreshPromise;
             }
         }
 
@@ -88,11 +89,25 @@ export default function SessionProvider({ children }: { children: React.ReactNod
 
         if (afterRefresh && afterRefresh.isFailure() && afterRefresh.getLeft().status === 401) {
             clearSession();
+            navigate(Routes.SIGN_IN);
             return;
         }
 
         return afterRefresh;
     }
+
+    const refreshSession = async (signal?: AbortSignal) => {
+        const result = await AuthService.refresh(signal);
+        if (result.isSuccess()) {
+            updateSession(result.getRight());
+        } else {
+            if (result.getLeft().status === 401) {
+                clearSession();
+                navigate(Routes.SIGN_IN);
+                return;
+            }
+        }
+    };
 
     const updateSession = (session: Session) => {
         localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));

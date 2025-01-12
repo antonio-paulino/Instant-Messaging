@@ -85,11 +85,10 @@ export namespace UserService {
     ): ApiResult<Pagination<Channel>> {
         return await handle(
             get<ChannelsPaginatedOutputModel>({
-                uri:
-                    buildQuery(USER_CHANNELS_ROUTE, null, pagination, sort, filterOwned, after).replace(
-                        USER_ID_PARAM,
-                        user.id.value.toString(),
-                    ),
+                uri: buildQuery(USER_CHANNELS_ROUTE, null, pagination, sort, filterOwned, after).replace(
+                    USER_ID_PARAM,
+                    user.id.value.toString(),
+                ),
                 abortSignal: abortSignal,
             }),
             (outputModel) => ({
