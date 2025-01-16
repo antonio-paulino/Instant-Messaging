@@ -57,7 +57,6 @@ class MessagesController(
      * @see PaginationInputModel
      * @see ChannelIdentifierInputModel
      * @see MessagesPaginatedOutputModel
-     *
      */
     @GetMapping
     fun getChannelMessages(
@@ -98,7 +97,6 @@ class MessagesController(
      * @see ChannelIdentifierInputModel
      * @see MessageIdentifierInputModel
      * @see MessageOutputModel
-     *
      */
     @GetMapping("/{messageId}")
     fun getMessage(
@@ -130,7 +128,6 @@ class MessagesController(
      * @see ChannelIdentifierInputModel
      * @see MessageCreationInputModel
      * @see MessageCreationOutputModel
-     *
      */
     @PostMapping
     fun createMessage(
@@ -166,7 +163,6 @@ class MessagesController(
      * @see MessageIdentifierInputModel
      * @see MessageCreationInputModel
      * @see MessageUpdateOutputModel
-     *
      */
     @PutMapping("/{messageId}")
     fun updateMessage(
@@ -204,7 +200,6 @@ class MessagesController(
      *
      * @see ChannelIdentifierInputModel
      * @see MessageIdentifierInputModel
-     *
      */
     @DeleteMapping("/{messageId}")
     fun deleteMessage(

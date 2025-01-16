@@ -24,10 +24,10 @@ import java.time.LocalDateTime
 /**
  * Represents a channel in the database.
  *
- * - A channel has one owner, and an owner can have own many channels (many-to-one relationship).
+ * - A channel has one owner, and an owner can have many channels (many-to-one relationship).
  * - A channel can have many messages, and each message is associated to a single channel (one-to-many relationship).
  * - A channel can have many invitations, and each invitation is associated to a single channel (one-to-many relationship).
- * - A channel can have many members, and each member is associated to a single channel (many-to-many relationship).
+ * - A channel can have many members, and each member can be associated to many channels (many-to-many relationship).
  *
  * @property id The unique identifier of the channel.
  * @property name The name of the channel.

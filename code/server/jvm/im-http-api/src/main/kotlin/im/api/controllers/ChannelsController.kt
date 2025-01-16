@@ -43,11 +43,11 @@ class ChannelsController(
     /**
      * Create a new channel.
      *
-     *
      * Possible status codes:
      *  - 201 Created: Channel successfully created.
      *  - 400 Bad Request: Invalid input data.
      *  - 409 Conflict: Channel already exists.
+     *
      * @param channelInput The channel creation data.
      * @param user The authenticated user.
      *
@@ -55,7 +55,6 @@ class ChannelsController(
      *
      * @see ChannelCreationInputModel
      * @see ChannelCreationOutputModel
-     *
      */
     @PostMapping
     fun createChannel(
@@ -94,7 +93,6 @@ class ChannelsController(
      *
      * @see ChannelIdentifierInputModel
      * @see ChannelOutputModel
-     *
      */
     @GetMapping("/{channelId}")
     fun getChannelById(
@@ -212,7 +210,6 @@ class ChannelsController(
      *
      * @see ChannelIdentifierInputModel
      * @see UserIdentifierInputModel
-     *
      */
     @PutMapping("/{channelId}/members/{userId}")
     fun joinChannel(
@@ -244,7 +241,6 @@ class ChannelsController(
      *
      * @see ChannelIdentifierInputModel
      * @see UserIdentifierInputModel
-     *
      */
     @DeleteMapping("/{channelId}/members/{userId}")
     fun removeChannelUser(
@@ -277,7 +273,6 @@ class ChannelsController(
      * @see ChannelIdentifierInputModel
      * @see UserIdentifierInputModel
      * @see ChannelRoleUpdateInputModel
-     *
      */
     @PatchMapping("/{channelId}/members/{userId}")
     fun updateMemberRole(

@@ -95,7 +95,6 @@ class AuthController(
      *
      * @see AuthenticationInputModel
      * @see CredentialsOutputModel
-     *
      */
     @PostMapping("/login")
     fun login(
@@ -205,7 +204,6 @@ class AuthController(
      *
      * @see ImInvitationCreationInputModel
      * @see ImInvitationOutputModel
-     *
      */
     @PostMapping("/invitations")
     @Authenticated

@@ -58,7 +58,6 @@ class InvitationsController(
      * @see ChannelIdentifierInputModel
      * @see ChannelInvitationCreationInputModel
      * @see ChannelInvitationCreationOutputModel
-     *
      */
     @PostMapping("/channels/{channelId}/invitations")
     fun createInvitation(
@@ -102,7 +101,6 @@ class InvitationsController(
      * @see ChannelIdentifierInputModel
      * @see InvitationIdentifierInputModel
      * @see ChannelInvitationOutputModel
-     *
      */
     @GetMapping("/channels/{channelId}/invitations/{invitationId}")
     fun getInvitation(
@@ -137,7 +135,6 @@ class InvitationsController(
      *
      * @see ChannelIdentifierInputModel
      * @see ChannelInvitationsPaginatedOutputModel
-     *
      */
     @GetMapping("/channels/{channelId}/invitations")
     fun getChannelInvitations(
@@ -179,7 +176,6 @@ class InvitationsController(
      * @see ChannelIdentifierInputModel
      * @see InvitationIdentifierInputModel
      * @see ChannelInvitationUpdateInputModel
-     *
      */
     @PatchMapping("/channels/{channelId}/invitations/{invitationId}")
     fun updateInvitation(
@@ -218,7 +214,6 @@ class InvitationsController(
      *
      * @see ChannelIdentifierInputModel
      * @see InvitationIdentifierInputModel
-     *
      */
     @DeleteMapping("/channels/{channelId}/invitations/{invitationId}")
     fun deleteInvitation(
@@ -253,7 +248,6 @@ class InvitationsController(
      *
      * @see UserIdentifierInputModel
      * @see ChannelInvitationsPaginatedOutputModel
-     *
      */
     @GetMapping("/users/{userId}/invitations")
     fun getUserInvitations(
